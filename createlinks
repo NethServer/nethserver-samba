@@ -96,14 +96,5 @@ safe_symlink("sigterm", "root/etc/e-smith/events/$event/services2adjust/smbd");
 $event = "machine-account-create";
 event_link("create-machine-account", $event, "10");
 
-$event = "pre-restore";
-event_link("delete-smbpasswd", $event, "90");
 
-# Link smbd and nmbd to daemontools.
-safe_symlink("daemontools", "root/etc/rc.d/init.d/smbd");
-safe_symlink("daemontools", "root/etc/rc.d/init.d/nmbd");
 
-safe_symlink("../init.d/supervise/smb", "root/etc/rc.d/rc7.d/S91smb");
-safe_symlink("../init.d/supervise/smb", "root/etc/rc.d/rc6.d/K35smb");
-safe_symlink("../init.d/supervise/smb", "root/etc/rc.d/rc1.d/K35smb");
-safe_symlink("../init.d/supervise/smb", "root/etc/rc.d/rc0.d/K35smb");
