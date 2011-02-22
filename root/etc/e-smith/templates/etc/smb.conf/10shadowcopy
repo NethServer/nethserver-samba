@@ -1,0 +1,4 @@
+{
+    $vfs->{shadow_copy} = () if (($smb{'ShadowCopy'} || 'disabled') eq 'enabled');
+    $OUT = "";
+}

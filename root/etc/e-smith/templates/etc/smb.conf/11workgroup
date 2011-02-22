@@ -1,0 +1,4 @@
+{
+# workgroup = NT-Domain-Name or Workgroup-Name
+}
+workgroup = { $smb{Workgroup} }

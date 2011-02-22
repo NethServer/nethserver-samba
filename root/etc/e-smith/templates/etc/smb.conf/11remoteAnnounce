@@ -1,0 +1,7 @@
+{
+# Cause this host to announce itself to local subnets here
+# ;   remote announce = 192.168.1.255 192.168.2.44
+    return "" unless defined $SMB_WINSServer and $SMB_WINSServer ne $LocalIP;
+    
+    return "remote announce = $SMB_WINSServer";
+}

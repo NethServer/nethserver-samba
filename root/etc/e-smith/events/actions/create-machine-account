@@ -1,0 +1,80 @@
+#!/usr/bin/perl -w
+#----------------------------------------------------------------------
+# copyright (C) 2001 Mitel Networks Corporation
+# 
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+# 		
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 		
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
+# 
+# Technical support for this program is available from Mitel Networks 
+# Please visit our web site www.e-smith.com for details.
+#----------------------------------------------------------------------
+package esmith;
+
+use strict;
+use Errno;
+use esmith::ConfigDB;
+use esmith::AccountsDB;
+use esmith::util;
+
+my $a = esmith::AccountsDB->open || die "Couldn't open accounts db\n";
+
+my $event = $ARGV [0];
+my $machineName = $ARGV [1];
+
+die "machine name $machineName is not a valid machine account name"
+	unless ( $machineName =~ /\$$/ );
+
+my $m = $a->get($machineName);
+if ($m)
+{
+    my $type = $m->prop('type');
+    die "$machineName is not a machine account" 
+	unless ($type eq "machine");
+}
+else
+{
+    # Auto-create the accounts database entry. This is bad form, but
+    # the Samba "add user script" is called as the user "admin", who
+    # does not currently have permissions to write to the config database
+    $a->new_record($machineName, {type => "machine"});
+}
+
+# We really, really need to be root to run "passwd -l"
+esmith::util::setRealToEffective();
+
+warn "create-machine-account $machineName: Creating Unix user and group\n";
+
+system(
+	"/usr/sbin/useradd",
+	"-c", "Hostname account for $machineName",
+	"-M",
+	"-d", "/noexistingpath",
+	"-s", "/bin/false",
+	"$machineName"
+    ) == 0 or die "Failed to create account $machineName.\n";
+
+warn "create-machine-account $machineName: Locking account\n";
+
+system("/usr/bin/passwd", "-l", "$machineName") == 0
+    or warn("Could not lock password for $machineName\n");
+
+# warn "create-machine-account $machineName: Creating smbpasswd account\n";
+#
+# Samba adds the smbpasswd account after it calls this script.
+# However, we may want to do this if we call this script directly
+#
+# system("/usr/bin/smbpasswd", "-a", "-m", "$machineName") == 0 
+#     or warn("Could not create smb password entry for $machineName\n");;
+
+exit (0);

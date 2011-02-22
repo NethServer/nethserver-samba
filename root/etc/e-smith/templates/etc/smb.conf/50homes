@@ -1,0 +1,12 @@
+[homes]
+comment = Home directory
+browseable = no
+guest ok = no
+read only = no
+writable = yes
+printable = no
+create mode = 0660
+force create mode = 0660
+directory mode = 0770
+force directory mode = 0770
+path = /home/e-smith/files/users/%S/home

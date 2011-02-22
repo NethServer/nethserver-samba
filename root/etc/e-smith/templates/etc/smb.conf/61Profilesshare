@@ -1,0 +1,18 @@
+{
+# This is the WinNT/W2K Profiles share
+# WinNT/W2K profiles are stored in /home/e-smith/files/samba/profiles/~user
+# Win9x profiles are stored in ~user/._winprofile
+    return ""
+	unless ($smb{RoamingProfiles} eq "yes");
+
+    $OUT .= <<HERE;
+[Profiles]
+path = /home/e-smith/files/samba/profiles
+writeable = yes
+browseable = no
+create mask = 0600
+directory mask = 0700
+csc policy = disable
+hide files = /desktop.ini/ntuser.ini/NTUSER.*/
+HERE
+}

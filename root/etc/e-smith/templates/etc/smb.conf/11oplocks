@@ -1,0 +1,10 @@
+{
+    my $oplocks = (($smb{OpLocks} || 'enabled') eq 'enabled') 
+			? 'true' : 'false';
+
+    $OUT =<<HERE;
+oplocks = $oplocks
+kernel oplocks = $oplocks
+level2 oplocks = $oplocks
+HERE
+}

@@ -1,0 +1,9 @@
+{
+# Configure remote browse list synchronisation here
+#  request announcement to, or browse list sync from:
+#	a specific host or from / to a whole subnet (see below)
+# ;   remote browse sync = 192.168.3.25 192.168.5.255
+    return "" unless defined $SMB_WINSServer and $SMB_WINSServer ne $LocalIP;
+    
+    return "remote browse sync = $SMB_WINSServer";
+}

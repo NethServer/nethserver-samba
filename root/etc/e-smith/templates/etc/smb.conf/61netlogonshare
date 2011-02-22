@@ -1,0 +1,12 @@
+{
+    return "" unless $smb{ServerRole} =~ m{^(PDC|ADS|BDC)$};
+
+    $OUT .= <<HERE;
+[netlogon]
+comment = Network Logon Service
+path = /home/e-smith/files/samba/netlogon
+guest ok = yes
+writable = yes
+browseable = no
+HERE
+}

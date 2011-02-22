@@ -1,0 +1,5 @@
+{
+    $SMB_WINSServer = $DB->wins_server;
+
+    "";
+}

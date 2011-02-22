@@ -1,0 +1,18 @@
+{
+    # process all information-bay directories
+
+    use esmith::AccountsDB;
+    my $adb = esmith::AccountsDB->open_ro();
+
+    foreach my $ibay ($adb->ibays)
+    {
+	$OUT .= esmith::templates::processTemplate (
+	    {
+		MORE_DATA => {
+			ibay => $ibay,
+		    },
+		TEMPLATE_PATH => "/etc/smb.conf/ibays",
+		OUTPUT_TYPE => 'string',
+	    });
+    }
+}

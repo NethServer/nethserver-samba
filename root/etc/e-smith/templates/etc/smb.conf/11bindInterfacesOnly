@@ -1,0 +1,5 @@
+{
+# This global parameter allows the Samba admin to limit what
+# interfaces on a machine will serve smb requests.
+}
+bind interfaces only = yes

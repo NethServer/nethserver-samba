@@ -1,0 +1,11 @@
+{
+    use esmith::AccountsDB;
+    # Convert the passed hash for the ibay object back into an object.
+    $ibay = bless \%ibay, 'esmith::DB::db::Record';
+
+    $key = $ibay->key;
+    $OUT .= "\n[$key]\n";
+    $OUT .= "comment = " . $ibay->prop('Name');
+
+    $ibay_vfs = ();
+}

@@ -1,0 +1,12 @@
+{
+    # Make the defaults really stupid
+    my %perms = (
+	    'wr-admin-rd-group' => '0640',
+	    'wr-group-rd-group' => '0660',
+	    'wr-group-rd-everyone' => '0664',
+	);
+    my $fmode = $perms{$ibay->prop('UserAccess')} || "0000";
+
+    $OUT .= "inherit permissions = yes\n";
+    $OUT .= "create mode = $fmode";
+}

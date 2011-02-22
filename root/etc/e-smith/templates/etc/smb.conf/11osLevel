@@ -1,0 +1,9 @@
+{
+# OS Level determines the precedence of this server in master browser
+# elections. The default value should be reasonable
+#   os level = 33
+
+    my $os_level = $smb{OsLevel} || "65";
+
+    "os level = " . ( $smb{ServerRole} =~ m{^(PDC|BDC|ADS)$} ? "65" : $os_level );
+}

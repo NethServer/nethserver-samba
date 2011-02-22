@@ -1,0 +1,85 @@
+<!-- vim: ft=xml:
+-->
+<lexicon lang="en-us">
+    <entry>
+        <base>FORM_TITLE</base>
+        <trans>Change workgroup settings</trans>
+    </entry>	
+    <entry> 
+        <base>DESC_WORKGROUP</base>
+        <trans>
+            <![CDATA[
+            Enter the name of the Windows workgroup that this server should appear in.
+            ]]>
+        </trans>	
+    </entry>
+    <entry>
+        <base>LABEL_WORKGROUP</base>
+        <trans>Windows workgroup</trans>
+    </entry>
+    <entry>
+        <base>DESC_SERVERNAME</base>
+        <trans>Enter the name that this server should use for
+            Windows and Macintosh file sharing.</trans>
+    </entry>
+    <entry>
+        <base>LABEL_SERVERNAME</base>
+        <trans>Server Name</trans>
+    </entry>
+    <entry>
+        <base>DESC_PDC</base>
+        <trans><![CDATA[Should this server act as the workgroup
+            and domain controller on your Windows network? You should leave
+            this set to <b>No</b> if another server is already performing this
+            role on your network.]]>
+        </trans>
+    </entry>
+    <entry>
+        <base>LABEL_PDC</base>
+        <trans>Workgroup and Domain Controller</trans>
+    </entry>
+    <entry>
+        <base>DESC_ROAM</base>
+        <trans><![CDATA[
+            Should this server support roaming profiles?
+            You should leave this set to the default of <b>No</b> unless you have
+            experience administering server-based Windows roaming profiles and
+            know that this feature is required.
+            ]]>
+        </trans>
+    </entry>
+    <entry>
+        <base>LABEL_ROAM</base>
+        <trans>Roaming profiles</trans>
+    </entry>
+    <entry>
+        <base>SUCCESS</base>
+        <trans>
+            The new workgroup settings have been saved
+        </trans>
+    </entry>
+    <entry>
+        <base>INVALID_WORKGROUP</base>
+        <trans>The workgroup name must begin with a letter (upper or lower
+            case), followed by any combination of letters, numbers,
+            underscores, periods and hyphens.
+        </trans>
+    </entry>
+    <entry>
+        <base>INVALID_SERVERNAME</base>
+        <trans>The server name must begin with a letter (upper or lower case),
+            followed by any combination of letters, numbers, underscores and
+            hyphens.
+        </trans>
+    </entry>
+    <entry>
+        <base>INVALID_WORKGROUP_MATCHES_SERVERNAME</base>
+        <trans>The server and workgroup names match, when compared in lower case. 
+            These values must be different in order for filesharing to be turned on. 
+        </trans>
+    </entry>
+    <entry>
+        <base>Workgroup</base>
+        <trans>Workgroup</trans>
+    </entry>
+</lexicon>

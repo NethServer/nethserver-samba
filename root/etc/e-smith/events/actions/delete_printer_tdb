@@ -1,0 +1,6 @@
+#! /bin/sh
+
+ACTION=$1
+PRINTER=$2
+
+exec rm -f /var/cache/samba/printing/$PRINTER.tdb

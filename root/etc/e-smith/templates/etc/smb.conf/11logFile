@@ -1,0 +1,5 @@
+{
+# this tells Samba to use a separate log file for each machine
+# that connects
+}
+log file = /var/log/samba/log.%m

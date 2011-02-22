@@ -1,0 +1,5 @@
+{
+# Use only if you have an NT server on your network that has been
+# configured at install time to be a primary domain controller.
+# ;   domain controller = <NT-Domain-Controller-SMBName>
+}

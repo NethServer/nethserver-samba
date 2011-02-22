@@ -1,0 +1,91 @@
+#!/usr/bin/perl -w
+
+package esmith;
+
+use strict;
+use Errno;
+use esmith::AccountsDB;
+
+# events: console-save, bootstrap-console-save, group-modify-samba, group-create
+#         post-install, post-upgrade, workgroup-update
+my $debug = "--debuglevel=1";
+
+my $a = esmith::AccountsDB->open_ro or die "Couldn't open accounts db\n";
+
+my $g = `/usr/bin/net getlocalsid`;
+unless ($g =~ /SID.*is: (.+)/) {
+    warn "Unable to determine SID.  Clearning cache to see if it helps.";
+    rename '/etc/samba/secrets.tdb','/etc/samba/secrets.'.time;
+    rename '/var/cache/samba/gencache.tdb','/var/cache/samba/gencache.'.time;
+    rename '/var/cache/samba/wins.dat','/var/cache/samba/wins.'.time;
+    $g = `/usr/bin/net getlocalsid`;
+    $g =~ /SID.*is: (.+)/ or die "Could not get current sid\n";
+}
+my $local_sid = $1;
+
+my %mappings = (
+	'Domain Admins' => 'admin',
+	'Domain Users' => 'shared',
+	'Domain Guests' => 'nobody',
+    (map { $_->prop('FirstName')." ".$_->prop('LastName'), $_->key } $a->users()),
+    (map { $_->prop('Description'), $_->key } $a->groups()));
+
+$mappings{$a->get_prop('admin','FirstName')." ".$a->get_prop('admin','LastName')} = 'admin' unless $mappings{'Domain Admins'} eq 'admin';
+
+my %ridmap = (
+	'Domain Admins' => '512',
+	'Domain Users' => '513',
+	'Domain Guests' => '514');
+
+my %mapping_done = ();
+foreach (`/usr/bin/net groupmap list`)
+{
+    chomp;
+    if (/^(.*?) \((S-.*-(\d+))\) -> (.*)$/)
+    {
+	my ($nt, $sid, $rid, $group) = ($1, $2, $3, $4);
+
+	# Skip local groups
+	next if ($sid =~ /^S-1-5-32-\d+$/);
+
+	if (exists $mappings{$nt})
+	{
+	    if ($ridmap{$nt} && $ridmap{$nt} ne $rid)
+	    {
+		# Wrong (old?) sid
+		system('/usr/bin/net','groupmap','delete',"sid=$sid");
+	    }
+	    elsif ($sid =~ /^$local_sid-/)
+	    {
+		my $ug = $mappings{$nt};
+		system('/usr/bin/net',$debug,
+		    'groupmap','modify',
+		    "sid=$sid",
+		    "unixgroup=$ug",
+		    'type=d') unless ($group eq $ug);
+		$mapping_done{$nt} = 1;
+	    }
+	    else
+	    {
+		# Wrong (old?) sid
+		system('/usr/bin/net','groupmap','delete',"sid=$sid");
+	    }
+	}
+	else
+	{
+	    # Non existant group
+	    system('/usr/bin/net','groupmap','delete',"sid=$sid");
+	}
+    }
+}
+
+foreach (keys %mappings)
+{
+    next if $mapping_done{$_};
+    system('/usr/bin/net',$debug,
+	    'groupmap','add',
+	    "ntgroup=$_",
+	    "unixgroup=" . $mappings{$_},
+	    $ridmap{$_} ? "rid=$ridmap{$_}" : (),
+	    'type=d');
+}

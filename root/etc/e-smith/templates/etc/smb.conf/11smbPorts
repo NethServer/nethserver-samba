@@ -1,0 +1,5 @@
+{
+   my $smb_ports = $smb{SMBPorts} || 139;
+
+   "smb ports = $smb_ports";
+}

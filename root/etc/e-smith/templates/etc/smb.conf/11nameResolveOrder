@@ -1,0 +1,14 @@
+{
+# All NetBIOS names must be resolved to IP Addresses
+# 'Name Resolve Order' allows the named resolution mechanism to be specified
+# the default order is "host lmhosts wins bcast". "host" means use the unix
+# system gethostbyname() function call that will use either /etc/hosts OR
+# DNS or NIS depending on the settings of /etc/host.config, /etc/nsswitch.conf
+# and the /etc/resolv.conf file. "host" therefore is system configuration
+# dependant. This parameter is most often of use to prevent DNS lookups
+# in order to resolve NetBIOS names to IP Addresses. Use with care!
+# The example below excludes use of name resolution for machines that are NOT
+# on the local network segment
+# - OR - are not deliberately to be known via lmhosts or via WINS.
+}
+name resolve order = wins lmhosts bcast

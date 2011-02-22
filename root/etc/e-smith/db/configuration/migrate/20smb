@@ -1,0 +1,60 @@
+{
+    my $smb = $DB->get('smb');
+    return unless $smb;
+
+    my %new_props = ();
+
+    foreach my $prop (qw(RoamingProfiles ServerName Workgroup))
+    {
+	my $old = $DB->get("Samba$prop");
+	if (defined $old)
+	{
+	    $new_props{$prop} = $old->value;
+	    $old->delete;
+	}
+    }
+
+    foreach my $prop (qw(DomainMaster))
+    {
+	my $old = $DB->get("Samba$prop");
+	if (defined $old)
+	{
+	    $new_props{ServerRole} = 'PDC' unless $old eq 'no';
+	    $old->delete;
+	}
+    }
+
+    foreach my $prop (qw(DomainMaster))
+    {
+	my $old = $smb->prop($prop);
+	if (defined $old)
+	{
+	    $new_props{ServerRole} = 'PDC' unless $old eq 'no';
+	    $smb->delete_prop($prop);
+	}
+    }
+
+    ###Migrage CharacterSet->DisplayCharSet
+    my $CharacterSet = $smb->prop('CharacterSet');
+    if ($CharacterSet)
+    {
+	$new_props{DisplayCharSet} = $CharacterSet;
+        $smb->delete_prop('CharacterSet');
+    }
+
+    ###Migrate ClientCodePage->DosCharSet & UnixCharSet
+    my $ClientCodePage = $smb->prop('ClientCodePage');
+    if ($ClientCodePage)
+    {
+	$new_props{DosCharSet} =
+	$new_props{UnixCharSet} = $ClientCodePage;
+        $smb->delete_prop('ClientCodePage');
+    }
+   
+    if ($smb->prop('status') and not $smb->prop('UnixCharSet'))
+    {
+	$new_props{UnixCharSet} ||= 'ISO8859-1';
+    }
+ 
+    $smb->merge_props(%new_props);
+}

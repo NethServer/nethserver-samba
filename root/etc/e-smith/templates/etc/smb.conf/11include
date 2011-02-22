@@ -1,0 +1,6 @@
+{
+# Using the following line enables you to customise your configuration
+# on a per machine basis. The %m gets replaced with the netbios name
+# of the machine that is connecting
+# ;   include = /etc/smb.conf.%m
+}

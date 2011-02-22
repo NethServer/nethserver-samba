@@ -1,0 +1,4 @@
+{
+    $policy = $ibay->prop('cscPolicy') || return '';
+    $OUT = "csc policy = $policy";
+}

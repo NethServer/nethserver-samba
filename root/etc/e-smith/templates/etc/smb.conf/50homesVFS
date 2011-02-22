@@ -1,0 +1,10 @@
+{
+    return "" unless scalar keys %$vfs;
+
+    $OUT = "vfs objects = " . (join " ", keys %$vfs) . "\n";
+    foreach $mod (keys %$vfs) {
+	foreach $opt (keys %{$vfs->{$mod}}) {
+	    $OUT .= "  $mod:$opt=$vfs->{$mod}->{$opt}\n";
+	}
+    }
+}

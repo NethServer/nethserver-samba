@@ -1,0 +1,57 @@
+#!/usr/bin/perl -w
+#----------------------------------------------------------------------
+# copyright (C) 2001-2005 Mitel Networks Corporation
+# 
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+# 		
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 		
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
+# 
+#----------------------------------------------------------------------
+package esmith;
+
+use strict;
+use Errno;
+use esmith::util;
+
+use esmith::AccountsDB;
+my $adb = esmith::AccountsDB->open_ro();
+
+my $event = $ARGV [0];
+
+my @users = ('admin', map { $_->key } $adb->users);
+
+my @newusers = ($event eq "post-upgrade") ? @users : $ARGV[1] ;
+
+foreach my $user ( @newusers )
+{
+    die "$user is not a user account\n"
+        unless ( grep /^$user$/, @users );
+
+    my @dirs = ("/home/e-smith/files/samba/profiles/$user","/home/e-smith/files/samba/profiles/${user}.V2");
+   
+    foreach my $dir (@dirs)
+    {
+        my $pre_existing = ( -d $dir );
+     
+        $pre_existing || mkdir $dir, 700 || die "Couldn't create directory $dir\n";
+
+        chmod 0700, $dir;	# Remove setgid bit
+        
+        next if $pre_existing;
+
+        esmith::util::chownFile($user, $user, $dir) || 
+            die "Couldn't change ownership of $dir\n";
+    }
+}
+
+exit (0);

@@ -1,0 +1,109 @@
+#!/usr/bin/perl -w
+
+use esmith::Build::CreateLinks qw(:all);
+
+my $panel = "manager";
+panel_link("workgroup", $panel);
+
+foreach (qw(samba/smb.conf samba/smbusers))
+{
+    templates2events("/etc/$_", qw(
+	console-save
+	bootstrap-console-save
+	ibay-create
+	ibay-delete
+	ibay-modify
+	ibay-modify-servers
+	network-delete
+	network-create
+	post-install
+	post-upgrade
+	workgroup-update
+	));
+}
+
+foreach my $file (qw(
+	/etc/pam.d/samba
+	))
+{
+    templates2events($file, qw(console-save bootstrap-console-save));
+}
+
+my $event = "console-save";
+
+$event = "bootstrap-console-save";
+event_link("update-domain-group-maps", $event, "56");
+
+$event = "group-create";
+event_link("update-domain-group-maps", $event, "56");
+safe_symlink("sighup", "root/etc/e-smith/events/$event/services2adjust/smbd");
+
+$event = "group-delete";
+event_link("update-domain-group-maps", $event, "14");
+safe_symlink("sighup", "root/etc/e-smith/events/$event/services2adjust/smbd");
+
+$event = "group-modify";
+event_link("update-domain-group-maps", $event, "56");
+safe_symlink("sighup", "root/etc/e-smith/events/$event/services2adjust/smbd");
+
+$event = "ibay-create";
+safe_symlink("sighup", "root/etc/e-smith/events/$event/services2adjust/smbd");
+
+$event = "ibay-delete";
+safe_symlink("sighup", "root/etc/e-smith/events/$event/services2adjust/smbd");
+
+$event = "ibay-modify";
+safe_symlink("sighup", "root/etc/e-smith/events/$event/services2adjust/smbd");
+
+$event = "ibay-modify-servers";
+safe_symlink("sighup", "root/etc/e-smith/events/$event/services2adjust/smbd");
+
+$event = "network-create";
+safe_symlink("sighup", "root/etc/e-smith/events/$event/services2adjust/smbd");
+
+$event = "network-delete";
+safe_symlink("sighup", "root/etc/e-smith/events/$event/services2adjust/smbd");
+
+$event = "post-install";
+
+$event = "post-upgrade";
+event_link("user-create-profiledir", $event, "20");
+
+$event = "user-create";
+event_link("user-create-profiledir", $event, "20");
+safe_symlink("sighup", "root/etc/e-smith/events/$event/services2adjust/smbd");
+
+$event = "user-delete";
+event_link("user-delete-profiledir", $event, "20");
+safe_symlink("sighup", "root/etc/e-smith/events/$event/services2adjust/smbd");
+
+$event = "user-modify";
+safe_symlink("sighup", "root/etc/e-smith/events/$event/services2adjust/smbd");
+
+$event = "workgroup-update";
+event_link("update-domain-group-maps", $event, "56");
+safe_symlink("sigterm", "root/etc/e-smith/events/$event/services2adjust/dhcpd");
+safe_symlink("sigterm", "root/etc/e-smith/events/$event/services2adjust/smbd");
+safe_symlink("sigterm", "root/etc/e-smith/events/$event/services2adjust/nmbd");
+
+$event = "printer-create";
+safe_symlink("sigterm", "root/etc/e-smith/events/$event/services2adjust/smbd");
+
+$event = "printer-delete";
+event_link("delete_printer_tdb", $event, 15);
+safe_symlink("sigterm", "root/etc/e-smith/events/$event/services2adjust/smbd");
+
+$event = "machine-account-create";
+event_link("create-machine-account", $event, "10");
+
+$event = "pre-restore";
+event_link("delete-smbpasswd", $event, "90");
+
+# Link smbd and nmbd to daemontools.
+safe_symlink("daemontools", "root/etc/rc.d/init.d/smbd");
+safe_symlink("daemontools", "root/etc/rc.d/init.d/nmbd");
+
+safe_symlink("../init.d/supervise/smb", "root/etc/rc.d/rc7.d/S91smb");
+safe_symlink("../init.d/supervise/smb", "root/etc/rc.d/rc6.d/K35smb");
+safe_symlink("../init.d/supervise/smb", "root/etc/rc.d/rc1.d/K35smb");
+safe_symlink("../init.d/supervise/smb", "root/etc/rc.d/rc0.d/K35smb");

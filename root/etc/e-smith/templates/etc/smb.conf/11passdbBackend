@@ -1,0 +1,4 @@
+{
+#Set the Samba user account dbase backend
+}
+passdb backend = smbpasswd:/etc/samba/smbpasswd

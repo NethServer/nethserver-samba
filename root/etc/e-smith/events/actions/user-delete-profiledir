@@ -1,0 +1,48 @@
+#!/usr/bin/perl -w
+#----------------------------------------------------------------------
+# copyright (C) 1999-2005 Mitel Networks Corporation
+# 
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+# 		
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 		
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
+# 
+#----------------------------------------------------------------------
+package esmith;
+
+use strict;
+use Errno;
+use File::Path;
+
+use esmith::AccountsDB;
+my $adb = esmith::AccountsDB->open_ro();
+
+my $event = $ARGV [0];
+my $account = $ARGV [1];
+
+$a = $adb->get($account) || undef;
+unless ( defined $a && $a->prop('type') eq "user-deleted" )
+{
+    warn "$account is not a user account\n";
+    exit (0);
+}
+
+my @dirs = ("/home/e-smith/files/samba/profiles/$account", "/home/e-smith/files/samba/profiles/$account.V2"); 
+
+foreach (@dirs) {
+ 
+    next unless -d $_;
+    rmtree( $_ ) || die "Couldn't remove tree $_\n";
+
+}
+
+exit (0);
