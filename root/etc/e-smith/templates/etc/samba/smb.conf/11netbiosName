@@ -1,4 +1,9 @@
-{
-# this  sets the NetBIOS name by which a Samba server is known
-}
+workgroup = { $smb{Workgroup} }
 netbios name = { $smb{ServerName} }
+{
+# server string is the equivalent of the NT Description field
+
+   my $server_string = $smb{ServerString} || 'Nethesis Server';
+
+   "server string = $server_string";
+}
