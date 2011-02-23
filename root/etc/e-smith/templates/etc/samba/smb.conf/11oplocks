@@ -1,7 +1,8 @@
 {
-    my $oplocks = (($smb{OpLocks} || 'enabled') eq 'enabled') 
+    my $oplocks = (($smb{OpLocks} || 'disabled') eq 'enabled') 
 			? 'true' : 'false';
 
+    $oplocks = _yesno($oplocks);
     $OUT =<<HERE;
 oplocks = $oplocks
 kernel oplocks = $oplocks
