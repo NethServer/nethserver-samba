@@ -1,6 +1,0 @@
-{
-# DNS Proxy - tells Samba whether or not to try to resolve NetBIOS names
-# via DNS nslookups. The built-in default for versions 1.9.17 is yes,
-# this has been changed in version 1.9.18 to no.
-}
-dns proxy = no 

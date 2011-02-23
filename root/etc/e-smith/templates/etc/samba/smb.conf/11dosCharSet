@@ -1,5 +1,0 @@
-{
-    my $DosCharSet = $smb{'DosCharSet'} || "850";
-
-    "dos charset = $DosCharSet";
-}
