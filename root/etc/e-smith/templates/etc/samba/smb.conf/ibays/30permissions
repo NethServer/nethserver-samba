@@ -7,6 +7,12 @@
 	);
     my $fmode = $perms{$ibay->prop('UserAccess')} || "0000";
 
+    if($ibay->prop('UserAccess') eq 'wr-group-rd-everyone')
+    {
+    	$OUT .= "force group=shared";
+    }
     $OUT .= "inherit permissions = yes\n";
     $OUT .= "create mode = $fmode";
+    $OUT .= "store dos attributes = yes";
+    $OUT .= "dos filemode = yes";
 }
