@@ -7,8 +7,5 @@ ldap group suffix = ou=Groups
 ldap user suffix = ou=Users
 ldap suffix = { esmith::util::ldapBase ($DomainName); }
 
-# Use pam
+# Obey pam
 obey pam restrictions = yes
-
-# Enable old smbpasswd, if needed
-passdb backend = smbpasswd:/etc/samba/smbpasswd
