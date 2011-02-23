@@ -1,5 +1,0 @@
-{
-    my $DisplayCharSet = $smb{DisplayCharSet} || "ISO8859-1";
-
-    "display charset = $DisplayCharSet";
-}
