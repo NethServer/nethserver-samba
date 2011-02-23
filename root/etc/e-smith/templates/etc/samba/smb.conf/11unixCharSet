@@ -1,5 +1,0 @@
-{
-    my $UnixCharSet = $smb{'UnixCharSet'} || "UTF8";
-
-    "unix charset = $UnixCharSet";
-}

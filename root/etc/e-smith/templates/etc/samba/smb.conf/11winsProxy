@@ -1,6 +1,0 @@
-{
-# WINS Proxy - Tells Samba to answer name resolution queries on
-# behalf of a non WINS capable client, for this to work there must be
-# at least one	WINS Server on the network. The default is NO.
-# ;   wins proxy = yes
-}
