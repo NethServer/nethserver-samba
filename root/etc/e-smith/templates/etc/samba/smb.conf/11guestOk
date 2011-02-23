@@ -1,5 +1,0 @@
-{
-# If this parameter is 'yes' for a service, then no password is
-# required to connect to the service.
-}
-guest ok = no

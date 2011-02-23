@@ -1,5 +1,0 @@
-{
-# If unknown user logs in, treat as guest. (In older versions of
-# Samba this was a compile-time option.)
-}
-map to guest = never
