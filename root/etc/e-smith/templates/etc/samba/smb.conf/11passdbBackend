@@ -1,4 +1,14 @@
-{
-#Set the Samba user account dbase backend
-}
+# Enable ldap autentication
+passdb backend = ldapsam:ldap://127.0.0.1
+ldapsam:trusted=yes
+ldapsam:editposix=yes
+ldap admin dn = cn=root,{ esmith::util::ldapBase ($DomainName); }
+ldap group suffix = ou=Groups
+ldap user suffix = ou=Users
+ldap suffix = { esmith::util::ldapBase ($DomainName); }
+
+# Use pam
+obey pam restrictions = yes
+
+# Enable old smbpasswd, if needed
 passdb backend = smbpasswd:/etc/samba/smbpasswd
