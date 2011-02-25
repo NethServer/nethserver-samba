@@ -1,6 +1,6 @@
 {
-    my $os_level = $smb{OsLevel} || false;
-    if($os_level)
+    my $os_level = $smb{OsLevel} || -1;
+    if($os_level > -1)
     {
         $OUT.="os level = $os_level\n";
     }

@@ -11,7 +11,7 @@
 		MORE_DATA => {
 			ibay => $ibay,
 		    },
-		TEMPLATE_PATH => "/etc/smb.conf/ibays",
+		TEMPLATE_PATH => "/etc/samba/smb.conf/ibays",
 		OUTPUT_TYPE => 'string',
 	    });
     }
