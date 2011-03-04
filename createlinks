@@ -96,5 +96,12 @@ safe_symlink("sigterm", "root/etc/e-smith/events/$event/services2adjust/smbd");
 $event = "machine-account-create";
 event_link("create-machine-account", $event, "10");
 
-
+$event = "nethserver-samba-update";
+templates2events("/etc/openldap/slapd.conf", $event);
+templates2events("/etc/samba/smb.conf", $event);
+safe_symlink("restart", "root/etc/e-smith/events/$event/services2adjust/nmbd");
+safe_symlink("restart", "root/etc/e-smith/events/$event/services2adjust/smbd");
+safe_symlink("restart", "root/etc/e-smith/events/$event/services2adjust/winbind");
+safe_symlink("restart", "root/etc/e-smith/events/$event/services2adjust/ldap");
+event_link("nethserver-samba-provision", $event, "20");
 
