@@ -1,9 +1,21 @@
 #!/usr/bin/perl -w
 
 use esmith::util;
-
 $ldapPassword = esmith::util::LdapPassword();
 
 system("smbpasswd", "-w", "$ldapPassword") == 0
    or die ("Can't save ldap password in sambapasswd");
+
+my $sid = `/usr/bin/net getlocalsid | /bin/cut -d':' -f2`;
+$sid =~ s/^\s+//;
+$sid =~ s/\s+$//;
+
+die("Can't read samba local sid") unless ($sid ne "");
+
+# add admin user to samba with null password
+system("/usr/bin/pdbedit", "-U", "$sid", "-u", "admin", "-r") == 0
+   or die ("Can't set admin user as Domain Admin");
+
+system("/usr/bin/smbpasswd", "-d", "admin") == 0
+   or die "Error running /usr/bin/smbpasswd command to lock admin account";
 
