@@ -47,7 +47,7 @@ objectClass: top
 objectClass: organizationalUnit
 ou: computers
 
-dn: cn=Domain Admins,ou=Groups,$basedn
+dn: cn=Domain Admins,ou=Groups,$ldapSuffix
 objectClass: posixGroup
 objectClass: sambaGroupMapping
 gidNumber: 512
@@ -57,7 +57,7 @@ sambaGroupType: 2
 displayName: Domain Admins
 description: Domain Administrators
 
-dn: cn=Domain Users,ou=Groups,$basedn
+dn: cn=Domain Users,ou=Groups,$ldapSuffix
 objectClass: posixGroup
 objectClass: sambaGroupMapping
 gidNumber: 513
@@ -67,7 +67,7 @@ sambaGroupType: 2
 displayName: Domain Users
 description: Domain Users 
 
-dn: cn=Domain Guests,ou=Groups,$basedn
+dn: cn=Domain Guests,ou=Groups,$ldapSuffix
 objectClass: posixGroup
 objectClass: sambaGroupMapping
 gidNumber: 514
@@ -77,7 +77,7 @@ sambaGroupType: 2
 displayName: Domain Guests
 description: Domain Guests
 
-dn: cn=Domain Computers,ou=Groups,$basedn
+dn: cn=Domain Computers,ou=Groups,$ldapSuffix
 objectClass: posixGroup
 objectClass: sambaGroupMapping
 gidNumber: 515
@@ -87,7 +87,7 @@ sambaGroupType: 2
 displayName: Domain Computers
 description: Domain Computers
 
-dn: cn=Administrators,ou=Groups,$basedn
+dn: cn=Administrators,ou=Groups,$ldapSuffix
 objectClass: posixGroup
 objectClass: sambaGroupMapping
 gidNumber: 544
@@ -105,7 +105,7 @@ print $tmp_fh $ldif ;
 $filename = "$tmp_fh";
 
 $ldapPassword = esmith::util::LdapPassword();
-system("ldapadd", "-x", "-D", "cn=root,$ldapSuffix", "-w", "$ldapPassword", "-f", "$filename" ) == 0
+system("ldapadd", "-c", "-x", "-D", "cn=root,$ldapSuffix", "-w", "$ldapPassword", "-f", "$filename" ) == 0
    or die ("Can't load samba provision ldif");
 
 
