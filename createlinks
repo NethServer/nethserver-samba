@@ -97,6 +97,7 @@ $event = "machine-account-create";
 event_link("create-machine-account", $event, "10");
 
 $event = "nethserver-samba-update";
+event_link("samba-ldap", $event, "10");
 templates2events("/etc/samba/smb.conf", $event);
 safe_symlink("restart", "root/etc/e-smith/events/$event/services2adjust/nmbd");
 safe_symlink("restart", "root/etc/e-smith/events/$event/services2adjust/smbd");
@@ -104,6 +105,7 @@ safe_symlink("restart", "root/etc/e-smith/events/$event/services2adjust/winbind"
 
 
 $event = "nethserver-base-update";
+event_link("samba-ldap", $event, "20");
 safe_symlink("restart", "root/etc/e-smith/events/$event/services2adjust/nmbd");
 safe_symlink("restart", "root/etc/e-smith/events/$event/services2adjust/smbd");
 safe_symlink("restart", "root/etc/e-smith/events/$event/services2adjust/winbind");
