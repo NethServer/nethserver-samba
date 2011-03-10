@@ -1,0 +1,9 @@
+{
+    my $smbd = $DB->get('smbd') || return;
+    my $ports = $smbd->prop('TCPPorts') || '139,445';
+    my $access = $smbd->prop('access') || 'private';
+    
+    my $smb = $DB->get('smb') || return;
+    $smb->set_prop('access', $access);
+    $smb->set_prop('TCPPorts', $ports);
+}
