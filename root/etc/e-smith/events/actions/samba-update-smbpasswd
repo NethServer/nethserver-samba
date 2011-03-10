@@ -6,7 +6,7 @@ $ldapPassword = esmith::util::LdapPassword();
 system("smbpasswd", "-w", "$ldapPassword") == 0
    or die ("Can't save ldap password in sambapasswd");
 
-my $sid = `/usr/bin/net getlocalsid | /bin/cut -d':' -f2`;
+my $sid = `/usr/bin/net getlocalsid 2>/dev/null | /bin/cut -d':' -f2`;
 $sid =~ s/^\s+//;
 $sid =~ s/\s+$//;
 
