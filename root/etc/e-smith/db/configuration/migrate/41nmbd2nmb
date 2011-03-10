@@ -1,0 +1,16 @@
+{
+    my $nmbd = $DB->get('nmbd') || return;
+    my $ports = $nmbd->prop('UDPPorts') || '139,445';
+    my $access = $nmbd->prop('access') || 'private';
+    my $status = $nmbd->prop('status') || 'enabled';
+    
+    my $nmb = $DB->get('nmb') || return;
+    $nmb->set_prop('access', $access);
+    $nmb->set_prop('TCPPorts', $ports);
+    $nmb->set_prop('status', $status);
+
+    $DB->del_prop('nmbd','TCPPorts');
+    $DB->del_prop('nmbd','access');
+    $DB->del_prop('nmbd','status');
+    $DB->delete('nmbd');
+}
