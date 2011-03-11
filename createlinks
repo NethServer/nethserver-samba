@@ -36,33 +36,33 @@ event_link("update-domain-group-maps", $event, "56");
 
 $event = "group-create";
 event_link("update-domain-group-maps", $event, "56");
-safe_symlink("sighup", "root/etc/e-smith/events/$event/services2adjust/smb");
+safe_symlink("condrestart", "root/etc/e-smith/events/$event/services2adjust/smb");
 
 $event = "group-delete";
 event_link("update-domain-group-maps", $event, "14");
-safe_symlink("sighup", "root/etc/e-smith/events/$event/services2adjust/smb");
+safe_symlink("condrestart", "root/etc/e-smith/events/$event/services2adjust/smb");
 
 $event = "group-modify";
 event_link("update-domain-group-maps", $event, "56");
-safe_symlink("sighup", "root/etc/e-smith/events/$event/services2adjust/smb");
+safe_symlink("condrestart", "root/etc/e-smith/events/$event/services2adjust/smb");
 
 $event = "ibay-create";
-safe_symlink("sighup", "root/etc/e-smith/events/$event/services2adjust/smb");
+safe_symlink("condrestart", "root/etc/e-smith/events/$event/services2adjust/smb");
 
 $event = "ibay-delete";
-safe_symlink("sighup", "root/etc/e-smith/events/$event/services2adjust/smb");
+safe_symlink("condrestart", "root/etc/e-smith/events/$event/services2adjust/smb");
 
 $event = "ibay-modify";
-safe_symlink("sighup", "root/etc/e-smith/events/$event/services2adjust/smb");
+safe_symlink("condrestart", "root/etc/e-smith/events/$event/services2adjust/smb");
 
 $event = "ibay-modify-servers";
-safe_symlink("sighup", "root/etc/e-smith/events/$event/services2adjust/smb");
+safe_symlink("condrestart", "root/etc/e-smith/events/$event/services2adjust/smb");
 
 $event = "network-create";
-safe_symlink("sighup", "root/etc/e-smith/events/$event/services2adjust/smb");
+safe_symlink("condrestart", "root/etc/e-smith/events/$event/services2adjust/smb");
 
 $event = "network-delete";
-safe_symlink("sighup", "root/etc/e-smith/events/$event/services2adjust/smb");
+safe_symlink("condrestart", "root/etc/e-smith/events/$event/services2adjust/smb");
 
 $event = "post-install";
 
@@ -71,14 +71,14 @@ event_link("user-create-profiledir", $event, "20");
 
 $event = "user-create";
 event_link("user-create-profiledir", $event, "20");
-safe_symlink("sighup", "root/etc/e-smith/events/$event/services2adjust/smb");
+safe_symlink("condrestart", "root/etc/e-smith/events/$event/services2adjust/smb");
 
 $event = "user-delete";
 event_link("user-delete-profiledir", $event, "20");
-safe_symlink("sighup", "root/etc/e-smith/events/$event/services2adjust/smb");
+safe_symlink("condrestart", "root/etc/e-smith/events/$event/services2adjust/smb");
 
 $event = "user-modify";
-safe_symlink("sighup", "root/etc/e-smith/events/$event/services2adjust/smb");
+safe_symlink("condrestart", "root/etc/e-smith/events/$event/services2adjust/smb");
 
 $event = "workgroup-update";
 event_link("update-domain-group-maps", $event, "56");
