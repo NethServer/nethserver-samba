@@ -101,6 +101,7 @@ event_link("create-machine-account", $event, "10");
 $event = "nethserver-samba-update";
 templates2events("/etc/samba/smb.conf", $event);
 templates2events("/etc/krb5.conf", $event);
+templates2events("/etc/pam.d/system-auth", $event);
 safe_symlink("restart", "root/etc/e-smith/events/$event/services2adjust/nmb");
 safe_symlink("restart", "root/etc/e-smith/events/$event/services2adjust/smb");
 safe_symlink("restart", "root/etc/e-smith/events/$event/services2adjust/winbind");
