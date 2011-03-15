@@ -1,0 +1,4 @@
+{
+   return "" unless ($smb{ServerRole} eq "ADS");
+}
+auth        sufficient    pam_krb5.so use_first_pass

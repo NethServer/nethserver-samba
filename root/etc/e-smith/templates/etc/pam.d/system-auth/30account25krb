@@ -1,0 +1,5 @@
+{
+   return "" unless ($smb{ServerRole} eq "ADS");
+}
+account     sufficient    pam_krb5.so
+account     sufficient    pam_winbind.so use_first_pass cached_login
