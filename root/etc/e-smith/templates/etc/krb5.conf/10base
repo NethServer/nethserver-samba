@@ -14,7 +14,7 @@
  forwardable = yes
 
 [realms]
- { $OUT.=uc($smb{'PDCName'}).".".uc($smb{'Realm'}) } = \{
+ { uc($smb{'Realm'}) } = \{
   kdc = { $OUT.=lc($smb{'PDCName'}).".".lc($smb{'Realm'}); }:88
   admin_server = { $OUT.=lc($smb{'PDCName'}).".".lc($smb{'Realm'}) }:749
   default_domain = { $OUT.=lc($smb{'Realm'}) }
