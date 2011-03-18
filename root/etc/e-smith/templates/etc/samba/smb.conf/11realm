@@ -1,0 +1,5 @@
+{
+   return "" unless( $smb{ServerRole} eq "ADS");
+
+   $OUT .= "realm = " . $smb{Realm};
+}
