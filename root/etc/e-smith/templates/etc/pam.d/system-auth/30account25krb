@@ -1,6 +1,6 @@
 {
    return "" unless ($smb{ServerRole} eq "ADS");
 
-   $OUT.="account     sufficient    pam_krb5.so";
+   $OUT.="account     sufficient    pam_krb5.so\n";
    $OUT.="account     sufficient    pam_winbind.so use_first_pass cached_login";
 }

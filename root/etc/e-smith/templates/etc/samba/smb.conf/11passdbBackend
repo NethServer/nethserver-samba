@@ -1,14 +1,14 @@
 {
    return "" unless($smb{ServerRole} ne 'ADS');
 
-   $OUT.="# Enable ldap autentication";
-   $OUT.="passdb backend = ldapsam:ldap://127.0.0.1";
-   $OUT.="ldapsam:trusted=yes";
-   $OUT.="ldap admin dn = cn=root,". esmith::util::ldapBase ($DomainName); 
-   $OUT.="ldap group suffix = ou=Groups";
-   $OUT.="ldap user suffix = ou=Users";
-   $OUT.="ldap machine suffix = ou=Computers";
-   $OUT.="ldap suffix = ".esmith::util::ldapBase ($DomainName); 
+   $OUT.="# Enable ldap autentication\n";
+   $OUT.="passdb backend = ldapsam:ldap://127.0.0.1\n";
+   $OUT.="ldapsam:trusted=yes\n";
+   $OUT.="ldap admin dn = cn=root,". esmith::util::ldapBase ($DomainName)."\n"; 
+   $OUT.="ldap group suffix = ou=Groups\n";
+   $OUT.="ldap user suffix = ou=Users\n";
+   $OUT.="ldap machine suffix = ou=Computers\n";
+   $OUT.="ldap suffix = ".esmith::util::ldapBase ($DomainName)."\n"; 
 }
 # Obey pam
 obey pam restrictions = yes
