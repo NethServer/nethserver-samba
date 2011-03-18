@@ -6,7 +6,7 @@
 # run a specific logon batch file per username
 # ; logon script = %U.bat\n\n";
 
-    return "" unless $smb{ServerRole} =~ m{^(PDC|BDC|ADS)$};
+    return "" unless $smb{ServerRole} =~ m{^(PDC|BDC)$};
 
     'logon script = netlogon.bat';
 }

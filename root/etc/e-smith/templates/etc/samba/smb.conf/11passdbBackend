@@ -1,11 +1,14 @@
-# Enable ldap autentication
-passdb backend = ldapsam:ldap://127.0.0.1
-ldapsam:trusted=yes
-ldap admin dn = cn=root,{ esmith::util::ldapBase ($DomainName); }
-ldap group suffix = ou=Groups
-ldap user suffix = ou=Users
-ldap machine suffix = ou=Computers
-ldap suffix = { esmith::util::ldapBase ($DomainName); }
+{
+   return "" unless($smb{ServerRole} ne 'ADS');
 
+   $OUT.="# Enable ldap autentication";
+   $OUT.="passdb backend = ldapsam:ldap://127.0.0.1";
+   $OUT.="ldapsam:trusted=yes";
+   $OUT.="ldap admin dn = cn=root,". esmith::util::ldapBase ($DomainName); 
+   $OUT.="ldap group suffix = ou=Groups";
+   $OUT.="ldap user suffix = ou=Users";
+   $OUT.="ldap machine suffix = ou=Computers";
+   $OUT.="ldap suffix = ".esmith::util::ldapBase ($DomainName); 
+}
 # Obey pam
 obey pam restrictions = yes

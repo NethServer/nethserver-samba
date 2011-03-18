@@ -1,3 +1,3 @@
 {
-   "domain master = " . ( $smb{ServerRole} =~ m{^(PDC|ADS)$} ? "yes" : "no" );
+   "domain master = " . ( $smb{ServerRole} =~ m{^(PDC)$} ? "yes" : "no" );
 }

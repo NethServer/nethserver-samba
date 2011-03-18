@@ -1,3 +1,3 @@
 {
-   "preferred master = " . ( $smb{ServerRole} =~ m{^(PDC|BDC|ADS)$} ? "yes" : "auto" );
+   "preferred master = " . ( $smb{ServerRole} =~ m{^(ADS)$} ? "no" : "auto" );
 }
