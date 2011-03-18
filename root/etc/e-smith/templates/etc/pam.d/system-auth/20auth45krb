@@ -1,4 +1,5 @@
 {
    return "" unless ($smb{ServerRole} eq "ADS");
+  
+   $OUT.="auth        sufficient    pam_krb5.so use_first_pass";
 }
-auth        sufficient    pam_krb5.so use_first_pass
