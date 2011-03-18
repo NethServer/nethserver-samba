@@ -9,10 +9,10 @@
 
     if($ibay->prop('UserAccess') eq 'wr-group-rd-everyone')
     {
-    	$OUT .= "force group=shared";
+    	$OUT .= "force group=shared\n";
     }
     $OUT .= "inherit permissions = yes\n";
-    $OUT .= "create mode = $fmode";
-    $OUT .= "store dos attributes = yes";
-    $OUT .= "dos filemode = yes";
+    $OUT .= "create mode = $fmode\n";
+    $OUT .= "store dos attributes = yes\n";
+    $OUT .= "dos filemode = yes\n";
 }
