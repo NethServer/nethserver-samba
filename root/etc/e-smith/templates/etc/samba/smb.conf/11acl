@@ -1,0 +1,6 @@
+{
+   return "" unless($smb{ServerRole} ne 'ADS');
+
+   $OUT.="inherit acls = yes\n";
+   $OUT.="map acl inherit = yes";
+}
