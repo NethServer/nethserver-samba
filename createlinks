@@ -5,7 +5,7 @@ use esmith::Build::CreateLinks qw(:all);
 my $panel = "manager";
 panel_link("workgroup", $panel);
 
-foreach (qw(samba/smb.conf samba/smbusers))
+foreach (qw(samba/smb.conf))
 {
     templates2events("/etc/$_", qw(
 	console-save
@@ -22,12 +22,12 @@ foreach (qw(samba/smb.conf samba/smbusers))
 	));
 }
 
-foreach my $file (qw(
-	/etc/pam.d/samba
-	))
-{
-    templates2events($file, qw(console-save bootstrap-console-save));
-}
+#foreach my $file (qw(
+#	/etc/pam.d/samba
+#	))
+#{
+#    templates2events($file, qw(console-save bootstrap-console-save));
+#}
 
 my $event = "console-save";
 
@@ -47,16 +47,16 @@ event_link("update-domain-group-maps", $event, "56");
 safe_symlink("restart", "root/etc/e-smith/events/$event/services2adjust/smb");
 
 $event = "ibay-create";
-safe_symlink("restart", "root/etc/e-smith/events/$event/services2adjust/smb");
+safe_symlink("reload", "root/etc/e-smith/events/$event/services2adjust/smb");
 
 $event = "ibay-delete";
-safe_symlink("restart", "root/etc/e-smith/events/$event/services2adjust/smb");
+safe_symlink("reload", "root/etc/e-smith/events/$event/services2adjust/smb");
 
 $event = "ibay-modify";
-safe_symlink("restart", "root/etc/e-smith/events/$event/services2adjust/smb");
+safe_symlink("reload", "root/etc/e-smith/events/$event/services2adjust/smb");
 
 $event = "ibay-modify-servers";
-safe_symlink("restart", "root/etc/e-smith/events/$event/services2adjust/smb");
+safe_symlink("reload", "root/etc/e-smith/events/$event/services2adjust/smb");
 
 $event = "network-create";
 safe_symlink("restart", "root/etc/e-smith/events/$event/services2adjust/smb");
@@ -98,10 +98,13 @@ safe_symlink("restart", "root/etc/e-smith/events/$event/services2adjust/smb");
 $event = "machine-account-create";
 event_link("create-machine-account", $event, "10");
 
+$event = "password-modify";
+event_link("set-smb-password", $event, "40");
+
 $event = "nethserver-samba-update";
 templates2events("/etc/samba/smb.conf", $event);
 templates2events("/etc/krb5.conf", $event);
-templates2events("/etc/pam.d/system-auth", $event);
+#templates2events("/etc/pam.d/system-auth", $event);
 safe_symlink("restart", "root/etc/e-smith/events/$event/services2adjust/nmb");
 safe_symlink("restart", "root/etc/e-smith/events/$event/services2adjust/smb");
 safe_symlink("restart", "root/etc/e-smith/events/$event/services2adjust/winbind");
