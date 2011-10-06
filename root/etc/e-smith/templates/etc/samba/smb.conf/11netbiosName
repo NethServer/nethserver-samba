@@ -1,5 +1,5 @@
 workgroup = { $smb{Workgroup} }
-netbios name = { $smb{ServerName} }
+netbios name = { $smb{ServerName} || "NethServer" }
 {
 # server string is the equivalent of the NT Description field
 
