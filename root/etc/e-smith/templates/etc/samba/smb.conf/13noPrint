@@ -1,0 +1,3 @@
+{
+   $OUT = "\n#disable printing\nprintcap name = /etc/printcap\nload printers = no\n" unless (defined($cups{status}) && $cups{status} eq 'enabled');
+}
