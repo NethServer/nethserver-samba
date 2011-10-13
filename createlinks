@@ -65,8 +65,10 @@ $event = "network-delete";
 safe_symlink("restart", "root/etc/e-smith/events/$event/services2adjust/smb");
 
 $event = "post-install";
+event_link("samba-update-smbpasswd", $event, "09");
 
 $event = "post-upgrade";
+event_link("samba-update-smbpasswd", $event, "09");
 event_link("user-create-profiledir", $event, "20");
 
 $event = "user-create";
