@@ -33,6 +33,7 @@ my $event = "console-save";
 
 $event = "bootstrap-console-save";
 event_link("update-domain-group-maps", $event, "56");
+event_link("samba-update-smbpasswd", $event, "20");
 
 $event = "group-create";
 event_link("update-domain-group-maps", $event, "56");
@@ -65,7 +66,7 @@ $event = "network-delete";
 safe_symlink("restart", "root/etc/e-smith/events/$event/services2adjust/smb");
 
 $event = "post-install";
-event_link("samba-update-smbpasswd", $event, "09");
+event_link("init-samba-ldap", $event, "09");
 
 $event = "post-upgrade";
 event_link("samba-update-smbpasswd", $event, "09");
