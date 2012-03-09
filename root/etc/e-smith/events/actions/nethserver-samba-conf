@@ -1,0 +1,79 @@
+#!/usr/bin/perl
+
+#
+# NethServer Samba
+#
+# Copyright (C) 2012 Nethesis srl
+#
+# Load the samba schema in LDAP configuration database. 
+# Exit silently if the schema is already loaded.
+#
+#
+#
+
+use strict;
+
+use NethServer::Directory;
+use Net::LDAP::LDIF;
+use Net::LDAP;
+
+use strict;
+
+my $ldap = NethServer::Directory::connect();
+my $internalSuffix = NethServer::Directory::getInternalSuffix();
+my $exitCode = 0;
+
+{ # BEGIN schema configuration
+    my $ldif = Net::LDAP::LDIF->new("/etc/openldap/schema/samba.ldif", "r", onerror => 'die');
+    my $sambaSchema = $ldif->read_entry();
+
+    my $response = $ldap->search(
+	base => 'cn=schema,cn=config',
+	filter => 'cn=*samba',
+	sizelimit => 1,
+	scope => 'one',
+	);
+    
+    if($response->code() == Net::LDAP::Constant::LDAP_NO_SUCH_OBJECT) {
+	$response = $sambaSchema->update($ldap);	
+	if( $response->is_error()) {
+	    warn $response->error();	   
+	    $exitCode ++;
+	}
+    }
+} # END schema configuration
+
+{ # BEGIN LDAP
+
+    my $password = NethServer::Directory::getUserPassword('samba', 0, $ldap);
+    qx(smbpasswd -w '$password');
+
+    my @entries = (
+	[ "cn=samba,$internalSuffix",
+	  merge => [
+	      objectClass => ['device', 'simpleSecurityObject'],
+	      cn => 'samba',
+	      userPassword => NethServer::Directory::getUserPassword('samba', 1, $ldap);
+	  ] ],
+	[ "ou=Computers,$internalSuffix",
+	  merge => [
+	      objectClass => ['top', 'organizationalUnit'],
+	      ou => 'Computers',
+	  ] ],       	
+	);
+
+    my $exitCode = 0;
+    
+    foreach(@entries) {
+	my $method = @{$_}[1];
+	my $message = $ldap->$method(@{$_});
+	if($message->is_error) {
+	    warn 'Error modifying `' . @{$_}[0] . '`: ' . join(" ", $message->code, $message->error_name());
+	    $exitCode ++;
+	}
+    }
+    
+} # END LDAP
+
+
+exit($exitCode);

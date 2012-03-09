@@ -108,7 +108,7 @@ $event = "nethserver-samba-update";
 templates2events("/etc/samba/smb.conf", $event);
 templates2events("/etc/krb5.conf", $event);
 event_link("initialize-default-databases", $event, "00");
-event_link("nethserver-samba-ldapschema", $event, "20");
+event_link("nethserver-samba-conf", $event, "20");
 
 #
 # restart daemons

@@ -1,14 +1,18 @@
 {
    return "" unless($smb{ServerRole} ne 'ADS');
 
+   use NethServer::Directory;
+
+   my $domainSuffix = NethServer::Directory::getDomainSuffix();
+
    $OUT.="# Enable ldap autentication\n";
    $OUT.="passdb backend = ldapsam:ldap://127.0.0.1\n";
    $OUT.="ldapsam:trusted=yes\n";
-   $OUT.="ldap admin dn = cn=Manager,". esmith::util::ldapBase ($DomainName)."\n"; 
+   $OUT.="ldap admin dn = cn=samba," . $domainSuffix . "\n"; 
    $OUT.="ldap group suffix = ou=Group\n";
    $OUT.="ldap user suffix = ou=People\n";
    $OUT.="ldap machine suffix = ou=Computers\n";
-   $OUT.="ldap suffix = ".esmith::util::ldapBase ($DomainName)."\n"; 
+   $OUT.="ldap suffix = ". $domainSuffix . "\n"; 
 }
 # Obey pam
 obey pam restrictions = yes
