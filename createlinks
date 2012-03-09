@@ -2,9 +2,6 @@
 
 use esmith::Build::CreateLinks qw(:all);
 
-my $panel = "manager";
-panel_link("workgroup", $panel);
-
 foreach (qw(samba/smb.conf))
 {
     templates2events("/etc/$_", qw(
@@ -110,13 +107,17 @@ event_link("set-smb-password", $event, "40");
 $event = "nethserver-samba-update";
 templates2events("/etc/samba/smb.conf", $event);
 templates2events("/etc/krb5.conf", $event);
-#templates2events("/etc/pam.d/system-auth", $event);
-safe_symlink("restart", "root/etc/e-smith/events/$event/services2adjust/nmb");
-safe_symlink("restart", "root/etc/e-smith/events/$event/services2adjust/smb");
-safe_symlink("restart", "root/etc/e-smith/events/$event/services2adjust/winbind");
+event_link("initialize-default-databases", $event, "00");
+event_link("nethserver-samba-ldapschema", $event, "20");
+
+#
+# restart daemons
+#
+foreach my $daemon (qw(nmb smb winbind)) {
+    foreach my $pkg (qw(base directory samba)) {
+	safe_symlink("restart", 
+		     "root/etc/e-smith/events/nethserver-$pkg-update/services2adjust/$daemon")
+    }	
+}
 
 
-$event = "nethserver-base-update";
-safe_symlink("restart", "root/etc/e-smith/events/$event/services2adjust/nmb");
-safe_symlink("restart", "root/etc/e-smith/events/$event/services2adjust/smb");
-safe_symlink("restart", "root/etc/e-smith/events/$event/services2adjust/winbind");

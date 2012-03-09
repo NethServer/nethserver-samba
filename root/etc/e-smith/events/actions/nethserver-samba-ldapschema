@@ -1,0 +1,48 @@
+#!/usr/bin/perl
+
+#
+# NethServer Samba
+#
+# Copyright (C) 2012 Nethesis srl
+#
+# Load the samba schema in LDAP configuration database. 
+# Exit silently if the schema is already loaded.
+#
+
+use strict;
+
+use NethServer::Directory;
+use Net::LDAP::LDIF;
+use Net::LDAP;
+
+my $ldif = Net::LDAP::LDIF->new("/etc/openldap/schema/samba.ldif", "r", onerror => 'die');
+my $sambaSchema = $ldif->read_entry();
+my $ldap = NethServer::Directory::connect();
+
+my $response = $ldap->search(
+    base => 'cn=schema,cn=config',
+    filter => 'cn=*samba',
+    sizelimit => 1,
+    scope => 'one',
+    );
+
+if( ! $response->is_error() ) {
+    exit(0);
+}
+
+if($response->code() == Net::LDAP::Constant::LDAP_NO_SUCH_OBJECT) {
+    $response = $sambaSchema->update($ldap);
+    
+    if( ! $response->is_error()) {
+	exit(0);
+    }   
+}
+
+die($response->error());
+
+
+
+
+
+
+
