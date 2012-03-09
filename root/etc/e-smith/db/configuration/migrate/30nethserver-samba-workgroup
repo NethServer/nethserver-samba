@@ -1,0 +1,14 @@
+{
+    my $Workgroup = $DB->get_prop('smb', 'Workgroup');
+
+    if( $Workgroup ) {
+	return;
+    }
+
+    $Workgroup = $DB->get_value('DomainName') || return;
+
+    # Trim after the first dot:
+    $Workgroup =~ s/[^a-z].*$//ir;
+
+    $DB->set_prop('smb', 'Workgroup', $Workgroup, type => 'service');
+}

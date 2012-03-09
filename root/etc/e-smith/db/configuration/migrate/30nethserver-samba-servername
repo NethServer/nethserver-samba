@@ -1,0 +1,17 @@
+{
+
+    my $ServerName = $DB->get_prop('smb', 'ServerName');
+
+    if( $ServerName ) {
+	return;
+    }
+    
+    my $SystemName = $DB->get('SystemName');
+
+    if( ! $SystemName) {
+	return;
+    }
+
+    $DB->set_prop('smb', 'ServerName', $SystemName, type => 'service');
+   
+}

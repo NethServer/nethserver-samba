@@ -1,8 +1,0 @@
-{
-    my $smb = $DB->get('smb') || return;
-    my $srvName = $smb->prop('ServerName') || 'e-smith-server';
-    my $sysName = $DB->get('SystemName') || return;
-
-    return unless $srvName =~ m#mitel-networks|mitel-networks-server|mitel-server|e-smith-server#;
-    $smb->set_prop('ServerName', $sysName->value);
-}
