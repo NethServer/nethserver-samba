@@ -6,7 +6,7 @@
 	return;
     }
     
-    my $SystemName = $DB->get('SystemName');
+    my $SystemName = $DB->get_value('SystemName');
 
     if( ! $SystemName) {
 	return;
