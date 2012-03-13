@@ -3,5 +3,4 @@ winbind enum users = Yes
 winbind enum groups = Yes
 winbind use default domain = Yes
 winbind nested groups = Yes
-winbind separator = +
 winbind offline logon = yes
