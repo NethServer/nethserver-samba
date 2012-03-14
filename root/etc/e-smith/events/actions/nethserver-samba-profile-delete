@@ -41,7 +41,7 @@ my @dirs = ("/home/e-smith/files/samba/profiles/$account", "/home/e-smith/files/
 foreach (@dirs) {
  
     next unless -d $_;
-    rmtree( $_ ) || die "Couldn't remove tree $_\n";
+    rmtree( $_ ) || die "Couldn't remove user `$account` profile directory $_\n";
 
 }
 
