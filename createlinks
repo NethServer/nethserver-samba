@@ -92,7 +92,7 @@ $event = "nethserver-samba-machine-create";
 event_link("nethserver-samba-machine-create", $event, "10");
 
 $event = "password-modify";
-event_link("set-smb-password", $event, "40");
+event_link("nethserver-samba-password-modify", $event, "40");
 
 $event = "nethserver-samba-update";
 templates2events("/etc/samba/smb.conf", $event);
