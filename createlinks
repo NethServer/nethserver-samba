@@ -90,8 +90,8 @@ $event = "printer-delete";
 event_link("delete_printer_tdb", $event, 15);
 safe_symlink("restart", "root/etc/e-smith/events/$event/services2adjust/smb");
 
-$event = "machine-account-create";
-event_link("create-machine-account", $event, "10");
+$event = "nethserver-samba-machine-create";
+event_link("nethserver-samba-machine-create", $event, "10");
 
 $event = "password-modify";
 event_link("set-smb-password", $event, "40");

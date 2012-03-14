@@ -19,6 +19,12 @@
 # Technical support for this program is available from Mitel Networks 
 # Please visit our web site www.e-smith.com for details.
 #----------------------------------------------------------------------
+
+#
+# On unix account for samba machine see:
+# http://www.samba.org/samba/docs/man/Samba-HOWTO-Collection/domain-member.html#machine-trust-accounts
+#
+
 package esmith;
 
 use strict;
