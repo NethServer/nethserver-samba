@@ -13,8 +13,6 @@ foreach (qw(samba/smb.conf))
 	ibay-modify-servers
 	network-delete
 	network-create
-	post-install
-	post-upgrade
 	workgroup-update
 	));
 }
@@ -30,8 +28,8 @@ my $event = "console-save";
 
 $event = "bootstrap-console-save";
 event_link("update-domain-group-maps", $event, "56");
-event_link("user-lock-bad-passwd", $event, "15");
 event_link("samba-update-smbpasswd", $event, "20");
+event_link("nethserver-samba-profile-create", $event, "30");
 
 $event = "group-create";
 event_link("update-domain-group-maps", $event, "56");
@@ -64,11 +62,11 @@ $event = "network-delete";
 safe_symlink("restart", "root/etc/e-smith/events/$event/services2adjust/smb");
 
 $event = "user-create";
-event_link("user-create-profiledir", $event, "20");
+event_link("nethserver-samba-profile-create", $event, "20");
 safe_symlink("restart", "root/etc/e-smith/events/$event/services2adjust/smb");
 
 $event = "user-delete";
-event_link("user-delete-profiledir", $event, "20");
+event_link("nethserver-samba-profile-delete", $event, "20");
 safe_symlink("restart", "root/etc/e-smith/events/$event/services2adjust/smb");
 
 $event = "user-modify";

@@ -30,13 +30,20 @@ my $event = $ARGV [0];
 
 my @users = ('admin', map { $_->key } $adb->users);
 
-my @newusers = ($event eq "post-upgrade") ? @users : $ARGV[1] ;
+my @newusers;
+
+if($ARGV[1]) {
+    @newusers = $ARGV[1];
+} else {
+    @newusers = @users;
+}
 
 foreach my $user ( @newusers )
 {
     die "$user is not a user account\n"
         unless ( grep /^$user$/, @users );
 
+    # seems that .V2 profile dir is used by Win7 clients..
     my @dirs = ("/home/e-smith/files/samba/profiles/$user","/home/e-smith/files/samba/profiles/${user}.V2");
    
     foreach my $dir (@dirs)
