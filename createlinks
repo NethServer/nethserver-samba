@@ -27,20 +27,20 @@ foreach (qw(samba/smb.conf))
 my $event = "console-save";
 
 $event = "bootstrap-console-save";
-event_link("update-domain-group-maps", $event, "56");
+#event_link("update-domain-group-maps", $event, "56");
 event_link("samba-update-smbpasswd", $event, "20");
 event_link("nethserver-samba-profile-create", $event, "30");
 
 $event = "group-create";
-event_link("update-domain-group-maps", $event, "56");
+#event_link("update-domain-group-maps", $event, "56");
 safe_symlink("restart", "root/etc/e-smith/events/$event/services2adjust/smb");
 
 $event = "group-delete";
-event_link("update-domain-group-maps", $event, "14");
+#event_link("update-domain-group-maps", $event, "14");
 safe_symlink("restart", "root/etc/e-smith/events/$event/services2adjust/smb");
 
 $event = "group-modify";
-event_link("update-domain-group-maps", $event, "56");
+#event_link("update-domain-group-maps", $event, "56");
 safe_symlink("restart", "root/etc/e-smith/events/$event/services2adjust/smb");
 
 $event = "ibay-create";
@@ -73,8 +73,8 @@ $event = "user-modify";
 safe_symlink("restart", "root/etc/e-smith/events/$event/services2adjust/smb");
 
 $event = "workgroup-update";
-event_link("samba-update-smbpasswd", $event, "25");
-event_link("update-domain-group-maps", $event, "56");
+#event_link("samba-update-smbpasswd", $event, "25");
+#event_link("update-domain-group-maps", $event, "56");
 safe_symlink("sigterm", "root/etc/e-smith/events/$event/services2adjust/dhcpd");
 safe_symlink("restart", "root/etc/e-smith/events/$event/services2adjust/smb");
 safe_symlink("restart", "root/etc/e-smith/events/$event/services2adjust/nmb");

@@ -121,4 +121,14 @@ use Data::Dumper;
 } # END LDAP
 
 
+{ # BEGIN SAM Provision
+    qx(/usr/bin/net sam provision);
+
+    if($? != 0) {
+	$exitCode ++;
+    }
+
+} # END SAM Provision
+
+
 exit($exitCode);
