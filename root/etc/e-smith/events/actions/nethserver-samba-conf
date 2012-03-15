@@ -9,15 +9,12 @@
 # Exit silently if the schema is already loaded.
 #
 #
-#
 
 use strict;
 
 use NethServer::Directory;
 use Net::LDAP::LDIF;
 use Net::LDAP;
-
-use strict;
 
 my $ldap = NethServer::Directory::connect();
 my $internalSuffix = NethServer::Directory::getInternalSuffix();
@@ -119,16 +116,5 @@ use Data::Dumper;
     	} 
     }
 } # END LDAP
-
-
-{ # BEGIN SAM Provision
-    qx(/usr/bin/net sam provision);
-
-    if($? != 0) {
-	$exitCode ++;
-    }
-
-} # END SAM Provision
-
 
 exit($exitCode);

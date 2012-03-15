@@ -13,7 +13,7 @@ foreach (qw(samba/smb.conf))
 	ibay-modify-servers
 	network-delete
 	network-create
-	workgroup-update
+        nethserver-samba-save
 	));
 }
 
@@ -28,7 +28,7 @@ my $event = "console-save";
 
 $event = "bootstrap-console-save";
 #event_link("update-domain-group-maps", $event, "56");
-event_link("samba-update-smbpasswd", $event, "20");
+#event_link("samba-update-smbpasswd", $event, "20");
 event_link("nethserver-samba-profile-create", $event, "30");
 
 $event = "group-create";
@@ -72,10 +72,10 @@ safe_symlink("restart", "root/etc/e-smith/events/$event/services2adjust/smb");
 $event = "user-modify";
 safe_symlink("restart", "root/etc/e-smith/events/$event/services2adjust/smb");
 
-$event = "workgroup-update";
+$event = "nethserver-samba-save";
 #event_link("samba-update-smbpasswd", $event, "25");
 #event_link("update-domain-group-maps", $event, "56");
-safe_symlink("sigterm", "root/etc/e-smith/events/$event/services2adjust/dhcpd");
+#safe_symlink("sigterm", "root/etc/e-smith/events/$event/services2adjust/dhcpd");
 safe_symlink("restart", "root/etc/e-smith/events/$event/services2adjust/smb");
 safe_symlink("restart", "root/etc/e-smith/events/$event/services2adjust/nmb");
 safe_symlink("restart", "root/etc/e-smith/events/$event/services2adjust/winbind");
@@ -99,9 +99,10 @@ templates2events("/etc/samba/smb.conf", $event);
 # templates2events("/etc/krb5.conf", $event);
 event_link("initialize-default-databases", $event, "00");
 event_link("nethserver-samba-conf", $event, "20");
+event_link("nethserver-samba-sam-conf", $event, "95");
 
 #
-# restart daemons on package update:
+# restart daemons on packages update:
 #
 foreach my $daemon (qw(nmb smb winbind)) {
     foreach my $pkg (qw(base directory samba)) {

@@ -1,0 +1,25 @@
+#!/usr/bin/perl
+
+#
+# NethServer Samba
+#
+# Copyright (C) 2012 Nethesis srl
+#
+# Initialize builtin accounts in SAM database. Requires winbindd running.
+#
+#
+
+use strict;
+
+my $exitCode = 0;
+
+{ # BEGIN SAM Provision
+    qx(/usr/bin/net sam provision);
+
+    if($? != 0) {
+	$exitCode ++;
+    }
+
+} # END SAM Provision
+
+exit($exitCode);
