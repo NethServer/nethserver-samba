@@ -23,6 +23,7 @@ my $exitCode = 0;
 
 my $pdbedit = '/usr/bin/pdbedit';
 my $smbpasswd = '/usr/bin/smbpasswd';
+my $net = '/usr/bin/net';
 
 if($user) {
     if($accountsDb->get_prop($user, 'type') ne 'user') {
@@ -47,11 +48,19 @@ foreach my $user (@users) {
     qx($smbpasswd -a -n -d "$user" >/dev/null 2>&1);
     if($? != 0) {
 	warn "Failed to add user `$user` in SAM database";
+	$exitCode ++;
 	next;
+    }
+
+    # Map user's unix group in SAM database
+    qx($net sam mapunixgroup "$user");
+    if($? != 0) {
+	warn "Failed to map user's unix group `$user` in SAM database";
+	$exitCode ++;
     }
 
 }
 
-exit($exitCode);
+exit(($exitCode > 0) ? 1 : 0);
 
 
