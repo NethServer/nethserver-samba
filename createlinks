@@ -62,6 +62,12 @@ $event = "user-modify";
 event_link("nethserver-samba-user-modify", $event, "30");
 safe_symlink("restart", "root/etc/e-smith/events/$event/services2adjust/smb");
 
+$event = "user-lock";
+event_link("nethserver-samba-user-modify", $event, "30");
+
+$event = "user-unlock";
+event_link("nethserver-samba-user-modify", $event, "30");
+
 $event = "nethserver-samba-save";
 safe_symlink("restart", "root/etc/e-smith/events/$event/services2adjust/smb");
 safe_symlink("restart", "root/etc/e-smith/events/$event/services2adjust/nmb");

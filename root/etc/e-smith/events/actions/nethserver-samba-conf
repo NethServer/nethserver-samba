@@ -33,13 +33,17 @@ use Data::Dumper;
 	scope => 'one',
 	);
     
-    if($response->code() == Net::LDAP::Constant::LDAP_NO_SUCH_OBJECT) {
+    if($response->count() == 0) {
+	$sambaSchema->changetype('add');
 	$response = $sambaSchema->update($ldap);	
 	if( $response->is_error()) {
 	    warn $response->error();	   
 	    $exitCode ++;
+	} else {
+	    warn "Added samba.ldif schema\n";
 	}
     }
+
 } # END schema configuration
 
 { # BEGIN LDAP
