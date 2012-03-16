@@ -62,7 +62,9 @@ $event = "network-delete";
 safe_symlink("restart", "root/etc/e-smith/events/$event/services2adjust/smb");
 
 $event = "user-create";
+event_link("nethserver-samba-user-create", $event, "20");
 event_link("nethserver-samba-profile-create", $event, "20");
+event_link("nethserver-samba-user-modify", $event, "30");
 safe_symlink("restart", "root/etc/e-smith/events/$event/services2adjust/smb");
 
 $event = "user-delete";
@@ -70,11 +72,13 @@ event_link("nethserver-samba-profile-delete", $event, "20");
 safe_symlink("restart", "root/etc/e-smith/events/$event/services2adjust/smb");
 
 $event = "user-modify";
+event_link("nethserver-samba-user-modify", $event, "30");
 safe_symlink("restart", "root/etc/e-smith/events/$event/services2adjust/smb");
 
 $event = "nethserver-samba-save";
 #event_link("samba-update-smbpasswd", $event, "25");
 #event_link("update-domain-group-maps", $event, "56");
+event_link("nethserver-samba-user-modify", $event, "30");
 #safe_symlink("sigterm", "root/etc/e-smith/events/$event/services2adjust/dhcpd");
 safe_symlink("restart", "root/etc/e-smith/events/$event/services2adjust/smb");
 safe_symlink("restart", "root/etc/e-smith/events/$event/services2adjust/nmb");

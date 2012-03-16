@@ -1,0 +1,36 @@
+#!/usr/bin/perl
+
+#
+# NethServer Samba
+# Copyright (C) 2012 Nethesis srl
+#
+
+use strict;
+use esmith::AccountsDB;
+
+my $event = shift || die("Missing event argument!");
+my $user= shift || die("No user specified");
+my $accountsDb = esmith::AccountsDB->open() || die("Could not open accounts database");
+my $record = $accountsDb->get($user) || die("User `$user` not found in accounts database");
+
+if($record->prop('type') ne 'user') {
+    die("`$user` is not a user record");
+}
+
+# Update SAM db to reflect the "enabled" state of the user account:
+{
+    my $isEnabled;
+    
+    if($record->prop('Locked') ne 'yes' 
+       && $record->prop('Samba') eq 'enabled') {
+	$isEnabled = 1;
+    } else {
+	$isEnabled = 0;
+    }
+    
+    system('/usr/bin/smbpasswd', $isEnabled ? '-e' : '-d', $user) == 0 
+	or die("Failed to change enabled state to SAM user `$user`");
+}
+
+exit(0);
+

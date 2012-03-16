@@ -26,7 +26,7 @@ use esmith::util;
 use esmith::AccountsDB;
 my $adb = esmith::AccountsDB->open_ro();
 
-my $event = $ARGV [0];
+my $event = $ARGV[0];
 
 my @users = ('admin', map { $_->key } $adb->users);
 

@@ -1,0 +1,57 @@
+#!/usr/bin/perl
+
+#
+# NethServer Samba
+#
+# Create new user(s) in SAM database.
+#
+# The new user name is specified by the second argument to the script.
+# If the user name value has not been set ALL users in AccountDB are processed.
+#
+# @copyright (C) 2012 Nethesis srl
+#
+
+use strict;
+use esmith::AccountsDB;
+
+my $event = shift;
+my $user = shift;
+my @users;
+my $accountsDb = esmith::AccountsDB->open_ro();
+
+my $exitCode = 0;
+
+my $pdbedit = '/usr/bin/pdbedit';
+my $smbpasswd = '/usr/bin/smbpasswd';
+
+if($user) {
+    if($accountsDb->get_prop($user, 'type') ne 'user') {
+	die("Invalid user account name: `$user`");
+    }
+    @users = ($user);
+} else {
+    @users = map { $_->key } $accountsDb->users();   
+}
+
+
+foreach my $user (@users) {
+
+    # Check if user exists in SAM:
+    qx($pdbedit -L -u "$user" >/dev/null 2>&1);
+    if($? == 0) {
+	warn "Skipping existing SAM user `$user`";
+	next;
+    }
+
+    # Add to SAM:
+    qx($smbpasswd -a -n -d "$user" >/dev/null 2>&1);
+    if($? != 0) {
+	warn "Failed to add user `$user` in SAM database";
+	next;
+    }
+
+}
+
+exit($exitCode);
+
+
