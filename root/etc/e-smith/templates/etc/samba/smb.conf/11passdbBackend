@@ -1,4 +1,3 @@
-
 {
    return "" unless($smb{ServerRole} ne 'ADS');
 
@@ -10,7 +9,7 @@
 # Enable ldap autentication
 passdb backend = ldapsam:ldap://127.0.0.1
 ldapsam:trusted = yes
-ldapsam:editposix = yes
+ldapsam:editposix = no
 ldap group suffix = ou=Groups
 ldap user suffix = ou=People
 ldap machine suffix = ou=Computers
