@@ -17,30 +17,17 @@ foreach (qw(samba/smb.conf))
 	));
 }
 
-#foreach my $file (qw(
-#	/etc/pam.d/samba
-#	))
-#{
-#    templates2events($file, qw(console-save bootstrap-console-save));
-#}
 
-my $event = "console-save";
-
-$event = "bootstrap-console-save";
-#event_link("update-domain-group-maps", $event, "56");
-#event_link("samba-update-smbpasswd", $event, "20");
-event_link("nethserver-samba-profile-create", $event, "30");
+my $event;
 
 $event = "group-create";
-#event_link("update-domain-group-maps", $event, "56");
+event_link("nethserver-samba-group-create", $event, "30");
 safe_symlink("restart", "root/etc/e-smith/events/$event/services2adjust/smb");
 
 $event = "group-delete";
-#event_link("update-domain-group-maps", $event, "14");
 safe_symlink("restart", "root/etc/e-smith/events/$event/services2adjust/smb");
 
 $event = "group-modify";
-#event_link("update-domain-group-maps", $event, "56");
 safe_symlink("restart", "root/etc/e-smith/events/$event/services2adjust/smb");
 
 $event = "ibay-create";
@@ -63,7 +50,7 @@ safe_symlink("restart", "root/etc/e-smith/events/$event/services2adjust/smb");
 
 $event = "user-create";
 event_link("nethserver-samba-user-create", $event, "20");
-event_link("nethserver-samba-profile-create", $event, "20");
+event_link("nethserver-samba-profile-create", $event, "25");
 event_link("nethserver-samba-user-modify", $event, "30");
 safe_symlink("restart", "root/etc/e-smith/events/$event/services2adjust/smb");
 
@@ -76,14 +63,9 @@ event_link("nethserver-samba-user-modify", $event, "30");
 safe_symlink("restart", "root/etc/e-smith/events/$event/services2adjust/smb");
 
 $event = "nethserver-samba-save";
-#event_link("samba-update-smbpasswd", $event, "25");
-#event_link("update-domain-group-maps", $event, "56");
-event_link("nethserver-samba-user-modify", $event, "30");
-#safe_symlink("sigterm", "root/etc/e-smith/events/$event/services2adjust/dhcpd");
 safe_symlink("restart", "root/etc/e-smith/events/$event/services2adjust/smb");
 safe_symlink("restart", "root/etc/e-smith/events/$event/services2adjust/nmb");
 safe_symlink("restart", "root/etc/e-smith/events/$event/services2adjust/winbind");
-# templates2events("/etc/krb5.conf", $event);
 
 $event = "printer-create";
 safe_symlink("restart", "root/etc/e-smith/events/$event/services2adjust/smb");
@@ -100,10 +82,11 @@ event_link("nethserver-samba-password-modify", $event, "40");
 
 $event = "nethserver-samba-update";
 templates2events("/etc/samba/smb.conf", $event);
-# templates2events("/etc/krb5.conf", $event);
 event_link("initialize-default-databases", $event, "00");
 event_link("nethserver-samba-conf", $event, "20");
 event_link("nethserver-samba-sam-conf", $event, "95");
+event_link("nethserver-samba-user-create", $event, "96");
+event_link("nethserver-samba-group-create", $event, "97");
 
 #
 # restart daemons on packages update:
