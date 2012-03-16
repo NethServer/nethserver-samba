@@ -1,0 +1,58 @@
+#!/usr/bin/perl
+
+#
+# NethServer Samba
+#
+# Create new group(s) in SAM database.
+#
+# The new group name is specified by the second argument to the script.
+# If the group name value has not been set ALL groups in AccountDB are processed.
+#
+# @copyright (C) 2012 Nethesis srl
+#
+
+use strict;
+use esmith::AccountsDB;
+
+my $event = shift;
+my $group = shift;
+my @groups;
+my $accountsDb = esmith::AccountsDB->open_ro();
+
+my $exitCode = 0;
+
+my $net = '/usr/bin/net';
+
+if($group) {
+    if($accountsDb->get_prop($group, 'type') ne 'group') {
+	die("Invalid group account name: `$group`");
+    }
+    @groups = ($group);
+} else {
+    @groups = map { $_->key } $accountsDb->groups();   
+}
+
+
+foreach my $group (@groups) {
+
+    # Check if a SAM entry exists (group or user)
+    my $entrySid = qx($net sam show "$group");
+    chomp($entrySid);
+    if($? == 0) {
+	warn "Skipping existing SAM entry `$group`: $entrySid";
+	next;
+    }
+
+    # Add to SAM:
+    qx($net sam mapunixgroup "$group");
+    if($? != 0) {
+	warn "Failed to add group `$group` in SAM database";
+	$exitCode ++;
+	next;
+    }
+
+}
+
+exit(($exitCode > 0) ? 1 : 0);
+
+
