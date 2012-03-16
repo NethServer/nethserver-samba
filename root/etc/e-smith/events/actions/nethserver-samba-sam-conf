@@ -13,11 +13,57 @@ use strict;
 
 my $exitCode = 0;
 
-{ # BEGIN SAM Provision
-    qx(/usr/bin/net sam provision);
+my $luseradd = '/usr/sbin/luseradd';
+my $lgroupmod = '/usr/sbin/lgroupmod';
+my $net = '/usr/bin/net';
 
-    if($? != 0) {
-	$exitCode ++;
+{ # BEGIN SAM Provision
+
+    my $entries = {
+	domadmins => {
+	    rid => 512,
+	    type => 'd',
+	    name => 'Domain Admins'
+	},
+	domusers => {
+	    rid => 513,
+	    type => 'd',
+	    name => 'Domain Users'
+	},
+	domguests => {
+	    rid => 514,
+	    type => 'd',
+	    name => 'Domain Guests'
+	}	
+    };
+    
+    while ( my ($group, $entry) = each(%$entries) ) {
+	
+	if(system($lgroupmod, $group) == 0) {
+	    warn "Ignoring existing group `$group`..\n";
+	    next;
+	}
+	
+	# Create a system user and private group entry:
+	qx($luseradd -s /bin/false -r $group);
+	if($? != 0) {
+	    warn "Failed to create system samba group `$group`";
+	    $exitCode ++;
+	    next;
+	}
+
+	# Map the created unix group to the given $entry
+	system($net, 'groupmap', 'add', 
+	       "ntgroup=" . $entry->{'name'}, 
+	       "unixgroup=" . $group, 
+	       "rid=" . $entry->{'rid'}
+	    );
+
+	if($? != 0) {
+	    warn "Failed to map unix group `$group` to samba rid " . $entry->{'rid'};
+	    $exitCode ++;
+	    next;
+	}
     }
 
 } # END SAM Provision
