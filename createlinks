@@ -13,14 +13,16 @@ templates2events("/etc/samba/smb.conf", qw(
     network-create
 ));
 
-my $event;
+my ($event, $daemon, $pkg);
 
 event_actions('nethserver-samba-update',
-	      "initialize-default-databases" => '00',
-	      "nethserver-samba-conf" => '20',
-	      "nethserver-samba-sam-conf" => '95',
-	      "nethserver-samba-user-create" => '96',
-	      "nethserver-samba-group-create" => '97'
+	      'initialize-default-databases' => '00',
+	      'nethserver-samba-conf' => '20',
+	      'firewall-adjust' => '30',
+	      'runlevel-adjust' => '30',
+	      'nethserver-samba-sam-conf' => '95',
+	      'nethserver-samba-user-create' => '96',
+	      'nethserver-samba-group-create' => '97'
     );
 
 event_actions('group-create', 
@@ -28,9 +30,9 @@ event_actions('group-create',
 );
 
 # All of these events require smbd to reload the smb.conf file:
-event_actions($event,
+event_actions($_,
 	      "nethserver-samba-smbd-adjust" => '95'
-) foreach my $event (qw(
+) foreach (qw(
     group-create
     group-delete
     group-modify
@@ -81,15 +83,15 @@ event_actions('password-modify',
 );
 
 # event nethserver-samba-save
-safe_symlink("restart", "root/etc/e-smith/events/nethserver-samba-save/services2adjust/$daemon") 
-    foreach my $daemon (qw(smb nmb winbind));
+safe_symlink("restart", "root/etc/e-smith/events/nethserver-samba-save/services2adjust/$_") 
+    foreach (qw(smb nmb winbind));
 
 	     
 #
 # restart daemons on update of required packages :
 #
-foreach my $daemon (qw(nmb smb winbind)) {
-    foreach my $pkg (qw(base directory samba)) {
+foreach $daemon (qw(nmb smb winbind)) {
+    foreach $pkg (qw(base directory samba)) {
 	safe_symlink("restart", 
 		     "root/etc/e-smith/events/nethserver-$pkg-update/services2adjust/$daemon")
     }	
