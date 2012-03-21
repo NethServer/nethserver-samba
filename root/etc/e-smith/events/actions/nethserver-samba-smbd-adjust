@@ -1,0 +1,44 @@
+#!/usr/bin/perl
+
+#
+# NethServer - Samba smbd adjust action
+#
+# Copyright (C) 2012 Nethesis srl
+#
+
+use strict;
+
+use esmith::AccountsDB;
+
+my $errors = 0;
+my ($event, $user) = @ARGV;
+
+# validate the user argument before proceed:
+if(defined $user) {
+    my $accountsDb = esmith::AccountsDB->open_ro();    
+    if($accountsDb->get_prop($user, 'type') ne 'user') {
+	warn "NOTICE: `$user` is not a user account.\n";
+	undef $user;
+    }
+}
+
+# obtain a list of smbd process IDs:
+open(my $ps, '-|', "/bin/ps -C smbd -o user,pid");
+
+while( ! eof($ps)) {
+    my $line = <$ps>;
+    chomp($line);
+
+    my ($owner, $pid, $ppid) = split(/\s+/, $line);
+
+    if($ppid eq '1') {
+	# ask the parent process to reload configuration
+	kill 1, $pid;
+    } elsif(defined $user && $owner eq $user) {
+	# terminate user's process
+	kill 15, $pid;
+    }
+}
+
+
+exit($errors > 0 ? 1 : 0);
