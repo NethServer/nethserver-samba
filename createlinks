@@ -25,6 +25,14 @@ event_actions('nethserver-samba-update',
 	      'nethserver-samba-group-create' => '97'
     );
 
+
+# When updating nethserver-directory, samba LDAP user acl must be set
+# again, otherwise we are locked out:
+event_actions('nethserver-directory-update',
+	      'nethserver-samba-conf' => '30');
+
+
+# actions for group-create event:
 event_actions('group-create', 
 	      "nethserver-samba-group-create" => "30"
 );
