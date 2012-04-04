@@ -1,3 +1,11 @@
 workgroup = { $smb{Workgroup} }
-netbios name = { $smb{ServerName} || "NethServer" }
+{
+   my $ServerName = $smb{ServerName};
+
+   if ( $ServerName ) {
+      $OUT .= "netbios name = $ServerName";
+   } else {
+      $OUT .= "# netbios name = # default hostname";
+   }
+}
 server string = { $smb{ServerString} || 'NethServer Samba %v' }

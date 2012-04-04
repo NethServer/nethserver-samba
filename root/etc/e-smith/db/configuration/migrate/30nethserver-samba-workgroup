@@ -7,8 +7,8 @@
 
     $Workgroup = $DB->get_value('DomainName') || return;
 
-    # Trim after the first dot:
-    $Workgroup =~ s/[^a-z].*$//i;
+    # Trim after the first non-allowable character:
+    $Workgroup =~ s/[^\w\-\.].*$//i;
 
     $DB->set_prop('smb', 'Workgroup', $Workgroup, type => 'service');
 }
