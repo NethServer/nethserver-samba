@@ -8,7 +8,7 @@ $L['Workgroup setup'] = 'Workgroup configuration';
 
 $L['Server role'] = 'Server role';
 
-$L['workgroup_label'] = 'Workgroup name';
+$L['workgroup_label'] = 'Domain or workgroup name';
 $L['server_label'] = 'Server name';
 
 $L['roaming_label'] = 'Enable roaming profiles';

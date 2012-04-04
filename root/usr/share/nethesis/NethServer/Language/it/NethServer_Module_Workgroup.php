@@ -8,7 +8,7 @@ $L['Workgroup setup'] = 'Configurazione del gruppo di lavoro';
 
 $L['Server role'] = 'Ruolo del server';
 
-$L['workgroup_label'] = 'Nome del gruppo di lavoro';
+$L['workgroup_label'] = 'Nome del dominio o gruppo di lavoro';
 $L['server_label'] = 'Nome del server';
 
 $L['RoamingProfiles_label'] = 'Abilita profili roaming';
