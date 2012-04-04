@@ -33,9 +33,11 @@ class Configure extends \Nethgui\Controller\AbstractController
     public function initialize()
     {
         parent::initialize();
-        $this->declareParameter('workgroup', Validate::HOSTNAME, array('configuration', 'smb', 'Workgroup'));
-        $this->declareParameter('server', Validate::HOSTNAME, array('configuration', 'smb', 'ServerName'));
-        $this->declareParameter('role', "/^WS$|^PDC$|^ADS$/", array('configuration', 'smb', 'ServerRole'));
+        
+        $roleValidator = $this->getPlatform()->createValidator()->memberOf('WS', 'PDC', 'ADS');
+        
+        $this->declareParameter('workgroup', Validate::HOSTNAME, array('configuration', 'smb', 'Workgroup'));        
+        $this->declareParameter('role', $roleValidator, array('configuration', 'smb', 'ServerRole'));
         $this->declareParameter('RoamingProfiles', Validate::YES_NO, array('configuration', 'smb', 'RoamingProfiles'));
         $this->declareParameter('PDCName', Validate::HOSTNAME, array('configuration', 'smb', 'PDCName'));
         $this->declareParameter('PDCIP', Validate::IPv4, array('configuration', 'smb', 'PDCIP'));
