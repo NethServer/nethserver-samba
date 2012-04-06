@@ -22,7 +22,7 @@ if($record->prop('type') ne 'user') {
 
 # Update SAM db to reflect the "active" state of the user account:
 {
-    my $isEnabled; = ;
+    my $isEnabled;
     
     if($record->prop('__state') eq 'active' 
        && $record->prop('Samba') eq 'enabled') {
