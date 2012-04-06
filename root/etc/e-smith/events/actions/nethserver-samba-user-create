@@ -17,7 +17,7 @@ use esmith::AccountsDB;
 my $event = shift;
 my $user = shift;
 my @users;
-my $accountsDb = esmith::AccountsDB->open_ro();
+my $accountsDb = esmith::AccountsDB->open();
 
 my $exitCode = 0;
 
@@ -59,6 +59,15 @@ foreach my $user (@users) {
 	$exitCode ++;
     }
 
+    # Default user Samba state ( Refs #974 ):
+    # active user => Samba disabled; 
+    # new user => Samba enabled.
+    my $userState = $accountsDb->get_prop($user, '__state');
+    if ($userState eq 'active') {
+	$accountsDb->set_prop($user, 'Samba', 'disabled');
+    } elsif ($userState eq 'new') {
+	$accountsDb->set_prop($user, 'Samba', 'enabled');
+    }
 }
 
 exit(($exitCode > 0) ? 1 : 0);

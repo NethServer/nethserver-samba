@@ -20,11 +20,11 @@ if($record->prop('type') ne 'user') {
     die("`$user` is not a user record");
 }
 
-# Update SAM db to reflect the "enabled" state of the user account:
+# Update SAM db to reflect the "active" state of the user account:
 {
-    my $isEnabled;
+    my $isEnabled; = ;
     
-    if($record->prop('Locked') ne 'yes' 
+    if($record->prop('__state') eq 'active' 
        && $record->prop('Samba') eq 'enabled') {
 	$isEnabled = 1;
     } else {
