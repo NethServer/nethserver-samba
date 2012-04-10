@@ -56,28 +56,27 @@ use Data::Dumper;
     qx(smbpasswd -w '$password');
 
     my @entries = (
-	[ "cn=samba,$internalSuffix",
-	  merge => [
+	[ 'cn=samba,' . $internalSuffix,
+	  attrs => [
 	      objectClass => ['device', 'simpleSecurityObject'],
 	      cn => 'samba',
 	      userPassword => NethServer::Directory::getUserPassword('samba', 1, $ldap),
-	      description => "Samba ldapsam management account"
+	      description => 'Samba ldapsam management account'
 	  ] ],
-	[ "ou=Computers,$internalSuffix",
-	  merge => [
+	[ 'ou=Computers,' . $internalSuffix,
+	  attrs => [
 	      objectClass => ['top', 'organizationalUnit'],
 	      ou => 'Computers',
 	  ] ],       	
-	[ "ou=Idmap,$internalSuffix",
-	  merge => [
+	[ 'ou=Idmap,' . $internalSuffix,
+	  attrs => [
 	      objectClass => ['top', 'organizationalUnit'],
 	      ou => 'Idmap',
 	  ] ],       	
 	);
 
     foreach(@entries) {
-	my $method = @{$_}[1];
-	my $message = $ldap->$method(@{$_});
+	my $message = $ldap->merge(@{$_});
 	if($message->is_error()) {
 	    $exitCode ++;
 	}
