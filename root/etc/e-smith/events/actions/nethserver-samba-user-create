@@ -68,6 +68,12 @@ foreach my $user (@users) {
     } elsif ($userState eq 'new') {
 	$accountsDb->set_prop($user, 'Samba', 'enabled');
     }
+
+    # Make sure the password is in expired state, to avoid valid empty passwords:
+    if(system($net, qw(sam set pwdmustchangenow), $user, 'yes') != 0) {
+	warn "Failed to set password state of SAM user `$user` to expired";
+	$exitCode ++;
+    }
 }
 
 exit(($exitCode > 0) ? 1 : 0);

@@ -31,7 +31,7 @@ if($record->prop('type') ne 'user') {
 	$isEnabled = 0;
     }
     
-    if(system($smbpasswd, $isEnabled ? '-e' : '-d', $user) != 0) {
+    if(system($net, qw(sam set disabled), $user, $isEnabled ? 'yes' : 'no') != 0) {
 	warn "Failed to change enabled state of SAM user `$user`";
 	$exitCode ++;
     }
