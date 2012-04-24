@@ -1,0 +1,16 @@
+{
+    # Return the value of the WINS server from the config db or undef
+    # if we don’t have a WINS server set and we are not the domain
+    # master:
+    my $WINS = $DB->wins_server || "";
+
+    if( ! $WINS ) {
+	return "";
+    }
+
+    $OUT .= "# set netbios-over-TCP/IP nameserver(s) aka WINS server(s)\n";
+    $OUT .= 'dhcp-option=44,' . $WINS . "\n\n";
+
+    $OUT .= "# netbios datagram distribution server\n";
+    $OUT .= 'dhcp-option=45,' . $WINS . "\n";
+}

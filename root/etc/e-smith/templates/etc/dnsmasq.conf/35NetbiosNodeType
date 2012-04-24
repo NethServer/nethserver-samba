@@ -1,0 +1,7 @@
+{
+    my $role = $smb{ServerRole} || 'WS';
+    if( $role eq 'PDC' || $role eq 'ADS' ) {
+	$OUT .= "# netbios node type:\n";
+	$OUT .= "dhcp-option=46,8\n";
+    }
+}
