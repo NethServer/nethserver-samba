@@ -38,6 +38,7 @@ class Samba extends \Nethgui\Controller\Table\AbstractAction implements \NethSer
     public function setKey($key)
     {
         $this->key = $key;
+        return $this;
     }
 
     public function bind(\Nethgui\Controller\RequestInterface $request)
@@ -45,5 +46,5 @@ class Samba extends \Nethgui\Controller\Table\AbstractAction implements \NethSer
         $this->declareParameter('Samba', Validate::SERVICESTATUS, array($this->getAdapter(), $this->key, 'Samba'));
         parent::bind($request);
     }
-
+    
 }
