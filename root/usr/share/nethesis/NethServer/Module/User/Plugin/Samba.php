@@ -25,26 +25,19 @@ use Nethgui\System\PlatformInterface as Validate;
 /**
  * @todo describe class
  */
-class Samba extends \Nethgui\Controller\Table\AbstractAction implements \NethServer\Module\User\PluginInterface
+class Samba extends \Nethgui\Controller\Table\AbstractAction
 {
 
-    private $key;
-
-    public function getParentIdentifier()
+    protected function initializeAttributes(\Nethgui\Module\ModuleAttributesInterface $base)
     {
-        return array("Service", 0);
-    }
-
-    public function setKey($key)
-    {
-        $this->key = $key;
-        return $this;
+        return \Nethgui\Module\SimpleModuleAttributesProvider::extendModuleAttributes($base, 'Service', 10);
     }
 
     public function bind(\Nethgui\Controller\RequestInterface $request)
     {
-        $this->declareParameter('Samba', Validate::SERVICESTATUS, array($this->getAdapter(), $this->key, 'Samba'));
+        $key = \Nethgui\array_head($request->getPath());
+        $this->declareParameter('Samba', Validate::SERVICESTATUS, array($this->getAdapter(), $key, 'Samba'));
         parent::bind($request);
     }
-    
+
 }
