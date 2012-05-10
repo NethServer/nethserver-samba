@@ -61,12 +61,9 @@ foreach my $user (@users) {
 
     # Default user Samba state ( Refs #974 ):
     # active user => Samba disabled; 
-    # new user => Samba enabled.
     my $userState = $accountsDb->get_prop($user, '__state');
     if ($userState eq 'active') {
 	$accountsDb->set_prop($user, 'Samba', 'disabled');
-    } elsif ($userState eq 'new') {
-	$accountsDb->set_prop($user, 'Samba', 'enabled');
     }
 
     # Make sure the password is in expired state, to avoid valid empty passwords:
