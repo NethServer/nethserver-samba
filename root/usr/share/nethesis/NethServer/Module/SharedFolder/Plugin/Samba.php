@@ -34,7 +34,7 @@ class Samba extends \Nethgui\Controller\Table\RowPluginAction
 
     protected function initializeAttributes(\Nethgui\Module\ModuleAttributesInterface $base)
     {
-        return \Nethgui\Module\SimpleModuleAttributesProvider::extendModuleAttributes($base, 'Service', 10);
+        return \Nethgui\Module\SimpleModuleAttributesProvider::extendModuleAttributes($base, 'Samba', 10);
     }
 
     public function initialize()

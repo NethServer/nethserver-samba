@@ -1,5 +1,7 @@
 <?php
 
+$L['Samba_Title'] = 'Samba';
+
 $L['Recycle'] = 'Network Recycle';
 $L['RecycleBin_enabled_label'] = 'Enable';
 $L['RecycleBin_disabled_label'] = 'Disable';
