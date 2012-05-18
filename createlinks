@@ -107,5 +107,5 @@ foreach $daemon (qw(nmb smb winbind)) {
 
 
 # Refs #1066 - Make sure home/ dir exists in /etc/skel
-File::Path::make_path('/etc/skel/home');
-chmod 0750, '/etc/skel/home';
+File::Path::make_path('root/etc/skel/home');
+chmod 0750, 'root/etc/skel/home';
