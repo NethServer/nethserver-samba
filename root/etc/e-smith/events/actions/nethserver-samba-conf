@@ -13,6 +13,7 @@
 use strict;
 
 use NethServer::Directory;
+use NethServer::Service;
 use Net::LDAP::LDIF;
 use Net::LDAP;
 
@@ -119,5 +120,10 @@ use Data::Dumper;
     	} 
     }
 } # END LDAP
+
+NethServer::Service::manage_add('nethserver-samba',
+				'smb',
+				'nmb',
+				'winbind');
 
 exit($exitCode);
