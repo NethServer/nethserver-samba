@@ -13,6 +13,7 @@
 
 use strict;
 use esmith::AccountsDB;
+use File::Path;
 
 my $event = shift;
 my $user = shift;
@@ -36,6 +37,14 @@ if($user) {
 
 
 foreach my $user (@users) {
+
+    my $userShare = '/home/e-smith/files/users/' . $user . '/home';
+
+    if( ! -d $userShare) {
+	File::Path::make_path($userShare);
+	chmod 0750, $userShare;
+	chown (((getpwnam($user))[2,3]), $userShare);
+    }
 
     # Check if user exists in SAM:
     qx($pdbedit -L -u "$user" >/dev/null 2>&1);

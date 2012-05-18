@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 
 use esmith::Build::CreateLinks qw(:all);
-
+use File::Path;
 
 templates2events("/etc/samba/smb.conf", qw(
     nethserver-samba-update
@@ -106,3 +106,6 @@ foreach $daemon (qw(nmb smb winbind)) {
 }
 
 
+# Refs #1066 - Make sure home/ dir exists in /etc/skel
+File::Path::make_path('/etc/skel/home');
+chmod 0750, '/etc/skel/home';
