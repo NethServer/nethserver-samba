@@ -5,6 +5,15 @@ use strict;
 use NethServer::Directory;
 use NethServer::Service;
 
+#
+# Refs #1137. Skip acl setup, if samba is not enabled
+#
+if( ! NethServer::Service::is_enabled('smb')) {
+    warn "smb service is currently not enabled, skipping ldap ACL setup.\n";
+    exit 0;
+}
+
+
 my $ldap = NethServer::Directory::connect();
 my $internalSuffix = NethServer::Directory::getInternalSuffix();
 my $exitCode = 0;
