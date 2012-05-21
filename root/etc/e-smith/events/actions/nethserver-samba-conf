@@ -79,6 +79,7 @@ use Data::Dumper;
     foreach(@entries) {
 	my $message = $ldap->merge(@{$_});
 	if($message->is_error()) {
+	    warn 'ldap merge error: ' . $message->error() . "\n";
 	    $exitCode ++;
 	}
     }
@@ -115,6 +116,7 @@ use Data::Dumper;
     		]);
 	    
     	    if($message->is_error()) {    	
+		warn 'ldap modify error: ' . $message->error() . "\n";
     		$exitCode ++;
     	    }
     	} 
