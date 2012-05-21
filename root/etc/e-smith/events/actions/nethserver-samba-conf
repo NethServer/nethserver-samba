@@ -79,46 +79,11 @@ use Data::Dumper;
     foreach(@entries) {
 	my $message = $ldap->merge(@{$_});
 	if($message->is_error()) {
+	    warn 'error merging ' . $_[0];
 	    $exitCode ++;
 	}
     }
 
-    #
-    # Modify Bdb ACL to grant write permission to samba 
-    #
-    my $accessSearch = $ldap->search(
-    	base => "cn=config",
-    	filter => "(&(olcSuffix=$internalSuffix)(objectClass=olcBdbConfig))",
-    	sizelimit => 1,
-    	scope => 'one'
-    	);
-
-    if($accessSearch->is_error()) {	
-	warn "Cannot find `$internalSuffix` subtree";
-    	$exitCode ++;
-    } else {
-    	my $aclEntry = $accessSearch->pop_entry();
-
-    	if($aclEntry) {
-	    my $sambaWho = qq( by dn.exact="cn=samba,$internalSuffix" peername.ip="127.0.0.1" write );
-    	    my @olcAccess = $aclEntry->get_value('olcAccess');
-
-	    foreach(@olcAccess) {
-		s/ manage/ manage $sambaWho/ if (m/to \*/s && ! m/\Q$sambaWho\E/);
-	    }
-
-    	    # print Dumper([@olcAccess]);	    
-    	    my $message = $ldap->modify(
-    		$aclEntry->dn(),
-    		replace => [
-    		    olcAccess => [@olcAccess]
-    		]);
-	    
-    	    if($message->is_error()) {    	
-    		$exitCode ++;
-    	    }
-    	} 
-    }
 } # END LDAP
 
 NethServer::Service::manage_add('nethserver-samba',
