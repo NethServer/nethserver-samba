@@ -15,10 +15,13 @@ my ($event, $user) = @ARGV;
 
 # validate the user argument before proceed:
 if(defined $user) {
-    my $accountsDb = esmith::AccountsDB->open_ro();    
-    if($accountsDb->get_prop($user, 'type') ne 'user') {
+    my $accountsDb = esmith::AccountsDB->open_ro() || die('Could not open AccountsDB');    
+    my $accountType = $accountsDb->get_prop($user, 'type');
+    if($accountType ne 'user' 
+       && $accountType ne 'user-deleted') {
 	warn "NOTICE: `$user` is not a user account.\n";
-	undef $user;
+	# See below: smbd reload configuration
+	undef $user; 
     }
 }
 
