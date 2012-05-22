@@ -61,8 +61,8 @@ event_actions('user-create',
 );
 
 event_actions('user-delete',
-	      "nethserver-samba-profile-delete" => '20',
-	      "nethserver-samba-smbd-adjust" => '95',
+	      'nethserver-samba-smbd-adjust' => '30',
+	      'nethserver-samba-profile-delete' => '40',
 );
 
 event_actions('user-modify',
