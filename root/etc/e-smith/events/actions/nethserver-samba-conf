@@ -14,38 +14,12 @@ use strict;
 
 use NethServer::Directory;
 use NethServer::Service;
-use Net::LDAP::LDIF;
-use Net::LDAP;
 
 my $ldap = NethServer::Directory::connect();
 my $internalSuffix = NethServer::Directory::getInternalSuffix();
 my $exitCode = 0;
 
-use Data::Dumper;
-
-{ # BEGIN schema configuration
-    my $ldif = Net::LDAP::LDIF->new("/etc/openldap/schema/samba.ldif", "r", onerror => 'die');
-    my $sambaSchema = $ldif->read_entry();
-
-    my $response = $ldap->search(
-	base => 'cn=schema,cn=config',
-	filter => 'cn=*samba',
-	sizelimit => 1,
-	scope => 'one',
-	);
-    
-    if($response->count() == 0) {
-	$sambaSchema->changetype('add');
-	$response = $sambaSchema->update($ldap);	
-	if( $response->is_error()) {
-	    warn $response->error();	   
-	    $exitCode ++;
-	} else {
-	    warn "Added samba.ldif schema\n";
-	}
-    }
-
-} # END schema configuration
+$ldap->loadLdifSchema('samba', '/etc/openldap/schema/samba.ldif') || die("Could not load the samba LDIF schema");
 
 { # BEGIN LDAP
 

@@ -24,7 +24,10 @@ use Nethgui\System\PlatformInterface as Validate;
 use Nethgui\Controller\Table\Modify as Table;
 
 /**
- * @todo describe class
+ * Samba user plugin
+ * 
+ * @since 1.0
+ * @author Davide Principi <davide.principi@nethesis.it> 
  */
 class Samba extends \Nethgui\Controller\Table\RowPluginAction
 {
