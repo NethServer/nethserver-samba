@@ -1,4 +1,4 @@
 # 10base -- ibay {$key} definition
 [{$key}]
 path = /var/lib/nethserver/ibay/{$key}
-comment = { $ibay->prop('Description') || '# No comment' }
+comment = { $ibay->prop('Description') || 'Samba share' }

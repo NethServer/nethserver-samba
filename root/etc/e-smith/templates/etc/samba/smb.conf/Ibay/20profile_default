@@ -1,15 +1,19 @@
 {
     #
-    # 20profile_default
+    # 20profile_default -- requires mount options acl and user_xattr
     #
-
-    if(($ibay->{SmbProfileType} || '') ne 'default') {
+               
+    if($ibay->prop('SmbProfileType') ne 'default') {
         return '';
     }
 
-    $OUT = <<PROFILE;
+    return <<PROFILE;
 # 20profile_default:
-inherit permissions = Yes
-store dos attributes = Yes
+read only            = no
+inherit permissions  = yes
+inherit owner        = yes
+store dos attributes = yes
+map archive          = no
+map readonly         = no
 PROFILE
 }
