@@ -1,0 +1,23 @@
+{
+    #
+    # 01vfs_recycle
+    #
+
+    if(($ibay->prop('SmbRecycleBinStatus') || '') ne 'enabled') {
+	return '';
+    }   
+
+    my $versions = ($ibay->prop('SmbRecycleBinVersionsStatus') || 'disabled') eq 'enabled';
+
+    $ibay_vfs->{recycle} = {
+	versions => $versions ?  "True" : "False",
+	repository => "Recycle Bin",
+	keeptree => "True",
+	touch => "True",
+	exclude => "*.tmp|*.temp|*.o|*.obj|~\$*",
+	exclude_dir => "/tmp|/temp|/cache",
+	directory_mode => "0770"
+    };
+    
+    '';
+}

@@ -39,25 +39,88 @@ class Samba extends \Nethgui\Controller\Table\RowPluginAction
 
     public function initialize()
     {
+        // Supported Samba ibay profiles
+        $this->profiles = array(
+            'default'
+        );
+
         $schema = array(
-            array('ShadowCopy', Validate::SERVICESTATUS, Table::FIELD),
-            array('RecycleBin', Validate::SERVICESTATUS, Table::FIELD),
-            array('KeepVersions', Validate::SERVICESTATUS, Table::FIELD),
+            array('SmbStatus', Validate::SERVICESTATUS, Table::FIELD),
+            array('SmbProfileType', FALSE, Table::FIELD),
+            array('SmbShadowCopyStatus', Validate::SERVICESTATUS, Table::FIELD),
+            array('SmbRecycleBinStatus', Validate::SERVICESTATUS, Table::FIELD),
+            array('SmbRecycleBinVersionsStatus', Validate::SERVICESTATUS, Table::FIELD),
         );
 
         $this->setSchemaAddition($schema);
+        $this->setDefaultValue('SmbProfileType', 'default');
         parent::initialize();
+
+        $profileNameValidator = $this->createValidator()->memberOf(array_merge($this->profiles, array('custom')));
+
+        $this->declareParameter('profileName', $profileNameValidator, array());
+        $this->declareParameter('customValue', $this->createValidator(), array());
     }
 
-    public function bind(\Nethgui\Controller\RequestInterface $request)
+    public function validate(\Nethgui\Controller\ValidationReportInterface $report)
     {
-        parent::bind($request);
-        if ( ! $request->isMutation()
-            && $this->getPluggableActionIdentifier() === 'create') {
-            $this->parameters['ShadowCopy'] = 'disabled';
-            $this->parameters['RecycleBin'] = 'disabled';
-            $this->parameters['KeepVersions'] = 'disabled';
+        $request = $this->getRequest();
+        // restrict custom profile name to a common "variable name" grammar:
+        if ($request->isMutation() && $this->parameters['profileName'] === 'custom') {
+            $this->getValidator('customValue')->regexp('/^[a-z][a-z0-9]+$/i');
         }
+        parent::validate($report);
+    }
+
+    public function readProfileName()
+    {
+        if ( ! isset($this->parameters['SmbProfileType']) || empty($this->parameters['SmbProfileType'])) {            
+            return '';
+        }
+        if (in_array($this->parameters['SmbProfileType'], $this->profiles)) {
+            return $this->parameters['SmbProfileType'];
+        }
+        return 'custom';
+    }
+
+    public function writeProfileName($value)
+    {
+        if (in_array($value, $this->profiles)) {
+            $this->parameters['SmbProfileType'] = $value;
+            return TRUE;
+        }
+    }
+
+    public function readCustomValue()
+    {
+        if ( ! isset($this->parameters['SmbProfileType']) || empty($this->parameters['SmbProfileType'])) {
+            return '';
+        }
+
+        if (in_array($this->parameters['SmbProfileType'], $this->profiles)) {
+            return '';
+        }
+
+        return $this->parameters['SmbProfileType'];
+    }
+
+    public function writeCustomValue($value)
+    {
+        $request = $this->getRequest();
+        if ($request->isMutation() && $request->hasParameter('customValue')) {
+            $this->getLog()->notice(sprintf('COPY %s to SmbProfileType', $this->parameters['customValue']));
+            $this->parameters['SmbProfileType'] = $this->parameters['customValue'];
+            return TRUE;
+        }
+    }
+
+    public function prepareView(\Nethgui\View\ViewInterface $view)
+    {
+        parent::prepareView($view);
+        if($view['profileName'] === '') {
+            $view['profileName'] = 'default';
+        }
+        unset($view['SmbProfileType']);
     }
 
 }

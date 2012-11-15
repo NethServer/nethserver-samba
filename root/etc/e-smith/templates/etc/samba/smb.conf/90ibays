@@ -2,17 +2,27 @@
     # process all information-bay directories
 
     use esmith::AccountsDB;
+    use esmith::templates;
+
     my $adb = esmith::AccountsDB->open_ro();
 
-    foreach my $ibay ($adb->ibays)
-    {
-	$OUT .= esmith::templates::processTemplate (
-	    {
-		MORE_DATA => {
-			ibay => $ibay,
-		    },
-		TEMPLATE_PATH => "/etc/samba/smb.conf/ibays",
-		OUTPUT_TYPE => 'string',
-	    });
+    my $ibaysOutput = '';
+    foreach my $ibay ($adb->ibays) {
+
+	if( ! defined $ibay->prop('SmbStatus') ) {
+	    warn sprintf("Ibay `%s` is not configured for samba: skipped\n", $ibay->key);
+	    next;
+	}
+
+	if($ibay->prop('SmbStatus') ne 'enabled') {
+	    next;
+	}
+
+	$ibaysOutput .= esmith::templates::processTemplate ({
+	    MORE_DATA => { ibay => $ibay },
+	    TEMPLATE_PATH => "/etc/samba/smb.conf/ibays",
+	    OUTPUT_TYPE => 'string',
+        }) || '';
     }
+    return $ibaysOutput;
 }

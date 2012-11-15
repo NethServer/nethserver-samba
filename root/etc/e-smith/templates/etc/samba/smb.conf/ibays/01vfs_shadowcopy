@@ -1,0 +1,11 @@
+{
+    #
+    # 01vfs_shadowcopy
+    #
+    if (($smb{'SmbShadowCopyStatus'} || '') ne 'enabled') {
+        return '';
+    }
+
+    $ibay_vfs->{shadow_copy} = ();
+    '';
+}

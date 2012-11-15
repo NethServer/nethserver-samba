@@ -2,11 +2,11 @@
 
 $L['Samba_Title'] = 'Samba';
 
-$L['Recycle'] = 'Network Recycle';
-$L['RecycleBin_enabled_label'] = 'Enable';
-$L['RecycleBin_disabled_label'] = 'Disable';
+$L['SmbStatus_label'] = 'Enable Samba';
+$L['SmbRecycleBinStatus_label'] = 'Network recycle bin';
+$L['SmbRecycleBinVersionsStatus_label'] = 'Keep omonym files';
+$L['SmbShadowCopyStatus_label'] = 'Shadow copy';
 
-$L['Shadow copy'] = 'Shadow copy';
-$L['ShadowCopy_enabled_label'] = 'Enable shadow copy';
-$L['ShadowCopy_disabled_label'] = 'Disable shadow copy';
-$L['KeepVersions_label'] = 'Do not overwrite existing files';
+$L['Profiles_label'] = 'Share profile';
+$L['profileName_default_label'] = 'Default';
+$L['profileName_custom_label'] = 'Custom';

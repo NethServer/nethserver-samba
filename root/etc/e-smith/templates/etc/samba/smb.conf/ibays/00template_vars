@@ -1,0 +1,12 @@
+{
+    #
+    # 00template_vars
+    #
+    use esmith::AccountsDB;
+    # Convert the passed hash for the ibay object back into an object.
+    $ibay = bless \%ibay, 'esmith::DB::db::Record';
+    $key = $ibay->key;
+    $ibay_vfs = ();
+    
+    '';
+}

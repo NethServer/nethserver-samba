@@ -1,0 +1,12 @@
+{
+    return "" unless scalar keys %$ibay_vfs;
+
+    $OUT = "# 90vfs_output\n";
+    $OUT .= "vfs objects = " . (join " ", keys %$ibay_vfs) . "\n";
+    foreach $mod (keys %$ibay_vfs) {
+	foreach $opt (keys %{$ibay_vfs->{$mod}}) {
+	    $OUT .= sprintf("  %s: %s = %s\n", $mod, $opt, $ibay_vfs->{$mod}->{$opt});
+	}
+    }
+    $OUT .= "\n";
+}

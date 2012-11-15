@@ -1,0 +1,15 @@
+{
+    #
+    # 20profile_default
+    #
+
+    if(($ibay->{SmbProfileType} || '') ne 'default') {
+        return '';
+    }
+
+    $OUT = <<PROFILE;
+# 20profile_default:
+inherit permissions = Yes
+store dos attributes = Yes
+PROFILE
+}
