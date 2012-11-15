@@ -20,7 +20,7 @@
 
 	$ibaysOutput .= esmith::templates::processTemplate ({
 	    MORE_DATA => { ibay => $ibay },
-	    TEMPLATE_PATH => "/etc/samba/smb.conf/ibays",
+	    TEMPLATE_PATH => "/etc/samba/smb.conf/Ibay",
 	    OUTPUT_TYPE => 'string',
         }) || '';
     }
