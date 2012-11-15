@@ -1,7 +1,0 @@
-{
-    $OUT = "";
-    return if (($smb{'ShadowCopy'} || 'disabled') eq 'disabled');
-    return if (($ibay->prop('ShadowCopy') || 'enabled') eq 'disabled');
-
-    $ibay_vfs->{shadow_copy} = ();
-}

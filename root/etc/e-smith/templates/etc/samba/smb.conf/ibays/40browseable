@@ -1,5 +1,0 @@
-{
-    if ( ($ibay->prop('Browseable') || 'yes') eq 'disabled') {
-        $OUT .= "browseable = no\n";
-    }
-}

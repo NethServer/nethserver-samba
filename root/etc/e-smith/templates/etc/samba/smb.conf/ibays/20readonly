@@ -1,3 +1,0 @@
-{
-    $OUT .= "read only = no";
-}

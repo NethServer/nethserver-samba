@@ -1,9 +1,0 @@
-{
-    if ( ($ibay->prop('OpLocks') || 'enabled') eq 'disabled') {
-	$OUT .= "oplocks = no\n";
-	$OUT .= "level2 oplocks = no";
-    } else {
-	$vetofiles = $ibay->prop('VetoOplockFiles') || return '';
-	$OUT = "veto oplock files = $vetofiles";
-    }
-}
