@@ -1,6 +1,13 @@
+#
+# 11bindInterfacesOnly
+#
 bind interfaces only = yes
 interfaces = 127.0.0.1 {
-    defined $LocalIP ?
-	"$LocalIP/$LocalNetmask" :
-	""
+    use esmith::NetworksDB;
+    use esmith::util;
+    my $ndb = esmith::NetworksDB->open_ro() || return '';
+    my $LocalIP = $ndb->green()->prop('ipaddr') || return '';
+    my $LocalNetmask = $ndb->green()->prop('netmask') || return '';
+
+    return esmith::util::computeLocalNetworkShortSpec($LocalIP, $LocalNetmask);
 }
