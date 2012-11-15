@@ -53,7 +53,10 @@ class Samba extends \Nethgui\Controller\Table\RowPluginAction
         );
 
         $this->setSchemaAddition($schema);
-        $this->setDefaultValue('SmbProfileType', 'default');
+        $this
+            ->setDefaultValue('SmbProfileType', 'default')
+            ->setDefaultValue('SmbStatus', 'enabled')
+        ;
         parent::initialize();
 
         $profileNameValidator = $this->createValidator()->memberOf(array_merge($this->profiles, array('custom')));
@@ -74,7 +77,7 @@ class Samba extends \Nethgui\Controller\Table\RowPluginAction
 
     public function readProfileName()
     {
-        if ( ! isset($this->parameters['SmbProfileType']) || empty($this->parameters['SmbProfileType'])) {            
+        if ( ! isset($this->parameters['SmbProfileType']) || empty($this->parameters['SmbProfileType'])) {
             return '';
         }
         if (in_array($this->parameters['SmbProfileType'], $this->profiles)) {
@@ -117,7 +120,7 @@ class Samba extends \Nethgui\Controller\Table\RowPluginAction
     public function prepareView(\Nethgui\View\ViewInterface $view)
     {
         parent::prepareView($view);
-        if($view['profileName'] === '') {
+        if ($view['profileName'] === '') {
             $view['profileName'] = 'default';
         }
         unset($view['SmbProfileType']);
