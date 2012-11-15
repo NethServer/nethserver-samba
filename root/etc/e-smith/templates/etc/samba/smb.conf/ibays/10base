@@ -60,14 +60,6 @@
 
 
 
-#
-# 25printable
-#
-{
-    $OUT .= "printable = no";
-}
-
-
 
 #
 # 30permissions
