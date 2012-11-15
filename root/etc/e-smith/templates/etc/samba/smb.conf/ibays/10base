@@ -59,20 +59,6 @@
 }
 
 
-#
-# 20readonly
-#
-
-{
-    $OUT .= "read only = no";
-}
-#
-# 20writable
-#
-
-{
-    $OUT .= "writable = yes";
-}
 
 #
 # 25printable
