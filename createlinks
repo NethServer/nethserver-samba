@@ -110,3 +110,16 @@ foreach $daemon (qw(nmb smb winbind)) {
 # Refs #1066 - Make sure home/ dir exists in /etc/skel
 File::Path::make_path('root/etc/skel/home');
 chmod 0750, 'root/etc/skel/home';
+
+#--------------------------------------------------
+# actions for interface-update event
+#--------------------------------------------------
+event_templates('interface-update',
+                '/etc/samba/smb.conf');
+event_services('interface-update',
+               'smb' => 'restart');
+event_services('interface-update',
+               'nmb' => 'restart');
+event_services('interface-update',
+               'winbind' => 'restart');
+
