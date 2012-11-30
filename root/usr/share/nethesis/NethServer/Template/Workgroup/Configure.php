@@ -8,11 +8,11 @@ echo $view->panel()
             ->insert($view->checkBox('RoamingProfiles', 'yes')->setAttribute('uncheckedValue', 'no'))
         )
 // ADS Server role is currently not implemented
-       ->insert($view->fieldsetSwitch('role', 'ADS', $view::STATE_DISABLED)
-          ->insert($view->textInput('PDCName'))
-          ->insert($view->textInput('PDCIP'))
-          ->insert($view->textInput('Realm'))
-       )
+//       ->insert($view->fieldsetSwitch('role', 'ADS', $view::STATE_DISABLED)
+//          ->insert($view->textInput('PDCName'))
+//          ->insert($view->textInput('PDCIP'))
+//          ->insert($view->textInput('Realm'))
+//       )
     )
 ;
 
