@@ -8,7 +8,7 @@
     $OUT = <<HERE;
 [print\$]
 comment = Printer drivers
-path = /home/e-smith/files/samba/printers
+path = $baseDir/printer_drivers
 guest ok = yes
 browseable = yes
 writable = $writable

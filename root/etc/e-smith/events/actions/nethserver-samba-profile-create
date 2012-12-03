@@ -24,12 +24,10 @@ use Errno;
 use esmith::util;
 
 use esmith::AccountsDB;
+
 my $adb = esmith::AccountsDB->open_ro();
-
 my $event = $ARGV[0];
-
-my @users = ('admin', map { $_->key } $adb->users);
-
+my @users = map { $_->key } $adb->users;
 my @newusers;
 
 if($ARGV[1]) {
@@ -43,21 +41,20 @@ foreach my $user ( @newusers )
     die "$user is not a user account\n"
         unless ( grep /^$user$/, @users );
 
-    # seems that .V2 profile dir is used by Win7 clients..
-    my @dirs = ("/home/e-smith/files/samba/profiles/$user","/home/e-smith/files/samba/profiles/${user}.V2");
-   
-    foreach my $dir (@dirs)
-    {
-        my $pre_existing = ( -d $dir );
-     
-        $pre_existing || mkdir $dir, 700 || die "Couldn't create directory $dir\n";
-
-        chmod 0700, $dir;	# Remove setgid bit
-        
-        next if $pre_existing;
-
-        esmith::util::chownFile($user, $user, $dir) || 
-            die "Couldn't change ownership of $dir\n";
+    # seems that .V2 profile dir is used by clients, starting from
+    # Windows 7..
+    my @dirs = (
+	'/var/lib/nethserver/profile/' . $user,
+	'/var/lib/nethserver/profile/' . $user . '.V2'
+	);
+    
+    foreach my $dir (@dirs)  {
+	if( ! -d $dir) {
+	    mkdir $dir;
+	    esmith::util::chownFile($user, $user, $dir) || 
+		warn "Couldn't change ownership of $dir\n";
+	} 
+	chmod 0700, $dir;  # Remove setgid bit
     }
 }
 

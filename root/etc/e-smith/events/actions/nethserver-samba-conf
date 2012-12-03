@@ -14,6 +14,7 @@ use strict;
 
 use NethServer::Directory;
 use NethServer::Service;
+use File::Path;
 
 my $ldap = NethServer::Directory::connect();
 my $internalSuffix = NethServer::Directory::getInternalSuffix();
@@ -64,5 +65,15 @@ NethServer::Service::manage_add('nethserver-samba',
 				'smb',
 				'nmb',
 				'winbind');
+
+
+# Refs #1579 -- create service shares
+
+File::Path::make_path('/var/lib/nethserver/' . $_) foreach (qw(
+   netlogon
+   print_driver
+   profile
+));
+
 
 exit($exitCode);
