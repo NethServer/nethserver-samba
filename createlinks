@@ -15,16 +15,16 @@ templates2events("/etc/samba/smb.conf", qw(
 
 my ($event, $daemon, $pkg);
 
-event_actions('nethserver-samba-update',
-	      'initialize-default-databases' => '00',
-	      'nethserver-samba-conf' => '20',
-	      'nethserver-samba-aclsetup' => '22',
-	      'firewall-adjust' => '30',
-	      'runlevel-adjust' => '30',
-	      'nethserver-samba-sam-conf' => '95',
-	      'nethserver-samba-user-create' => '96',
-	      'nethserver-samba-group-create' => '97'
-    );
+event_actions('nethserver-samba-update', qw(
+	      initialize-default-databases 00
+	      nethserver-samba-conf 20
+	      nethserver-samba-aclsetup 22
+	      firewall-adjust 30
+	      runlevel-adjust 30
+	      nethserver-samba-sam-conf 95
+	      nethserver-samba-user-create 96
+	      nethserver-samba-group-create 97
+));
 
 
 # When updating nethserver-directory, samba LDAP user acl must be set
@@ -77,10 +77,6 @@ event_actions('user-lock',
 event_actions('user-unlock',
 	      "nethserver-samba-user-modify" => '30',
 	      "nethserver-samba-smbd-adjust" => '95',
-);
-
-event_actions("delete_printer_tdb",
-	      'printer-delete' => '15',
 );
 
 event_actions("nethserver-samba-machine-create",
