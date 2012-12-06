@@ -36,12 +36,15 @@ unless ( defined $a && $a->prop('type') eq "user-deleted" )
     exit (0);
 }
 
-my @dirs = ("/home/e-smith/files/samba/profiles/$account", "/home/e-smith/files/samba/profiles/$account.V2"); 
+my @dirs = (
+    '/var/lib/nethserver/profile/' . $account, 
+    '/var/lib/nethserver/profile/' . $account. '.V2',
+); 
 
 foreach (@dirs) {
  
     next unless -d $_;
-    rmtree( $_ ) || die "Couldn't remove user `$account` profile directory $_\n";
+    rmtree( $_ ) || warn "Couldn't remove user `$account` profile directory $_\n";
 
 }
 

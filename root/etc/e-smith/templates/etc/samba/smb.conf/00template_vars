@@ -1,0 +1,9 @@
+{
+    # 
+    # 00template_vars
+    #
+
+    $baseDir = '/var/lib/nethserver';
+
+    '';
+}

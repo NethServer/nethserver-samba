@@ -1,13 +1,14 @@
 {
 # This is the WinNT/W2K Profiles share
-# WinNT/W2K profiles are stored in /home/e-smith/files/samba/profiles/~user
+# WinNT/W2K profiles are stored in {$profileDir}/~user
 # Win9x profiles are stored in ~user/._winprofile
     return ""
 	unless ($smb{RoamingProfiles} eq "yes");
 
     $OUT .= <<HERE;
 [Profiles]
-path = /home/e-smith/files/samba/profiles
+comment = Roaming Profiles Share
+path = $baseDir/profile
 writeable = yes
 browseable = no
 create mask = 0600

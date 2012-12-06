@@ -14,6 +14,7 @@
 use strict;
 use esmith::AccountsDB;
 use File::Path;
+use User::pwent;
 
 my $event = shift;
 my $user = shift;
@@ -38,12 +39,19 @@ if($user) {
 
 foreach my $user (@users) {
 
-    my $userShare = '/home/e-smith/files/users/' . $user . '/home';
+    my $userEnt = getpwnam($user);
+    if( ! $userEnt) {
+	warn "User $user not found";
+	next;
+    }
 
+    my $userShare = '/var/lib/nethserver/home/' . $user;
+
+    # Ensure home directory exists and set proper permissions:
     if( ! -d $userShare) {
 	File::Path::make_path($userShare);
-	chmod 0750, $userShare;
-	chown (((getpwnam($user))[2,3]), $userShare);
+	chmod 0700, $userShare;
+	chown $userEnt->uid, $userEnt->gid, $userShare;
     }
 
     # Check if user exists in SAM:

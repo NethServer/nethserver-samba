@@ -4,7 +4,7 @@
     $OUT .= <<HERE;
 [netlogon]
 comment = Network Logon Service
-path = /home/e-smith/files/samba/netlogon
+path = $baseDir/netlogon
 guest ok = yes
 writable = yes
 browseable = no
