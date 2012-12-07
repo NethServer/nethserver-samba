@@ -39,7 +39,7 @@ foreach my $group (@groups) {
     my $entrySid = qx($net sam show "$group" 2>/dev/null);
     chomp($entrySid);
     if($? == 0) {
-	warn "Skipping existing SAM entry `$group`: $entrySid";
+	# warn "Skipping existing SAM entry `$group`: $entrySid";
 	next;
     }
 
