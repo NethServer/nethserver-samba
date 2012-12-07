@@ -109,6 +109,16 @@ while ( my ($group, $entry) = each(%$entries) ) {
     }
 }
 
+#
+# Refs #1588 -- add privileges to domadmins group
+#
+system(join(' ', $net, qw(sam rights grant domadmins
+    SeMachineAccountPrivilege
+), ">/dev/null"));
+if($? != 0) {
+    warn "Failed to add privileges to domadmins group";
+    $exitCode ++;
+}
 
 
 exit($exitCode == 0 ? 0 : 1);
