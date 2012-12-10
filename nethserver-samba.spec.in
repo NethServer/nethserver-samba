@@ -1,0 +1,52 @@
+Summary: Nethserver specific Samba configuration files and templates
+Name: nethserver-samba
+Version: @@VERSION@@
+Release: @@RELEASE@@%{?dist}
+License: GPL
+Source: %{name}-%{version}.tar.gz
+BuildArch: noarch
+BuildRequires: nethserver-devtools >= 2.3.4
+URL: http://dev.nethesis.it/projects/%{name}
+
+Requires: nethserver-directory
+Requires: samba >= 3.4.3
+Requires: samba-client >= 3.4.3
+Requires: samba-common >= 3.4.3
+Requires: samba-winbind
+
+%description
+Configuration files and templates for the Samba daemon.
+
+%prep
+%setup
+
+%build
+perl createlinks
+
+%install
+rm -rf $RPM_BUILD_ROOT
+(cd root   ; find . -depth -print | cpio -dump $RPM_BUILD_ROOT)
+%{genfilelist} $RPM_BUILD_ROOT \
+    > %{name}-%{version}-filelist
+echo "%doc COPYING"          >> %{name}-%{version}-filelist
+
+%clean 
+rm -rf $RPM_BUILD_ROOT
+
+%post
+source /etc/nethserver/rpm_hook_functions
+event_queue add %{name}-update
+
+%files -f %{name}-%{version}-filelist
+%defattr(-,root,root)
+
+%changelog
+* Fri Mar 23 2012 Davide Principi <davide.principi@nethesis.it> - 6.1.1-2.nh
+- release DEV1
+
+* Mon Jul 25 2011 Davide <davidep@davidep1.nethesis.it> - 2.9.9-2.nh
+- Updated BuildRequries to nethserver-devtools
+- Fixed perl include path
+
+* Tue Feb 22 2011 Giacomo Sanchietti <giacomo.sanchietti@nethesis.it> 2.9.9-1.nh
+- First release without runsv
