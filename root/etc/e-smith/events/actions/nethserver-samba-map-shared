@@ -1,0 +1,24 @@
+#!/usr/bin/perl
+
+#
+# NethServer Samba
+#
+# Copyright (C) 2012 Nethesis srl
+#
+# Map `shared` group in SAM database. Requires winbindd running.
+#
+
+use strict;
+
+my $event = shift;
+my $uid = getpwnam('shared');
+my $gid = getgrnam('shared');
+
+my $exitCode = 0;
+
+if($uid && $gid) {
+    qx(/usr/bin/net groupmap add unixgroup=shared >/dev/null);
+    $exitCode = $!;
+}
+
+exit($exitCode);

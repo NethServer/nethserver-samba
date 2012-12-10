@@ -24,8 +24,13 @@ event_actions('nethserver-samba-update', qw(
 	      nethserver-samba-sam-conf 95
 	      nethserver-samba-user-create 96
 	      nethserver-samba-group-create 97
+              nethserver-samba-map-shared 98
 ));
 
+# Map shared group in SAM db
+event_actions('nethserver-ibays-update', qw(
+              nethserver-samba-map-shared 60
+));
 
 # When updating nethserver-directory, samba LDAP user acl must be set
 # again, otherwise we are locked out:
