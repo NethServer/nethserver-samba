@@ -40,13 +40,7 @@ event_queue add %{name}-update
 %files -f %{name}-%{version}-filelist
 %defattr(-,root,root)
 
+
+
 %changelog
-* Fri Mar 23 2012 Davide Principi <davide.principi@nethesis.it> - 6.1.1-2.nh
-- release DEV1
 
-* Mon Jul 25 2011 Davide <davidep@davidep1.nethesis.it> - 2.9.9-2.nh
-- Updated BuildRequries to nethserver-devtools
-- Fixed perl include path
-
-* Tue Feb 22 2011 Giacomo Sanchietti <giacomo.sanchietti@nethesis.it> 2.9.9-1.nh
-- First release without runsv
