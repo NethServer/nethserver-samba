@@ -25,57 +25,23 @@ use strict;
 use NethServer::Directory;
 use NethServer::Service;
 
-#
-# Refs #1137. Skip acl setup, if samba is not enabled
-#
-if( ! NethServer::Service::is_enabled('smb')) {
-    warn "smb service is currently not enabled, skipping ldap ACL setup.\n";
-    exit 0;
-}
-
-
-my $ldap = NethServer::Directory::connect();
+my $ldap = NethServer::Directory->new();
 my $internalSuffix = NethServer::Directory::getInternalSuffix();
-my $exitCode = 0;
+my $sambaWho = qq(by dn.exact="cn=samba,$internalSuffix" peername.ip="127.0.0.1");
+my $errors = 0;
 
-#use Data::Dumper;
 
-#
-# Modify Bdb ACL to grant write permission to samba 
-#
-my $accessSearch = $ldap->search(
-    base => "cn=config",
-    filter => "(&(olcSuffix=$internalSuffix)(objectClass=olcBdbConfig))",
-    sizelimit => 1,
-    scope => 'one'
-    );
+# Configure the samba service account to access samba LDAP DB:
+$ldap->configServiceAccount('samba');
 
-if($accessSearch->is_error()) {	
-    warn "Cannot find `$internalSuffix` subtree";
-    exit 1;
+# Grant write permission to samba and make sambaNTPassword readable
+# only by samba user:
+if( ! $ldap->enforceAccessDirective($sambaWho . ' write by self write by * none', 'sambaNTPassword')) {
+    $errors ++;
 }
 
-my $aclEntry = $accessSearch->pop_entry();
+if( ! $ldap->enforceAccessDirective($sambaWho . ' write', '*')) {
+    $errors ++;
+}
 
-if($aclEntry) {
-    my $sambaWho = qq( by dn.exact="cn=samba,$internalSuffix" peername.ip="127.0.0.1" write );
-    my @olcAccess = $aclEntry->get_value('olcAccess');
-    
-    foreach(@olcAccess) {
-	s/ manage/ manage $sambaWho/ if (m/to \*/s && ! m/\Q$sambaWho\E/);
-    }
-    
-    # print Dumper([@olcAccess]);	    
-    my $message = $ldap->modify(
-	$aclEntry->dn(),
-	replace => [
-	    olcAccess => [@olcAccess]
-	]);
-    
-    if($message->is_error()) {    	
-	warn 'modify';
-	exit 1;
-    }
-} 
-
-exit 0;
+exit ($errors == 0 ? 0 : 1);
