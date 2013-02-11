@@ -32,7 +32,7 @@ use strict;
 use NethServer::Directory;
 use NethServer::Service;
 
-my $ldap = NethServer::Directory::connect();
+my $ldap = NethServer::Directory->new();
 my $internalSuffix = NethServer::Directory::getInternalSuffix();
 my $exitCode = 0;
 
@@ -40,7 +40,7 @@ $ldap->loadLdifSchema('samba', '/etc/openldap/schema/samba.ldif') || die("Could 
 
 { # BEGIN LDAP
 
-    my $password = NethServer::Directory::getUserPassword('samba', 0, $ldap);
+    my $password = NethServer::Directory::getUserPassword('samba', 0);
 
     #
     # Store the password in samba secrets.tdb database:
@@ -48,13 +48,6 @@ $ldap->loadLdifSchema('samba', '/etc/openldap/schema/samba.ldif') || die("Could 
     qx(smbpasswd -w '$password');
 
     my @entries = (
-	[ 'cn=samba,' . $internalSuffix,
-	  attrs => [
-	      objectClass => ['device', 'simpleSecurityObject'],
-	      cn => 'samba',
-	      userPassword => NethServer::Directory::getUserPassword('samba', 1, $ldap),
-	      description => 'Samba ldapsam management account'
-	  ] ],
 	[ 'ou=Computers,' . $internalSuffix,
 	  attrs => [
 	      objectClass => ['top', 'organizationalUnit'],
