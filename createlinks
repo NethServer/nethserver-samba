@@ -38,7 +38,6 @@ my ($event, $daemon, $pkg);
 event_actions('nethserver-samba-update', qw(
 	      initialize-default-databases 00
 	      nethserver-samba-conf 20
-	      nethserver-samba-aclsetup 22
 	      firewall-adjust 30
 	      runlevel-adjust 30
 	      nethserver-samba-sam-conf 95
@@ -51,12 +50,6 @@ event_actions('nethserver-samba-update', qw(
 event_actions('nethserver-ibays-update', qw(
               nethserver-samba-map-shared 60
 ));
-
-# When updating nethserver-directory, samba LDAP user acl must be set
-# again, otherwise we are locked out:
-event_actions('nethserver-directory-update',
-	      'nethserver-samba-aclsetup' => '30');
-
 
 # actions for group-create event:
 event_actions('group-create', 

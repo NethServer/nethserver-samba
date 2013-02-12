@@ -63,10 +63,24 @@ $ldap->loadLdifSchema('samba', '/etc/openldap/schema/samba.ldif') || die("Could 
     foreach(@entries) {
 	my $message = $ldap->merge(@{$_});
 	if($message->is_error()) {
-	    warn 'error merging ' . $_[0];
+	    warn 'error merging ' . @{$_}[0];
 	    $exitCode ++;
 	}
     }
+
+    #
+    # LDAP ACL setup for samba service account: (ex nethserver-samba-aclsetup)
+    # 
+
+    my $sambaWho = qq(by dn.exact="cn=samba,$internalSuffix" peername.ip="127.0.0.1");
+
+    # Configure the samba service account to access samba LDAP DB:
+    $ldap->configServiceAccount('samba');
+
+    # Grant write permission to samba and make sambaNTPassword
+    # readable only by samba user:
+    $ldap->enforceAccessDirective($sambaWho . ' write by self write by * none', 'sambaNTPassword') || $exitCode ++;
+    $ldap->enforceAccessDirective($sambaWho . ' write', '*') ||  $exitCode ++;
 
 } # END LDAP
 
