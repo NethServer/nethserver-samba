@@ -8,7 +8,7 @@ BuildArch: noarch
 BuildRequires: nethserver-devtools
 URL: http://dev.nethesis.it/projects/%{name}
 
-Requires: nethserver-directory
+Requires: nethserver-directory >= 1.1.1-5
 Requires: samba >= 3.4.3
 Requires: samba-client >= 3.4.3
 Requires: samba-common >= 3.4.3
