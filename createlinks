@@ -133,3 +133,10 @@ event_services('interface-update',
 event_services('interface-update',
                'winbind' => 'restart');
 
+
+#
+# migration-import event (refs #1657)
+#
+event_actions('migration-import', qw(
+    nethserver-samba-migrate 30
+));
