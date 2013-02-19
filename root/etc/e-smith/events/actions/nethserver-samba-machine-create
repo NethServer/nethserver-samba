@@ -28,43 +28,65 @@
 package esmith;
 
 use strict;
-use Errno;
 use esmith::ConfigDB;
 use esmith::AccountsDB;
 use esmith::util;
+use User::pwent;
 
-my $a = esmith::AccountsDB->open || die "Couldn't open accounts db\n";
+my $accountsDb = esmith::AccountsDB->open or die("Couldn't open accounts db\n");
 
-my $event = $ARGV [0];
-my $machineName = $ARGV [1];
+my $event = shift;
+my $machineName = shift;
 
-# Machine account names MUST end with dollar sign '$':
-die "machine name $machineName is not a valid machine account name"
-	unless ( $machineName =~ /\$$/ );
-
-my $m = $a->get($machineName);
-if ($m) {
-    my $type = $m->prop('type');
-    die "$machineName is not a machine account" 
-	unless ($type eq "machine");
-} else {
-    # Create the machine record in AccountsDB
-    $a->new_record($machineName, {type => "machine"});
+# Validate account name: machine account names MUST end with dollar sign '$':
+if ( $machineName !~ /\$$/ ) {
+    die("Machine name $machineName is not a valid machine account name\n");
 }
 
-# We really, really need to be root to run "passwd -l"
-esmith::util::setRealToEffective();
+my $uid;
+my $lock;
+
+# Create accounts DB record, if not exist
+my $machine = $accountsDb->get($machineName);
+if ($machine) {
+    $uid = $machine->prop('Uid');
+} else {
+    use esmith::lockfile;
+
+    $lock = esmith::lockfile::LockFileOrWait("/var/lib/nethserver/db/accounts");
+    $uid = $accountsDb->get_next_uid;
+
+    # Create the machine record in AccountsDB
+    $accountsDb->new_record($machineName, {type => "machine", Uid => $uid});
+}
+
+# Check account type correctness
+if ($machine->prop('type') ne 'machine') {
+    die("Account $machineName is not of type machine\n");
+}
 
 system(
-	"/usr/sbin/luseradd",
-	"-c", "Samba machine $machineName account",
-	"-M",
-	"-d", "/noexistingpath",
-	"-s", "/bin/false",
-	"$machineName"
-    ) == 0 or die "Failed to create account $machineName.\n";
+    '/usr/sbin/luseradd',
+    $uid > 0 ? ('-u', $uid) : (),
+    '-g', 'domcomputers',
+    '-c', $machineName . ' samba machine account',
+    '-M',
+    '-d', '/noexistingpath',
+    '-s', '/bin/false',
+    $machineName
+    );
 
-system("/usr/sbin/lusermod", "-L", "$machineName") == 0
+if($? != 0) {
+    die("Failed to create machine account $machineName.\n");
+}
+
+# Release lock if we have one:
+if($lock) {
+    esmith::lockfile::UnlockFile($lock);
+}
+
+system('/usr/sbin/lusermod', '-L', $machineName) == 0
     or warn("Could not lock password for $machineName\n");
 
-exit (0);
+
+
