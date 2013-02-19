@@ -52,13 +52,12 @@ my $entries = {
 	rid => 514,
 	type => 'd',
 	name => 'Domain Guests'
-    }	
+    },
     domcomputers => {
 	rid => 515,
 	type => 'd',
 	name => 'Domain Computers'
     }	
-
 };
 
 sub initializeGroupRecord
