@@ -12,7 +12,7 @@ ldapsam:trusted = yes
 ldapsam:editposix = no
 ldap group suffix = ou=Groups
 ldap user suffix = ou=People
-ldap machine suffix = ou=Computers
+ldap machine suffix = ou=People
 ldap ssl = off
 ldap admin dn = cn=samba,$domainSuffix
 ldap suffix = $domainSuffix

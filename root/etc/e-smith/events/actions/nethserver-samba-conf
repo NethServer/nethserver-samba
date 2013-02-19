@@ -48,11 +48,6 @@ $ldap->loadLdifSchema('samba', '/etc/openldap/schema/samba.ldif') || die("Could 
     qx(smbpasswd -w '$password');
 
     my @entries = (
-	[ 'ou=Computers,' . $internalSuffix,
-	  attrs => [
-	      objectClass => ['top', 'organizationalUnit'],
-	      ou => 'Computers',
-	  ] ],       	
 	[ 'ou=Idmap,' . $internalSuffix,
 	  attrs => [
 	      objectClass => ['top', 'organizationalUnit'],
