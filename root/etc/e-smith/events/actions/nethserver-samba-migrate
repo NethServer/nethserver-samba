@@ -20,37 +20,273 @@
 # along with NethServer.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+use strict;
+use NethServer::Directory;
 use esmith::DB::db;
 use esmith::event;
+use esmith::util;
 use Carp;
-use strict;
 
 my $event = shift;
 my $sourceDir = shift;
 my $esmithDbDir = '/home/e-smith/db';
 my $errors = 0;
 
-my $srcConfigDb = esmith::DB::db->open_ro(join('', $sourceDir, $esmithDbDir, '/configuration')) || die("Could not open source configuration database in $sourceDir \n");
-my $dstConfigDb = esmith::DB::db->open('configuration') || die("Could not open configuration account db\n");
+if( ! $event ) {
+    die("Missing event argument!\n");
+}
+
+if( ! $sourceDir ) {
+    die("Missing sourceDir argument!\n");
+}
+
+my $srcConfigDb = esmith::DB::db->open_ro(join('', $sourceDir, $esmithDbDir, '/configuration')) or die("Could not open source configuration database in $sourceDir \n");
+my $dstConfigDb = esmith::DB::db->open('configuration') or die("Could not open configuration account db\n");
+
+my $srcAccountsDb = esmith::DB::db->open_ro(join('', $sourceDir, $esmithDbDir, '/accounts')) or die("Could not open source accounts database in $sourceDir \n");
+my $dstAccountsDb = esmith::DB::db->open('accounts') or die("Could not open destination account db\n");
+
+my $ldap = NethServer::Directory->new() or die("Could not connect LDAP server\n");
+my $LdapInternalSuffix = NethServer::Directory::getInternalSuffix();
+
+#
+# obtain original domain SID: net getlocalsid > localsid.dump
+#
+sub parseDomainSid
+{
+    my $dumpFileName = shift;
+
+    open(FH, '<', $dumpFileName) or die("Could not open $dumpFileName!");
+
+    my $sid = '';
+    my $domain = '';
+    my $line = <FH>;
+
+    chomp($line);
+
+    if($line =~ /^SID for domain ([^\s]+) is: (S-.*)$/) {
+	$domain = $1;
+	$sid = $2;
+    }
+
+    close(FH);
+
+    return $sid;
+}
+
+#
+# obtain user/group RIDs: net sam list users/groups verbose
+#
+sub parseRid
+{
+    my $dumpFileName = shift;
+    open(FH, '<', $dumpFileName) or die("Could not open $dumpFileName!");
+    my %db = ();
+
+    while(<FH>) {
+	my($key, $rid, $extra) = split(':', $_, 3);
+	$db{$key} = $rid;
+    }
+
+    close(FH);
+    return %db;
+}
+
+#
+# obtain unix group => samba group mapping: net groupmaplist > groupmap.dump
+#
+sub parseGroupMap
+{
+    my $dumpFileName = shift;
+    open(FH, '<', $dumpFileName) or die("Could not open $dumpFileName!");
+    my %db = ();
+
+    while(<FH>) {
+	if(m/^(.*) \((S-[-0-9]+)\) -> (\w+)/) {
+	    $db{$1} = $3;
+	}
+    }
+
+    close(FH);
+    return %db;
+}
+
+#
+# calculate group name => rid association
+#
+sub getGroupRidHash
+{
+
+    my %gm = parseGroupMap($sourceDir . '/etc/samba/groupmap.dump');
+    my %groups = parseRid($sourceDir . '/etc/samba/groups.dump');
+
+    my %h = ();
+
+    while(my ($sambaGroup, $rid) = each(%groups)) {
+	if($gm{$sambaGroup}) {
+	    $h{$gm{$sambaGroup}}  = $rid;
+	}
+    }
+    
+    return %h;
+}
+
+#
+# obtain user's password hash fro smbpasswd DB
+#
+sub parseSmbPasswd
+{
+    my $dumpFileName = shift;
+    open(FH, '<', $dumpFileName) or die("Could not open $dumpFileName!");
+    my %db = ();
+
+    while(<FH>) {
+	my($uname, $uid, $f1, $nthash, $extra) = split(':', $_, 5);
+	$db{$uname} = $nthash;
+    }
+
+    close(FH);
+    return %db;
+}
+
+
+my $domainName = uc $srcConfigDb->get_prop('smb', 'Workgroup');
+my $serverRole = $srcConfigDb->get_prop('smb', 'ServerRole');
 
 # Copy some smb props in dst db:
-my %smbUpdate = (
-    ServerRole => $srcConfigDb->get_prop('smb', 'ServerRole'),
-    Workgroup => $srcConfigDb->get_prop('smb', 'Workgroup'),
+$dstConfigDb->get('smb')->merge_props(
+    ServerRole => $serverRole,
+    Workgroup => $domainName,
 );
-$dstConfigDb->get('smb')->merge_props(%smbUpdate);
+$dstConfigDb->reload();
 
+my $domainSid = parseDomainSid($sourceDir . '/etc/samba/localsid.dump') or die("Could not obtain domain SID\n");
 
+my %userRid = (parseRid($sourceDir . '/etc/samba/users.dump'), parseRid($sourceDir . '/etc/samba/workstations.dump'));
+my %groupRid = getGroupRidHash();
+my %userPassword = parseSmbPasswd($sourceDir . '/etc/samba/smbpasswd');
+my $ldapResponse;
 
-
-
-
-
-
-
+# Well known RIDs (see also nethserver-samba-sam-conf action):
+$groupRid{domadmins} = '512';
+$groupRid{domusers} = '513';
+$groupRid{domguests} = '514';
+$groupRid{domcomputers} = '515';
 
 # Change smb Workgroup and role according to source configuration:
 if( ! esmith::event::event_signal('nethserver-samba-save')) {
-    warn "[ERROR] nethserver-samba-save event failed\n";
-    exit 1;
+    die("[ERROR] nethserver-samba-save event failed\n");
 }
+
+#
+# migrate machine accounts
+#
+foreach ($srcAccountsDb->get_all_by_prop(type => 'machine')) {
+    $dstAccountsDb->set_prop($_->key, 'Uid', $_->prop('Uid'), type => 'machine');
+
+    my $secret = esmith::util::genRandomHash();
+
+    open(PH, '|-', '/usr/bin/pdbedit -t -a -m -u ' . $_->key . ' >/dev/null 2>&1');
+    print PH $secret . "\n" . $secret . "\n";
+    if( ! close(PH)) {
+	warn "[ERROR] failed to add machine account " . $_->key . " in SAM db\n";
+	$errors ++;
+    }
+}
+
+
+#
+# set the new local SID in secrets.tdb:
+#
+system('/usr/bin/net', 'setlocalsid', $domainSid);
+if( $? != 0) {
+    die("Could not set local SID to $domainSid\n");
+}
+
+#
+# change SID of LDAP domain entry:
+#
+$ldapResponse = $ldap->modify(sprintf('sambaDomainName=%s,%s', $domainName, $LdapInternalSuffix), 
+	      replace => {
+		  sambaSID => $domainSid
+	      });
+
+if($ldapResponse->is_error) {
+    warn "[ERROR] failed to update sambaDomainName $domainName SID\n";
+    $errors++;
+}
+
+
+#
+# sync user and machine SIDs and passwords
+#
+foreach ($dstAccountsDb->get_all_by_prop(type => 'machine'), 
+	 $dstAccountsDb->get_all_by_prop(type => 'user')) {
+
+    my $uid = $_->key;
+    my $userDn = sprintf('uid=%s,ou=People,%s', $uid, $LdapInternalSuffix);
+
+    my $attrs = {};
+
+    if($userRid{$uid}) {
+	$attrs->{sambaSID} = $domainSid . '-' . $userRid{$uid};
+    } else {
+	warn "[WARNING] SID not found for account " . $uid;
+    }
+
+    if($userPassword{$uid}) {
+	$attrs->{sambaNTPassword} = $userPassword{$uid};
+    } else {
+	warn "[WARNING] password hash not found for account " . $uid;
+    }
+
+    $ldapResponse = $ldap->modify($userDn, replace => $attrs);
+    if($ldapResponse->is_error) {
+	warn "[ERROR] failed to update $userDn SAM entry\n";
+	$errors++
+    }
+
+    # update also user primary group (users only):
+    if($_->prop('type') eq 'user') {
+	my $groupDn = sprintf('cn=%s,ou=Groups,%s', $uid, $LdapInternalSuffix);
+	$ldapResponse = $ldap->modify($groupDn, replace => {
+	    $groupRid{$uid} ? ('sambaSID', $domainSid . '-' . $groupRid{$uid}) : ()
+				      });
+	if($ldapResponse->is_error) {
+	    warn "[ERROR] failed to update $groupDn SAM entry\n";
+	    $errors++
+	}
+    }
+
+}
+
+#
+# migrate groups SIDs
+#
+foreach my $gid ( keys %{{
+    (map { $_->key => 1 } $dstAccountsDb->get_all_by_prop(type => 'group')), 
+    qw(
+      domadmins  1
+      domusers   1
+      domguests  1
+    )}} ) {
+
+    my $groupDn = sprintf('cn=%s,ou=Groups,%s', $gid, $LdapInternalSuffix);
+
+    my $attrs = {};
+
+    if($groupRid{$gid}) {
+	$attrs->{sambaSID} = $domainSid . '-' . $groupRid{$gid};
+    } else {
+	warn "[WARNING] SID not found for group " . $gid;
+    }
+
+    $ldapResponse = $ldap->modify($groupDn, replace => $attrs);
+    if($ldapResponse->is_error) {
+	warn "[ERROR] failed to update $groupDn SAM entry\n";
+	$errors++
+    }
+    
+}
+
+exit($errors > 0 ? 1 : 0);
