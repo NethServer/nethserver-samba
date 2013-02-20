@@ -13,6 +13,7 @@ Requires: samba >= 3.4.3
 Requires: samba-client >= 3.4.3
 Requires: samba-common >= 3.4.3
 Requires: samba-winbind
+Requires: tdb-tools
 
 %description
 Configuration files and templates for the Samba daemon.

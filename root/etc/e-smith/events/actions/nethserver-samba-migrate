@@ -25,7 +25,17 @@ use NethServer::Directory;
 use esmith::DB::db;
 use esmith::event;
 use esmith::util;
+use File::Temp;
+use File::Copy;
+use User::grent;
+use Net::LDAP::LDIF;
 use Carp;
+use Data::Dumper;
+
+sub importDomainSid($$);
+sub parseSmbPasswd($);
+sub parseGroupMap($$);
+
 
 my $event = shift;
 my $sourceDir = shift;
@@ -49,134 +59,41 @@ my $dstAccountsDb = esmith::DB::db->open('accounts') or die("Could not open dest
 my $ldap = NethServer::Directory->new() or die("Could not connect LDAP server\n");
 my $LdapInternalSuffix = NethServer::Directory::getInternalSuffix();
 
-#
-# obtain original domain SID: net getlocalsid > localsid.dump
-#
-sub parseDomainSid
-{
-    my $dumpFileName = shift;
+my $domainName = qx(/usr/bin/testparm -s ${sourceDir}/etc/samba/smb.conf --parameter-name='workgroup' 2>/dev/null);
 
-    open(FH, '<', $dumpFileName) or die("Could not open $dumpFileName!");
+my $serverRole = $srcConfigDb->get_prop('smb', 'ServerRole') || 'WS';
 
-    my $sid = '';
-    my $domain = '';
-    my $line = <FH>;
-
-    chomp($line);
-
-    if($line =~ /^SID for domain ([^\s]+) is: (S-.*)$/) {
-	$domain = $1;
-	$sid = $2;
-    }
-
-    close(FH);
-
-    return $sid;
-}
-
-#
-# obtain user/group RIDs: net sam list users/groups verbose
-#
-sub parseRid
-{
-    my $dumpFileName = shift;
-    open(FH, '<', $dumpFileName) or die("Could not open $dumpFileName!");
-    my %db = ();
-
-    while(<FH>) {
-	my($key, $rid, $extra) = split(':', $_, 3);
-	$db{$key} = $rid;
-    }
-
-    close(FH);
-    return %db;
-}
-
-#
-# obtain unix group => samba group mapping: net groupmaplist > groupmap.dump
-#
-sub parseGroupMap
-{
-    my $dumpFileName = shift;
-    open(FH, '<', $dumpFileName) or die("Could not open $dumpFileName!");
-    my %db = ();
-
-    while(<FH>) {
-	if(m/^(.*) \((S-[-0-9]+)\) -> (\w+)/) {
-	    $db{$1} = $3;
-	}
-    }
-
-    close(FH);
-    return %db;
-}
-
-#
-# calculate group name => rid association
-#
-sub getGroupRidHash
-{
-
-    my %gm = parseGroupMap($sourceDir . '/etc/samba/groupmap.dump');
-    my %groups = parseRid($sourceDir . '/etc/samba/groups.dump');
-
-    my %h = ();
-
-    while(my ($sambaGroup, $rid) = each(%groups)) {
-	if($gm{$sambaGroup}) {
-	    $h{$gm{$sambaGroup}}  = $rid;
-	}
-    }
-    
-    return %h;
-}
-
-#
-# obtain user's password hash fro smbpasswd DB
-#
-sub parseSmbPasswd
-{
-    my $dumpFileName = shift;
-    open(FH, '<', $dumpFileName) or die("Could not open $dumpFileName!");
-    my %db = ();
-
-    while(<FH>) {
-	my($uname, $uid, $f1, $nthash, $extra) = split(':', $_, 5);
-	$db{$uname} = $nthash;
-    }
-
-    close(FH);
-    return %db;
-}
-
-
-my $domainName = uc $srcConfigDb->get_prop('smb', 'Workgroup');
-my $serverRole = $srcConfigDb->get_prop('smb', 'ServerRole');
+chomp ($domainName);
 
 # Copy some smb props in dst db:
 $dstConfigDb->get('smb')->merge_props(
     ServerRole => $serverRole,
     Workgroup => $domainName,
+    RoamingProfiles => $srcConfigDb->get_prop('smb', 'RoamingProfiles') || 'no',
 );
 $dstConfigDb->reload();
 
-my $domainSid = parseDomainSid($sourceDir . '/etc/samba/localsid.dump') or die("Could not obtain domain SID\n");
-
-my %userRid = (parseRid($sourceDir . '/etc/samba/users.dump'), parseRid($sourceDir . '/etc/samba/workstations.dump'));
-my %groupRid = getGroupRidHash();
-my %userPassword = parseSmbPasswd($sourceDir . '/etc/samba/smbpasswd');
-my $ldapResponse;
-
-# Well known RIDs (see also nethserver-samba-sam-conf action):
-$groupRid{domadmins} = '512';
-$groupRid{domusers} = '513';
-$groupRid{domguests} = '514';
-$groupRid{domcomputers} = '515';
+# Import the domain SID entry, from secrets.tdb
+my $domainSid = importDomainSid($domainName, $sourceDir . '/etc/samba/secrets.tdb') or die("[ERROR] Could not obtain domain SID\n");
 
 # Change smb Workgroup and role according to source configuration:
 if( ! esmith::event::event_signal('nethserver-samba-save')) {
     die("[ERROR] nethserver-samba-save event failed\n");
 }
+
+if($serverRole ne 'PDC') {
+    warn "[INFO] exiting because server role is set to $serverRole\n";
+    exit(0);
+}
+
+#
+# set the new domain SID in secrets.tdb:
+#
+system('/usr/bin/net', 'setlocalsid', $domainSid);
+if( $? != 0) {
+    die("Could not set local SID to $domainSid\n");
+}
+
 
 #
 # migrate machine accounts
@@ -194,14 +111,16 @@ foreach ($srcAccountsDb->get_all_by_prop(type => 'machine')) {
     }
 }
 
+my %userDb = parseSmbPasswd($sourceDir . '/etc/samba/smbpasswd');
+my %groupRid = parseGroupMap($domainSid, $sourceDir . '/var/lib/samba/group_mapping.ldb');
+my $ldapResponse;
 
-#
-# set the new local SID in secrets.tdb:
-#
-system('/usr/bin/net', 'setlocalsid', $domainSid);
-if( $? != 0) {
-    die("Could not set local SID to $domainSid\n");
-}
+# Well known RIDs (see also nethserver-samba-sam-conf action):
+$groupRid{domadmins} = '512';
+$groupRid{domusers} = '513';
+$groupRid{domguests} = '514';
+$groupRid{domcomputers} = '515';
+
 
 #
 # change SID of LDAP domain entry:
@@ -228,16 +147,11 @@ foreach ($dstAccountsDb->get_all_by_prop(type => 'machine'),
 
     my $attrs = {};
 
-    if($userRid{$uid}) {
-	$attrs->{sambaSID} = $domainSid . '-' . $userRid{$uid};
+    if($userDb{$uid}) {
+	$attrs->{sambaSID} = $domainSid . '-' . $userDb{$uid}->{rid};
+	$attrs->{sambaNTPassword} = $userDb{$uid}->{password};
     } else {
-	warn "[WARNING] SID not found for account " . $uid;
-    }
-
-    if($userPassword{$uid}) {
-	$attrs->{sambaNTPassword} = $userPassword{$uid};
-    } else {
-	warn "[WARNING] password hash not found for account " . $uid;
+	warn "[WARNING] smbpasswd account not found: " . $uid;
     }
 
     $ldapResponse = $ldap->modify($userDn, replace => $attrs);
@@ -289,4 +203,107 @@ foreach my $gid ( keys %{{
     
 }
 
+
+#
+# import winbind idmap cache
+#
+system(qq(/usr/bin/net idmap dump ${sourceDir}/var/lib/samba/winbindd_idmap.tdb | /usr/bin/net idmap restore));
+if($? != 0) {
+    warn "[ERROR] failed to restore idmap\n";
+    $errors++;
+}
+
 exit($errors > 0 ? 1 : 0);
+
+
+#
+# Move SID record from source secrets.tdb to current secrets.tdb and
+# return its value.
+#
+sub importDomainSid($$)
+{
+    my $sid = '';
+    my $domainName = shift;
+    my $sourceTdb = shift;
+    my $oldMask = umask 077;
+
+    my $tmpTdb = File::Temp::tmpnam();
+
+    File::Copy::copy($sourceTdb, $tmpTdb) or die("Could not copy secrets.tdb");
+
+    umask $oldMask;
+
+    # Remove record, if exists
+    system(qq(/usr/bin/tdbtool /etc/samba/secrets.tdb delete 'SECRETS/SID/${domainName}' &>/dev/null));
+    # Copy the SID record in our database:
+    system(qq(/usr/bin/tdbtool ${tmpTdb} move 'SECRETS/SID/${domainName}' /etc/samba/secrets.tdb &>/dev/null));
+    if($? != 0) {
+	warn "[ERROR] Could not import domain $domainName SID from $sourceTdb ($tmpTdb): $!\n";
+	return '';
+    }
+
+    unlink $tmpTdb;
+
+    open(FH, '-|', '/usr/bin/net getdomainsid') or return '';
+    while(<FH>) {
+	chomp;
+	if(/^SID for domain $domainName is: (S-.*)$/) {
+	    $sid = $1;
+	    last;
+	}
+    }
+    close(FH);
+    return $sid;
+}
+
+
+#
+# calculate group name => rid association
+#
+sub parseGroupMap($$)
+{
+
+    my $domainSid = shift;
+    my $groupMappingFile = shift;
+
+    my %h = ();
+
+    open(my $LH, '-|', qq(/usr/bin/ldb3search -H tdb://$groupMappingFile -b domain=$domainSid)) or die("[ERROR] Could not read group mappings: $!\n");
+
+    my $ldif = Net::LDAP::LDIF->new($LH, 'r', onerror => 'die');
+
+    while( ! $ldif->eof()) {
+	my $entry = $ldif->read_entry();
+
+	my $group = getgrgid($entry->get_value('gidNumber'));
+	
+	my $dn = $entry->dn();
+
+	$dn =~ /^rid=(\d+),domain=${domainSid}$/;
+
+	if(defined $group && defined $1) {
+	    $h{$group->name} = $1;
+	}
+    }
+
+    close($LH);   
+    return %h;
+}
+
+#
+# obtain user's password hash from smbpasswd DB
+#
+sub parseSmbPasswd($)
+{
+    my $dumpFileName = shift;
+    open(FH, '<', $dumpFileName) or die("Could not open $dumpFileName!");
+    my %db = ();
+
+    while(<FH>) {
+	my($uname, $rid, $f1, $nthash, $extra) = split(':', $_, 5);
+	$db{$uname} = { rid => $rid, password => $nthash };
+    }
+
+    close(FH);
+    return %db;
+}
