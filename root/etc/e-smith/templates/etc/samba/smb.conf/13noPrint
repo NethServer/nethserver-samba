@@ -1,3 +1,20 @@
 {
-   $OUT = "\n#disable printing\nprintcap name = /etc/printcap\nload printers = no\n" unless (defined($cups{status}) && $cups{status} eq 'enabled');
+   my $useCups = $smb{'UseCups'} || 'disabled';
+   if ($useCups eq 'enabled') {
+       $OUT .= "printing = cups\n";
+       $OUT .= "printcap name = cups\n\n";
+       $OUT .= "[printers]\n";
+       $OUT .= "comment = All Printers\n";
+       $OUT .= "path = /var/spool/samba\n";
+       $OUT .= "browseable = no\n";
+       $OUT .= "guest ok = no\n";
+       $OUT .= "writable = no\n";
+       $OUT .= "printable = yes\n";
+       $OUT .= "use client driver = ";
+       $OUT .= $smb{UseClientDriver} || "yes";
+   } else {
+       $OUT .= "#disable printing\n"; 
+       $OUT .= "printcap name = /etc/printcap\n";
+       $OUT .= "load printers = no\n";
+   }
 }
