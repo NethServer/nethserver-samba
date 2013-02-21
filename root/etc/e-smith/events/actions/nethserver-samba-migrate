@@ -60,10 +60,11 @@ my $ldap = NethServer::Directory->new() or die("Could not connect LDAP server\n"
 my $LdapInternalSuffix = NethServer::Directory::getInternalSuffix();
 
 my $domainName = qx(/usr/bin/testparm -s ${sourceDir}/etc/samba/smb.conf --parameter-name='workgroup' 2>/dev/null);
-
 my $serverRole = $srcConfigDb->get_prop('smb', 'ServerRole') || 'WS';
 
 chomp ($domainName);
+
+warn "[INFO] importing domain $domainName (role $serverRole)\n";
 
 # Copy some smb props in dst db:
 $dstConfigDb->get('smb')->merge_props(
@@ -226,6 +227,7 @@ sub importDomainSid($$)
     my $domainName = shift;
     my $sourceTdb = shift;
     my $oldMask = umask 077;
+    my $secretsTdb = '/var/lib/samba/private/secrets.tdb';
 
     my $tmpTdb = File::Temp::tmpnam();
 
@@ -234,9 +236,9 @@ sub importDomainSid($$)
     umask $oldMask;
 
     # Remove record, if exists
-    system(qq(/usr/bin/tdbtool /etc/samba/secrets.tdb delete 'SECRETS/SID/${domainName}' &>/dev/null));
+    system(qq(/usr/bin/tdbtool '${secretsTdb}' delete 'SECRETS/SID/${domainName}' &>/dev/null));
     # Copy the SID record in our database:
-    system(qq(/usr/bin/tdbtool ${tmpTdb} move 'SECRETS/SID/${domainName}' /etc/samba/secrets.tdb &>/dev/null));
+    system(qq(/usr/bin/tdbtool '${tmpTdb}' move 'SECRETS/SID/${domainName}' '${secretsTdb}' &>/dev/null));
     if($? != 0) {
 	warn "[ERROR] Could not import domain $domainName SID from $sourceTdb ($tmpTdb): $!\n";
 	return '';
