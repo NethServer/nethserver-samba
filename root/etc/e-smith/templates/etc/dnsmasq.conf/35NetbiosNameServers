@@ -1,11 +1,20 @@
 {
-    # Return the value of the WINS server from the config db or undef
-    # if we don’t have a WINS server set and we are not the domain
-    # master:
-    my $WINS = $DB->wins_server || "";
+    #
+    # 35NetbiosNameServers
+    #
 
-    if( ! $WINS ) {
-	return "";
+    my $WINS = '';
+
+    if($smb{WinsServerStatus} eq 'enabled') {
+	# Local server
+	$WINS = $ndb->green()->prop('ipaddr');
+    } elsif($smb{WinsServerIP}) {
+	# Remote server
+	$WINS = $smb{WinsServerIP};
+    } else {
+	# We don’t have any WINS server: don't configre WINS on dhcp
+	# clients.
+	return '';
     }
 
     $OUT .= "# set netbios-over-TCP/IP nameserver(s) aka WINS server(s)\n";
