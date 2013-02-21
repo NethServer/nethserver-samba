@@ -1,7 +1,0 @@
-{
-    $OUT = "";
-    if ($smb{DeadTime})
-    {
-	$OUT .= "deadtime = $smb{DeadTime}";
-    }
-}

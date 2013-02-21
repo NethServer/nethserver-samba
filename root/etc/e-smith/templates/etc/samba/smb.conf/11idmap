@@ -1,9 +1,0 @@
-# Configure idmap
-{
-   return "" unless($smb{ServerRole} ne 'ADS');
-
-   $OUT.="idmap backend = ldap:ldap://127.0.0.1\n";
-   $OUT.="ldap idmap suffix = ou=Idmap";
-}
-idmap uid = 50000-100000
-idmap gid = 50000-100000

@@ -1,5 +1,7 @@
 {
-    # process all information-bay directories
+    #
+    # 90ibays process all information-bay directories
+    #
 
     use esmith::AccountsDB;
     use esmith::templates;

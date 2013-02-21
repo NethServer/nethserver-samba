@@ -1,3 +1,0 @@
-{
-   "preferred master = " . ( $smb{ServerRole} =~ m{^(ADS)$} ? "no" : "auto" );
-}

@@ -3,7 +3,13 @@
     # 00template_vars
     #
 
+    use esmith::NetworksDB;
+    use NethServer::Directory;
+
+    $LdapInternalDomainSuffix = NethServer::Directory::getInternalSuffix();
     $baseDir = '/var/lib/nethserver';
+    $ndb = esmith::NetworksDB->open_ro;
+    @hostsAllow = $ndb->local_access_spec;
 
     '';
 }

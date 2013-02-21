@@ -1,4 +1,0 @@
-{
-# Script to setup machine accounts
-}
-add machine script = /sbin/e-smith/signal-event nethserver-samba-machine-create '%u'

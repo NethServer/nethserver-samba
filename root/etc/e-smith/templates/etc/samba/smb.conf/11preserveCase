@@ -1,5 +1,0 @@
-{
-# Case Preservation can be handy - system default is _no_
-# NOTE: These can be set on a per share basis
-}
-preserve case = yes

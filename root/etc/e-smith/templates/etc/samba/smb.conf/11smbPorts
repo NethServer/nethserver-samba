@@ -1,6 +1,0 @@
-{
-   my $smb_ports = $smb{SMBPorts} || 139;
-
-   return "" unless ($smb_ports != 139);
-   $OUT.="smb ports = $smb_ports";
-}

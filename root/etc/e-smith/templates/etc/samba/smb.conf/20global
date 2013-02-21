@@ -1,0 +1,133 @@
+[global]
+log level = 0
+bind interfaces only = yes
+interfaces = 127.0.0.1 {
+    use esmith::NetworksDB;
+    use esmith::util;
+    my $ndb = esmith::NetworksDB->open_ro() || return '';
+    my $LocalIP = $ndb->green()->prop('ipaddr') || return '';
+    my $LocalNetmask = $ndb->green()->prop('netmask') || return '';
+
+    return esmith::util::computeLocalNetworkShortSpec($LocalIP, $LocalNetmask);
+}
+hosts allow = { join(' ', @hostsAllow) }
+deadtime = { int($smb{DeadTime}) }
+
+workgroup = { $smb{Workgroup} }
+server string = 'NethServer Samba %v'
+security = { $smb{ServerRole} eq 'ADS' ? 'ADS' : 'user' }
+logon script = netlogon.bat
+domain logons = { $smb{ServerRole} eq 'PDC' ? "yes" : "no" }
+domain master = { $smb{ServerRole} eq 'PDC' ? "yes" : "no" }
+logon drive = { $smb{LogonDrive} || 'Z' }
+logon home = { $smb{RoamingProfiles} eq 'yes' ?  '\\\%L\%U\._winprofile' : '\\\%L\%U'}
+logon path = { $smb{RoamingProfiles} eq 'yes' ?  '\\\%L\Profiles\%U' : ''}
+
+; WINS setup
+wins support = {$smb{WinsServerStatus} eq 'enabled' ? 'Yes' : 'No'}
+wins server = {$smb{WinsServerStatus} ne 'enabled' ? $smb{WinsServerIP} : ''}
+remote announce = {$smb{WinsServerStatus} ne 'enabled' ? $smb{WinsServerIP} : ''}
+remote browse sync = {$smb{WinsServerStatus} ne 'enabled' ? $smb{WinsServerIP} : ''}
+
+; LDAP database backend configuration
+passdb backend = ldapsam:ldap://127.0.0.1
+ldapsam:trusted = yes
+ldapsam:editposix = no
+ldap group suffix = ou=Groups
+ldap user suffix = ou=People
+ldap machine suffix = ou=People
+ldap ssl = off
+ldap admin dn = cn=samba,{$LdapInternalDomainSuffix}
+ldap suffix = {$LdapInternalDomainSuffix}
+ldap passwd sync = no
+idmap backend = ldap:ldap://127.0.0.1
+ldap idmap suffix = ou=Idmap
+idmap uid = 50000-100000
+idmap gid = 50000-100000
+obey pam restrictions = yes
+
+; Invoked only if a passwd entry is missing:
+add machine script = /sbin/e-smith/signal-event nethserver-samba-machine-create '%u'
+
+; Winbind options
+winbind enum users = Yes
+winbind enum groups = Yes
+winbind use default domain = Yes
+winbind nested groups = Yes
+winbind offline logon = yes
+
+; The following are needed to allow password changing from Windows to
+; update the Linux sytsem password also.
+; NOTE: Use these with 'encrypt passwords' and 'smb passwd file' above.
+; NOTE2: You do NOT need these to allow workstations to change only
+;        the encrypted SMB passwords. They allow the Unix password
+;        to be kept in sync with the SMB password.
+unix password sync = yes
+pam password change = no
+passwd program = /usr/bin/passwd %u 
+passwd chat = *New*password* %n\n *Retype*new*password* %n\n *passwd:*all*authentication*tokens*updated*successfully*
+check password script = /sbin/e-smith/samba_check_password
+
+; Case Preservation can be handy - system default is _no_
+; NOTE: These can be set on a per share basis
+preserve case = yes
+
+; TODO check 'private dir' default value
+
+; Enabling unix extensions causes a lot of problems with file and directory
+; permissions in i-bays (reported with OS X clients). We disable them by default
+; A specific share profile can re-enable it
+unix extensions = no
+
+;
+; Home directories
+;
+[homes]
+comment = Home directories
+browseable = no
+writable = yes
+create mode = 0660
+force create mode = 0660
+directory mode = 0770
+force directory mode = 0770
+path = {$baseDir}/home/%S
+
+;
+; Required by PDCs configuration, but should not waste in
+; other situations
+;
+[netlogon]
+comment = Network Logon Service
+path = {$baseDir}/netlogon
+guest ok = yes
+writable = yes
+browseable = no
+
+;
+; Added to support printer drivers download
+; This share is writable according to Unix file permissions
+;
+[print$]
+comment = Printer drivers
+path = {$baseDir}/print_driver
+guest ok = yes
+browseable = yes
+writable = {$smb{UseClientDriver} eq 'yes' ? 'no' : 'yes'}
+
+;
+; This is the WinNT/W2K Profiles share, stored 
+; under  {$profileDir}/<username>
+;
+; Note that Win9x profiles are stored in user's home, 
+; under {$baseDir}/home/<username>/._winprofile
+;
+[Profiles]
+comment = Roaming user profiles
+path = {$baseDir}/profile
+writeable = yes
+browseable = no
+create mask = 0600
+directory mask = 0700
+csc policy = disable
+hide files = /desktop.ini/ntuser.ini/NTUSER.*/
+

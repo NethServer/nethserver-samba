@@ -1,5 +1,0 @@
-{
-# Most people will find that this option gives better performance.
-# See speed.txt and the manual pages for details
-}
-socket options = TCP_NODELAY 
