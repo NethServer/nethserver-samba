@@ -13,8 +13,9 @@
        $OUT .= "use client driver = ";
        $OUT .= $smb{UseClientDriver} || "yes";
    } else {
-       $OUT .= "#disable printing\n"; 
+       $OUT .= "# Cups is disabled\n"; 
        $OUT .= "printcap name = /etc/printcap\n";
        $OUT .= "load printers = no\n";
    }
 }
+
