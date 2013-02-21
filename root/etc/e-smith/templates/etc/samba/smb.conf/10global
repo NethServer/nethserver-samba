@@ -14,12 +14,12 @@ hosts allow = { join(' ', @hostsAllow) }
 deadtime = { int($smb{DeadTime}) }
 
 workgroup = { $smb{Workgroup} }
-server string = 'NethServer Samba %v'
+server string = NethServer Samba %v
 security = { $smb{ServerRole} eq 'ADS' ? 'ADS' : 'user' }
 logon script = netlogon.bat
-domain logons = { $smb{ServerRole} eq 'PDC' ? "yes" : "no" }
-domain master = { $smb{ServerRole} eq 'PDC' ? "yes" : "no" }
-logon drive = { $smb{LogonDrive} || 'Z' }
+domain logons = { $smb{ServerRole} eq 'PDC' ? 'yes' : 'no' }
+domain master = { $smb{ServerRole} eq 'PDC' ? 'yes' : 'no' }
+logon drive = { $smb{LogonDrive} || 'Z:' }
 logon home = { $smb{RoamingProfiles} eq 'yes' ?  '\\\%L\%U\._winprofile' : '\\\%L\%U'}
 logon path = { $smb{RoamingProfiles} eq 'yes' ?  '\\\%L\Profiles\%U' : ''}
 
