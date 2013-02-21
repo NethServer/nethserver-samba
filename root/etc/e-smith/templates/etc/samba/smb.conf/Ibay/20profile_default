@@ -15,5 +15,7 @@ inherit owner        = yes
 store dos attributes = yes
 map archive          = no
 map readonly         = no
+inherit acls         = yes
+map acl inherit      = yes
 PROFILE
 }
