@@ -19,7 +19,7 @@ security = { $smb{ServerRole} eq 'ADS' ? 'ADS' : 'user' }
 logon script = netlogon.bat
 domain logons = { $smb{ServerRole} eq 'PDC' ? 'yes' : 'no' }
 domain master = { $smb{ServerRole} eq 'PDC' ? 'yes' : 'no' }
-logon drive = { $smb{LogonDrive} || 'Z:' }
+logon drive = { $smb{LogonDrive} }
 logon home = { $smb{RoamingProfiles} eq 'yes' ?  '\\\%L\%U\._winprofile' : '\\\%L\%U'}
 logon path = { $smb{RoamingProfiles} eq 'yes' ?  '\\\%L\Profiles\%U' : ''}
 
