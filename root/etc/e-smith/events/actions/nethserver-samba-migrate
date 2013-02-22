@@ -310,7 +310,13 @@ sub parseSmbPasswd($)
 
     while(<FH>) {
 	my($uname, $rid, $f1, $nthash, $extra) = split(':', $_, 5);
-	$db{$uname} = { rid => $rid, password => $nthash };
+
+	my $data = { rid => $rid, password => $nthash };
+
+	# Insert keys in upper/lower/mixed case:
+	$db{$uname} = $data;
+	$db{lc($uname)} = $data;
+	$db{uc($uname)} = $data;
     }
 
     close(FH);
