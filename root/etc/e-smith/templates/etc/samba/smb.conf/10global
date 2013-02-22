@@ -14,6 +14,7 @@ hosts allow = { join(' ', @hostsAllow) }
 deadtime = { int($smb{DeadTime}) }
 
 workgroup = { $smb{Workgroup} }
+netbios aliases = { join(' ', @netbiosAliasList) }
 server string = NethServer Samba %v
 security = { $smb{ServerRole} eq 'ADS' ? 'ADS' : 'user' }
 logon script = netlogon.bat
