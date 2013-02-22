@@ -42,6 +42,7 @@ my $event = shift;
 my $sourceDir = shift;
 my $esmithDbDir = '/home/e-smith/db';
 my $errors = 0;
+my $ldapResponse;
 
 if( ! $event ) {
     die("Missing event argument!\n");
@@ -76,9 +77,6 @@ $dstConfigDb->get('smb')->merge_props(
 );
 $dstConfigDb->reload();
 
-# Import the domain SID entry, from secrets.tdb
-my $domainSid = importDomainSid($domainName, $sourceDir . '/etc/samba/secrets.tdb') or die("[ERROR] Could not obtain domain SID\n");
-
 # Change smb Workgroup and role according to source configuration:
 if( ! esmith::event::event_signal('nethserver-samba-save')) {
     die("[ERROR] nethserver-samba-save event failed\n");
@@ -89,18 +87,29 @@ if($serverRole ne 'PDC') {
     exit(0);
 }
 
+# Clean previous LDAP sambaDomain objects:
+$ldap->delete(sprintf('sambaDomainName=%s,%s', $domainName, $LdapInternalSuffix));
+$ldap->delete(sprintf('sambaDomainName=%s,%s', uc($dstConfigDb->get_value('SystemName')), $LdapInternalSuffix));
+
+# Import the domain SID entry, from secrets.tdb
+my $domainSid = importDomainSid($domainName, $sourceDir . '/etc/samba/secrets.tdb') or die("[ERROR] Could not obtain domain SID\n");
+warn "[INFO] importing $domainName SID: $domainSid\n";
+
 #
 # re-expand /etc/hosts to include our NetbiosAliasList
 #
 system(qw(/sbin/e-smith/expand-template /etc/hosts));
 
-#
-# set the new domain SID in secrets.tdb:
-#
+# set the new domain SID also as local SID. Domain and local SIDs
+# seems to be equal on fresh samba installations...
 system('/usr/bin/net', 'setlocalsid', $domainSid);
 if( $? != 0) {
-    die("Could not set local SID to $domainSid\n");
+    warn("Could not set local SID to $domainSid\n");
+    $errors++;
 }
+
+# This initializes also LDAP db:
+system('/usr/bin/net getdomainsid &>/dev/null');
 
 
 #
@@ -121,27 +130,13 @@ foreach ($srcAccountsDb->get_all_by_prop(type => 'machine')) {
 
 my %userDb = parseSmbPasswd($sourceDir . '/etc/samba/smbpasswd');
 my %groupRid = parseGroupMap($domainSid, $sourceDir . '/var/lib/samba/group_mapping.ldb');
-my $ldapResponse;
+
 
 # Well known RIDs (see also nethserver-samba-sam-conf action):
 $groupRid{domadmins} = '512';
 $groupRid{domusers} = '513';
 $groupRid{domguests} = '514';
 $groupRid{domcomputers} = '515';
-
-
-#
-# change SID of LDAP domain entry:
-#
-$ldapResponse = $ldap->modify(sprintf('sambaDomainName=%s,%s', $domainName, $LdapInternalSuffix), 
-	      replace => {
-		  sambaSID => $domainSid
-	      });
-
-if($ldapResponse->is_error) {
-    warn "[ERROR] failed to update sambaDomainName $domainName SID\n";
-    $errors++;
-}
 
 
 #
