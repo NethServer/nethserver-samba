@@ -19,6 +19,6 @@
        $Workgroup = 'NETHSERVER';
     }
 
-    $DB->set_prop('smb', 'Workgroup', $Workgroup, type => 'service');
+    $DB->set_prop('smb', 'Workgroup', uc($Workgroup), type => 'service');
     '';
 }
