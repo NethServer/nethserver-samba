@@ -89,6 +89,11 @@ if($serverRole ne 'PDC') {
 }
 
 #
+# re-expand /etc/hosts to include our NetbiosAliasList
+#
+system(qw(/sbin/e-smith/expand-template /etc/hosts));
+
+#
 # set the new domain SID in secrets.tdb:
 #
 system('/usr/bin/net', 'setlocalsid', $domainSid);
