@@ -22,7 +22,8 @@
 
 use strict;
 use NethServer::Directory;
-use esmith::DB::db;
+use esmith::AccountsDB;
+use esmith::ConfigDB;
 use esmith::event;
 use esmith::util;
 use File::Temp;
@@ -50,11 +51,11 @@ if( ! $sourceDir ) {
     die("Missing sourceDir argument!\n");
 }
 
-my $srcConfigDb = esmith::DB::db->open_ro(join('', $sourceDir, $esmithDbDir, '/configuration')) or die("Could not open source configuration database in $sourceDir \n");
-my $dstConfigDb = esmith::DB::db->open('configuration') or die("Could not open configuration account db\n");
+my $srcConfigDb = esmith::ConfigDB->open_ro(join('', $sourceDir, $esmithDbDir, '/configuration')) or die("Could not open source configuration database in $sourceDir \n");
+my $dstConfigDb = esmith::ConfigDB->open('configuration') or die("Could not open configuration account db\n");
 
-my $srcAccountsDb = esmith::DB::db->open_ro(join('', $sourceDir, $esmithDbDir, '/accounts')) or die("Could not open source accounts database in $sourceDir \n");
-my $dstAccountsDb = esmith::DB::db->open('accounts') or die("Could not open destination account db\n");
+my $srcAccountsDb = esmith::AccountsDB->open_ro(join('', $sourceDir, $esmithDbDir, '/accounts')) or die("Could not open source accounts database in $sourceDir \n");
+my $dstAccountsDb = esmith::AccountsDB->open('accounts') or die("Could not open destination account db\n");
 
 my $ldap = NethServer::Directory->new() or die("Could not connect LDAP server\n");
 my $LdapInternalSuffix = NethServer::Directory::getInternalSuffix();
@@ -71,7 +72,7 @@ $dstConfigDb->get('smb')->merge_props(
     ServerRole => $serverRole,
     Workgroup => uc($domainName),
     RoamingProfiles => $srcConfigDb->get_prop('smb', 'RoamingProfiles') || 'no',
-    NetbiosAliasList => uc($srcConfigDb->get('SystemName')),
+    NetbiosAliasList => uc($srcConfigDb->get_value('SystemName')),
 );
 $dstConfigDb->reload();
 
