@@ -279,6 +279,11 @@ sub parseGroupMap($$)
     while( ! $ldif->eof()) {
 	my $entry = $ldif->read_entry();
 
+	if( ! $entry) {
+	    warn "[WARNING] an LDIF read_entry() call failed!\n";
+	    next;
+	}
+
 	my $group = getgrgid($entry->get_value('gidNumber'));
 	
 	my $dn = $entry->dn();
