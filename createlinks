@@ -138,5 +138,6 @@ event_services('interface-update',
 # migration-import event (refs #1657)
 #
 event_actions('migration-import', qw(
-    nethserver-samba-migrate 30
+    nethserver-samba-migrate-sam    30
+    nethserver-samba-migrate-data   40
 ));
