@@ -49,7 +49,8 @@ if($record->prop('type') ne 'user') {
 	$isEnabled = 0;
     }
     
-    if(system($net, qw(sam set disabled), $user, $isEnabled ? 'yes' : 'no') != 0) {
+    # Set the [D]isabled flag:
+    if(system($net, qw(sam set disabled), $user, ! $isEnabled ? 'yes' : 'no') != 0) {
 	warn "Failed to change enabled state of SAM user `$user`";
 	$exitCode ++;
     }
