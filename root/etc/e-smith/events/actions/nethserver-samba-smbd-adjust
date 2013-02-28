@@ -3,6 +3,9 @@
 #
 # NethServer - Samba smbd adjust action
 #
+# Asks smbd to reload configuration and close the given user's
+# connections.
+#
 #
 # Copyright (C) 2012 Nethesis S.r.l.
 # http://www.nethesis.it - support@nethesis.it
@@ -24,7 +27,6 @@
 #
 
 use strict;
-
 use esmith::AccountsDB;
 
 my $errors = 0;
@@ -36,14 +38,13 @@ if(defined $user) {
     my $accountType = $accountsDb->get_prop($user, 'type');
     if($accountType ne 'user' 
        && $accountType ne 'user-deleted') {
-	warn "NOTICE: `$user` is not a user account.\n";
 	# See below: smbd reload configuration
 	undef $user; 
     }
 }
 
 # obtain a list of smbd process IDs:
-open(my $ps, '-|', "/bin/ps -C smbd -o user,pid");
+open(my $ps, '-|', "/bin/ps --no-heading -C smbd -o user,pid,ppid");
 
 while( ! eof($ps)) {
     my $line = <$ps>;
@@ -52,10 +53,10 @@ while( ! eof($ps)) {
     my ($owner, $pid, $ppid) = split(/\s+/, $line);
 
     if($ppid eq '1') {
-	# ask the parent process to reload configuration
+	# ask the smbd root process to reload configuration
 	kill 1, $pid;
     } elsif(defined $user && $owner eq $user) {
-	# terminate user's process
+	# terminate user's process, closing active connections
 	kill 15, $pid;
     }
 }
