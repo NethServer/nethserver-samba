@@ -105,7 +105,7 @@ while ( my ($group, $entry) = each(%$entries) ) {
     }
 
     # Create a system user and private group entry:
-    qx($luseradd -s /bin/false -r $group);
+    qx($luseradd -s /bin/false $group);
     if($? != 0) {
 	warn "Failed to create system samba group `$group`";
 	$exitCode ++;
