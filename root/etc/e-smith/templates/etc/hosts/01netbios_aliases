@@ -3,10 +3,10 @@
     # 01netbios_aliases
     #
 
-    # Expand smb{NetbiosAliasList} prop to a hostname + fqdn hostname unique list. 
+    # Expand smb{NetbiosAliasList} prop to a hostname unique list. 
     # The anonymous hash here makes any element in the list unique.
 
-    my %h = map { $_ => 1, join('.', $_, $DomainName) => 1 } split(',', $smb{NetbiosAliasList});
+    my %h = map { lc($_) => 1 } split(',', $smb{NetbiosAliasList});
 
     push @hostnames, keys %h;
 
