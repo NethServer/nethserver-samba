@@ -140,4 +140,5 @@ event_services('interface-update',
 event_actions('migration-import', qw(
     nethserver-samba-migrate-sam    30
     nethserver-samba-migrate-data   40
+    nethserver-samba-migrate-ibays  40
 ));
