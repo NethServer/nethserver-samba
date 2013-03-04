@@ -23,6 +23,7 @@
 use strict;
 use NethServer::Directory;
 use NethServer::Service;
+use NethServer::Migrate;
 use esmith::AccountsDB;
 use esmith::ConfigDB;
 use esmith::event;
@@ -35,8 +36,9 @@ use Carp;
 use Data::Dumper;
 
 sub importDomainSid($$);
-sub parseSmbPasswd($);
-sub parseGroupMap($$);
+sub getSmbPasswd($);
+sub getSambaGroupDb($);
+sub getStaticGroupDb($);
 
 
 my $event = shift;
@@ -64,11 +66,10 @@ my $dstAccountsDb = esmith::AccountsDB->open('accounts') or die("Could not open 
 my $ldap = NethServer::Directory->new() or die("Could not connect LDAP server\n");
 my $LdapInternalSuffix = NethServer::Directory::getInternalSuffix();
 
-my $algorithmicRidBase = int(qx(/usr/bin/testparm -s -v ${sourceDir}/etc/samba/smb.conf --parameter-name='algorithmic rid base' 2>/dev/null)) || 1000 ;
-my $domainName = qx(/usr/bin/testparm -s ${sourceDir}/etc/samba/smb.conf --parameter-name='workgroup' 2>/dev/null);
+# The default algorithmicRidBase in smb.conf:
+my $algorithmicRidBase = 1000;
+my $domainName = uc($srcConfigDb->get_prop('smb', 'Workgroup')) or die("Could not obtain Workgroup prop value from source configuration database\n");
 my $serverRole = $srcConfigDb->get_prop('smb', 'ServerRole') || 'WS';
-
-chomp ($domainName);
 
 warn "[INFO] migrating domain $domainName (role $serverRole)\n";
 
@@ -127,7 +128,10 @@ foreach ($srcAccountsDb->get_all_by_prop(type => 'machine')) {
 }
 
 my %userDb = getSmbPasswd($sourceDir . '/etc/samba/smbpasswd');
-my %groupDb = getGroupDb($domainSid, $sourceDir . '/var/lib/samba/group_mapping.ldb');
+my $useGroupMappingDb = (-f $sourceDir . '/var/lib/samba/group_mapping.ldb');
+my %groupDb = $useGroupMappingDb ? 
+    getSambaGroupDb($sourceDir . '/var/lib/samba/group_mapping.ldb') 
+    : getStaticGroupDb($sourceDir . '/etc/group');
 
 # Well known RIDs (see also nethserver-samba-sam-conf action):
 $groupDb{domadmins} = { rid => '512' };
@@ -174,17 +178,22 @@ foreach ($dstAccountsDb->get_all_by_prop(type => 'machine'),
     # update also user primary group (users only):
     if($_->prop('type') eq 'user') {
 	my $groupDn = sprintf('cn=%s,ou=Groups,%s', $uid, $LdapInternalSuffix);
+
 	if($groupDb{$uid}) {
+	    my $rid = $groupDb{$uid}->{rid};
+
 	    $ldapResponse = $ldap->modify($groupDn, replace => {
-		'sambaSID' => $domainSid . '-' . $groupDb{$uid}->{rid}
-					  });
+		'sambaSID' => $domainSid . '-' . $rid
+					  });	
+	    
+	    if($ldapResponse->is_error) {
+		warn "[ERROR] failed to update $groupDn SAM entry\n";
+		$errors++
+	    }
+
 	} else {
 	    warn "[WARNING] rid not found for user $uid primary group\n";
-	}
-
-	if($ldapResponse->is_error) {
-	    warn "[ERROR] failed to update $groupDn SAM entry\n";
-	    $errors++
+	    next;
 	}
     }
 
@@ -231,10 +240,12 @@ if( ! esmith::event::event_signal('nethserver-samba-save')) {
 #
 # import winbind idmap cache
 #
-system(qq(/usr/bin/net idmap dump ${sourceDir}/var/lib/samba/winbindd_idmap.tdb | /usr/bin/net idmap restore));
-if($? != 0) {
-    warn "[ERROR] failed to restore idmap\n";
-    $errors++;
+if( -f $sourceDir . '/var/lib/samba/winbindd_idmap.tdb') {
+    system(qq(/usr/bin/net idmap dump ${sourceDir}/var/lib/samba/winbindd_idmap.tdb | /usr/bin/net idmap restore));
+    if($? != 0) {
+	warn "[ERROR] failed to restore idmap\n";
+	$errors++;
+    }
 }
 
 if($errors > 0) {
@@ -288,14 +299,30 @@ sub importDomainSid($$)
     return $sid;
 }
 
-
 #
-# calculate group name => SID association
+# calculate group name => RID association with deterministic formula
 #
-sub getGroupDb($$)
+sub getStaticGroupDb($) 
 {
+    my $groupFile = shift;
+    my %h = %{NethServer::Migrate::parseGroup($groupFile)};
+    my %db = ();
 
-    my $domainSid = shift;
+    foreach(keys %h) {
+	$db{$_} = {
+	    gid => $h{$_}->{gid},
+	    rid => $algorithmicRidBase + 1 + ($h{$_}->{gid} * 2)
+	};
+    }
+
+    return %db;
+}
+
+#
+# read group name => RID association
+#
+sub getSambaGroupDb($)
+{
     my $groupMappingFile = shift;
 
     my %h = ();
@@ -325,7 +352,7 @@ sub getGroupDb($$)
 	    };
 
 	    if($h{$group->name}->{rid} != $algorithmicRidBase + 1 + ($group->gid * 2)) {
-		print "[WARNING] calculated rid was different from DB value for group " . $group->name . "\n";
+		warn "[WARNING] calculated rid was different from DB value for group " . $group->name . "\n";
 	    }
 	}
     }
