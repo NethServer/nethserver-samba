@@ -84,4 +84,19 @@ NethServer::Service::manage_add('nethserver-samba',
 				'nmb',
 				'winbind');
 
+# Enable acl and user_xattr on / filesystem
+my $confdb = esmith::ConfigDB->open;
+my $fstab = $confdb->get('fstab') or return "";
+
+my $prop = $fstab->prop('/') || 'defaults';
+$prop .= ",acl" unless ($prop =~ /acl/);
+$prop .= ",user_xattr" unless ($prop =~ /user_xattr/);
+$fstab->set_prop('/',$prop);
+
+if( ! esmith::event::event_signal('fstab-update')) {
+    warn "[WARNING] Errors during fstab-update event";
+    $exitCode ++;
+}
+
+
 exit($exitCode);
