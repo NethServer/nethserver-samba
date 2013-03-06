@@ -3,14 +3,14 @@
     # 01vfs_recycle
     #
 
-    if(($ibay->prop('SmbRecycleBinStatus') || '') ne 'enabled') {
+    if(($ibay{SmbRecycleBinStatus} || '') ne 'enabled') {
 	return '';
     }   
 
-    my $versions = ($ibay->prop('SmbRecycleBinVersionsStatus') || 'disabled') eq 'enabled';
+    my $isVersionsEnabled = ($ibay{SmbRecycleBinVersionsStatus} || 'disabled') eq 'enabled';
 
     $ibay_vfs->{recycle} = {
-	versions => $versions ?  "True" : "False",
+	versions => $isVersionsEnabled ?  "True" : "False",
 	repository => "Recycle Bin",
 	keeptree => "True",
 	touch => "True",

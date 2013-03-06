@@ -11,6 +11,17 @@
     my $ibaysOutput = '';
     foreach my $ibay ($adb->ibays) {
 
+	# Select the template to apply to ibay:
+	my $ibayProfile = $ibay->prop('SmbProfileType') || 'default';
+	my $templatePath = 'etc/samba/smb.conf/ibay-' . $ibayProfile;
+
+	# Check if the template path exists:
+	if( ! -d '/etc/e-smith/templates/' . $templatePath) {
+	    warn "[WARNING] ibay profile $ibayProfile not found. Applying default.\n";
+	    $templatePath = 'etc/samba/smb.conf/ibay-default';
+	    $ibayProfile = 'default';
+	}
+
 	if( ! defined $ibay->prop('SmbStatus') ) {
 	    warn sprintf("Ibay `%s` is not configured for samba: skipped\n", $ibay->key);
 	    next;
@@ -21,8 +32,8 @@
 	}
 
 	$ibaysOutput .= esmith::templates::processTemplate ({
-	    MORE_DATA => { ibay => $ibay },
-	    TEMPLATE_PATH => "/etc/samba/smb.conf/Ibay",
+	    MORE_DATA => { ibayRecord => $ibay, ibayProfile => $ibayProfile },
+	    TEMPLATE_PATH => $templatePath,
 	    OUTPUT_TYPE => 'string',
         }) || '';
     }
