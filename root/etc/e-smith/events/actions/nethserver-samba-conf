@@ -31,6 +31,7 @@ use strict;
 
 use NethServer::Directory;
 use NethServer::Service;
+use esmith::event;
 
 my $ldap = NethServer::Directory->new();
 my $internalSuffix = NethServer::Directory::getInternalSuffix();
