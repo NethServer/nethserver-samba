@@ -167,16 +167,20 @@ foreach ($dstAccountsDb->get_all_by_prop(type => 'machine'),
     } else {
 	warn "[ERROR] smbpasswd entry not found: $uid.\n";
 	$errors++;
+	next;
     }
 
     $ldapResponse = $ldap->modify($userDn, replace => $attrs);
     if($ldapResponse->is_error) {
 	warn "[ERROR] failed to update $userDn SAM entry\n";
-	$errors++
-    }
-
-    # update also user primary group (users only):
+	$errors++;
+	next;
+    } 
+   
+    # For 'user' records, update user primary group and set Samba prop
+    # 'enabled':
     if($_->prop('type') eq 'user') {
+
 	my $groupDn = sprintf('cn=%s,ou=Groups,%s', $uid, $LdapInternalSuffix);
 
 	if($groupDb{$uid}) {
@@ -195,6 +199,17 @@ foreach ($dstAccountsDb->get_all_by_prop(type => 'machine'),
 	    warn "[WARNING] rid not found for user $uid primary group\n";
 	    next;
 	}
+
+	# This is normally set on record creation, but
+	# nethserver-directory-migrate doesn't push it in:
+	$_->set_prop('Samba', 'enabled');
+
+	# ..so a modify event must be signalled:
+	if( ! esmith::event::event_signal('user-modify', $uid)) {
+	    warn("[ERROR] user-modify $uid event failed\n");
+	    $errors++;
+	}
+	
     }
 
 }
