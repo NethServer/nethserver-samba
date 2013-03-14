@@ -32,7 +32,6 @@ my $accountsDb = esmith::AccountsDB->open() || die("Could not open accounts data
 my $record = $accountsDb->get($user) || die("User `$user` not found in accounts database");
 my $exitCode = 0;
 my $net = '/usr/bin/net';
-my $smbpasswd = '/usr/bin/smbpasswd';
 
 if($record->prop('type') ne 'user') {
     die("`$user` is not a user record");

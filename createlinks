@@ -101,9 +101,10 @@ event_actions("nethserver-samba-machine-create",
 	      "nethserver-samba-machine-create" => '10',
 );
 
-event_actions('password-modify',
-	      "nethserver-samba-password-modify" => '40',
-);
+event_actions('password-modify', qw(
+	      nethserver-samba-password-modify 40
+              nethserver-samba-user-modify     50
+));
 
 # event nethserver-samba-save
 safe_symlink("restart", "root/etc/e-smith/events/nethserver-samba-save/services2adjust/$_") 
