@@ -16,7 +16,10 @@ Requires: samba-winbind
 Requires: tdb-tools
 
 %description
-Configuration files and templates for the Samba daemon.
+* Samba PDC and Workstation roles
+* Integrate smb shares with ibays (shared folders)
+* CUPS support
+* WINS support
 
 %prep
 %setup
@@ -41,7 +44,16 @@ event_queue add %{name}-update
 %files -f %{name}-%{version}-filelist
 %defattr(-,root,root)
 
-
-
 %changelog
+* Tue Mar 19 2013 Davide Principi <davide.principi@nethesis.it> - 1.1.0-1.ns6
+- smb.conf template: implement ibay profiles. Refs #1724
+- /etc/fstab template: enable acl & xattrs attributes. #1658
+- smb WinsServerStatus WinsServerIP props to configure wins support. #7
+- smb.conf template refactor. #7
+- CUPS integration. #1626
+- Migration support. #1657 #1667
+- Protect samba password ldap field. #1650
+- *.spec.in: Removed nethserver-devtools specific version requirement; Fixed Released tag expansion Refs; use url_prefix macro in URL tag; set minimum version requirements. #1653 #1654
+ 
+
 
