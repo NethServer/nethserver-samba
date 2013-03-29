@@ -1,0 +1,33 @@
+{
+    #
+    # 10active_directory
+    #
+
+    if($smb{ServerRole} ne 'ADS') {
+	return '';
+    }
+
+    my $realm = $smb{AdsRealm} || uc($DomainName);
+
+    $conf->{appdefaults}->{pam} = {qw(
+	debug  false
+	ticket_lifetime  36000
+	renew_lifetime  36000
+	forwardable  true
+	krb4_convert  false
+    )};
+
+    if($smb{AdsController}) {
+	my $fqdnAdsController = lc(join('.', $smb{AdsController}, $DomainName));
+	$conf->{realms}->{$realm}->{kdc} = $fqdnAdsController . ':88';
+	$conf->{realms}->{$realm}->{admin_server} = $fqdnAdsController . ':749';
+	$conf->{realms}->{$realm}->{default_domain} = $DomainName;
+	$conf->{domain_realm}{$DomainName} = $realm; 
+	$conf->{domain_realm}{'.' . $DomainName} = $realm; 
+    } else {
+	$conf->{libdefaults}->{dns_lookup_realm} = 'true';
+	$conf->{libdefaults}->{dns_lookup_kdc} = 'true';
+    }
+
+    '';
+}
