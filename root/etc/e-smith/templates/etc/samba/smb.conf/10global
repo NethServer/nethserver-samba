@@ -41,10 +41,9 @@ ldap ssl = off
 ldap admin dn = cn=samba,{$LdapInternalDomainSuffix}
 ldap suffix = {$LdapInternalDomainSuffix}
 ldap passwd sync = no
-idmap backend = ldap:ldap://127.0.0.1
 ldap idmap suffix = ou=Idmap
-idmap uid = 50000-100000
-idmap gid = 50000-100000
+idmap config { $smb{Workgroup} } : backend = ldap:ldap://127.0.0.1
+idmap config { $smb{Workgroup} } : range = 50000-100000
 obey pam restrictions = yes
 
 ; Invoked only if a passwd entry is missing:
