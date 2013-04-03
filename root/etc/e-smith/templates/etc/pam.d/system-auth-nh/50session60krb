@@ -1,6 +1,0 @@
-{
-   return "" unless ($smb{ServerRole} eq "ADS");
-
-   $OUT.="session     required      pam_winbind.so use_first_pass cached_login\n";
-   $OUT.="session     required      pam_mkhomedir.so skel=/etc/e-smith/skel/user";
-}
