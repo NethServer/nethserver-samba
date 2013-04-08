@@ -9,7 +9,7 @@ $vfsRecycle = $view->fieldsetSwitch('SmbRecycleBinStatus', 'enabled', $view::FIE
     ->insert($view->checkBox('SmbRecycleBinVersionsStatus', 'enabled')->setAttribute('uncheckedValue', 'disabled'))
 ;
 
-$vfsShadow = $view->checkBox('SmbShadowCopyStatus', 'enabled')->setAttribute('uncheckedValue', 'disabled');
+# $vfsShadow = $view->checkBox('SmbShadowCopyStatus', 'enabled')->setAttribute('uncheckedValue', 'disabled');
 
 $customValues = $view->fieldset()->setAttribute('template', $T('Profiles_label'))
     ->insert($view->radioButton('profileName', 'default'))
@@ -20,6 +20,6 @@ $customValues = $view->fieldset()->setAttribute('template', $T('Profiles_label')
 echo $view->fieldsetSwitch('SmbStatus', 'enabled', $view::FIELDSETSWITCH_CHECKBOX)
     ->setAttribute('uncheckedValue', 'disabled')
     ->insert($vfsRecycle)
-    ->insert($vfsShadow)
+#    ->insert($vfsShadow)
     ->insert($customValues)
 ;
