@@ -1,0 +1,6 @@
+#
+# 10base -- ibay {$key} definition. Profile "migration".
+#
+[{$key}]
+path = /var/lib/nethserver/ibay/{$key}/files
+comment = { $ibay{Description} || 'Samba share' }
