@@ -30,6 +30,7 @@
 
 use strict;
 use esmith::AccountsDB;
+use User::grent;
 
 my $event = shift;
 my $group = shift;
@@ -46,7 +47,7 @@ if($group) {
     }
     @groups = ($group);
 } else {
-    @groups = map { $_->key } $accountsDb->groups();   
+    @groups = ('shared', map { $_->key } $accountsDb->groups());   
 }
 
 
@@ -60,10 +61,20 @@ foreach my $group (@groups) {
 	next;
     }
 
-    # Add to SAM:
-    qx($net sam mapunixgroup "$group");
+    my $groupEntry = getgrnam($group);
+    if( ! $groupEntry) {
+	warn "[ERROR] Group entry '$group' not found!\n";
+	$exitCode ++;
+	next;
+    }
+
+    my $description = $accountsDb->get_prop($group, 'Description') || $group;
+    my $rid = 1001 + ($groupEntry->gid * 2);
+
+    # Add to SAM with proper algorithmic RID
+    system($net, 'groupmap', 'add', "rid=$rid", "unixgroup=$group", "comment=$description");
     if($? != 0) {
-	warn "Failed to add group `$group` in SAM database";
+	warn "[ERROR] Failed to add group `$group` in SAM database!\n";
 	$exitCode ++;
 	next;
     }
