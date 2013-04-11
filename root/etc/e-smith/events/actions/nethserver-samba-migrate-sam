@@ -133,12 +133,7 @@ my %groupDb = $useGroupMappingDb ?
     getSambaGroupDb($sourceDir . '/var/lib/samba/group_mapping.ldb') 
     : getStaticGroupDb($sourceDir . '/etc/group');
 
-# Well known RIDs (see also nethserver-samba-sam-conf action):
-$groupDb{domadmins} = { rid => '512' };
-$groupDb{domusers} = { rid => '513' };
-$groupDb{domguests} = { rid => '514' };
-$groupDb{domcomputers} = { rid => '515' };
-
+addExistingGroups(\%groupDb);
 
 #print Dumper(\%userDb);
 #print Dumper(\%groupDb);
@@ -219,6 +214,7 @@ foreach ($dstAccountsDb->get_all_by_prop(type => 'machine'),
 #
 foreach my $gid ( keys %{{
     (map { $_->key => 1 } $dstAccountsDb->get_all_by_prop(type => 'group')), 
+    getgrnam('shared') ? ( 'shared' => 1 ) : (),
     qw(
       domadmins    1
       domusers     1
@@ -404,4 +400,40 @@ sub getSmbPasswd($)
 
     close(FH);
     return %db;
+}
+
+
+#
+# Obtain existing group rids from LDAP backend and add to the passed
+# group hash
+#
+sub addExistingGroups()
+{
+    # the group hash:
+    my $groups = shift;
+
+    my $res = $ldap->search(
+	base => "ou=Groups,$LdapInternalSuffix", 
+	scope => 'one', 
+	filter => '(&(objectClass=posixGroup)(objectClass=sambaGroupMapping))',
+	attrs => ['sambaSID', 'cn', 'gidNumber']
+	);
+
+    if($res->is_error) {
+	return;
+    }
+
+    foreach ($res->entries()) {
+	my $rid = pop(@{[split('-', $_->get_value('sambaSID'))]});
+	my $groupName = $_->get_value('cn');
+	my $gid = $_->get_value('gidnumber');
+
+	if(int($rid) > 0 && ! defined $groups->{$groupName}) {
+	    $groups->{$groupName} = { 
+		rid => $rid, 
+		gid => $gid
+	    };
+	}
+    }
+
 }
