@@ -68,11 +68,10 @@ foreach my $group (@groups) {
 	next;
     }
 
-    my $description = $accountsDb->get_prop($group, 'Description') || $group;
-    my $rid = 1001 + ($groupEntry->gid * 2);
+    my $description = $accountsDb->get_prop($group, 'Description') || '';
 
-    # Add to SAM with proper algorithmic RID
-    system($net, 'groupmap', 'add', "rid=$rid", "unixgroup=$group", "comment=$description");
+    # Map the unix group as samba domain group:
+    system($net, 'groupmap', 'add', "unixgroup=$group", "comment=$description");
     if($? != 0) {
 	warn "[ERROR] Failed to add group `$group` in SAM database!\n";
 	$exitCode ++;
