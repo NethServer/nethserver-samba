@@ -147,3 +147,7 @@ event_actions('migration-import', qw(
     nethserver-samba-migrate-data   40
     nethserver-samba-migrate-ibays  40
 ));
+
+event_services('migration-import', qw(
+    winbind restart
+));
