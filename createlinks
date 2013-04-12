@@ -150,4 +150,6 @@ event_actions('migration-import', qw(
 
 event_services('migration-import', qw(
     winbind restart
+    smb restart
+    nmb restart
 ));
