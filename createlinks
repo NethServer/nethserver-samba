@@ -43,18 +43,22 @@ event_actions('nethserver-samba-update', qw(
 	      nethserver-samba-sam-conf 95
 	      nethserver-samba-user-create 96
 	      nethserver-samba-group-create 97
-              nethserver-samba-map-shared 98
 ));
 
 # Map shared group in SAM db
 event_actions('nethserver-ibays-update', qw(
-              nethserver-samba-map-shared 60
+	      nethserver-samba-group-create 97
 ));
 
 # actions for group-create event:
-event_actions('group-create', 
-	      "nethserver-samba-group-create" => "30"
-);
+event_actions('group-create', qw(
+	      nethserver-samba-group-sync 30
+));
+
+# actions for group-modify event:
+event_actions('group-modify', qw(
+	      nethserver-samba-group-sync 30
+));
 
 # All of these events require smbd to reload the smb.conf file:
 event_actions($_,
@@ -142,4 +146,10 @@ event_actions('migration-import', qw(
     nethserver-samba-migrate-sam    30
     nethserver-samba-migrate-data   40
     nethserver-samba-migrate-ibays  40
+));
+
+event_services('migration-import', qw(
+    winbind restart
+    smb restart
+    nmb restart
 ));

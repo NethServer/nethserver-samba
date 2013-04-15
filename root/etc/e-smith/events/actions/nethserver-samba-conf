@@ -44,9 +44,11 @@ $ldap->loadLdifSchema('samba', '/etc/openldap/schema/samba.ldif') || die("Could 
     my $password = NethServer::Directory::getUserPassword('samba', 0);
 
     #
-    # Store the password in samba secrets.tdb database:
+    # Store the LDAP password in samba secrets.tdb database, for both
+    # ldap and idmap backends:
     #
-    qx(smbpasswd -w '$password');
+    qx(/usr/bin/smbpasswd -w '$password');
+    qx(/usr/bin/net idmap secret '*' '$password');
 
     my @entries = (
 	[ 'ou=Idmap,' . $internalSuffix,

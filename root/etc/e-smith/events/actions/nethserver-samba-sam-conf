@@ -41,22 +41,26 @@ my $entries = {
     domadmins => {
 	rid => 512,
 	type => 'd',
-	name => 'Domain Admins'
+	name => 'Domain Admins',
+	comment => 'Designated administrators of the domain'
     },
     domusers => {
 	rid => 513,
 	type => 'd',
-	name => 'Domain Users'
+	name => 'Domain Users',
+	comment => 'Default group for domain accounts'
     },
     domguests => {
 	rid => 514,
 	type => 'd',
-	name => 'Domain Guests'
+	name => 'Domain Guests',
+	comment => 'Domain group for the builtin guest account'
     },
     domcomputers => {
 	rid => 515,
 	type => 'd',
-	name => 'Domain Computers'
+	name => 'Domain Computers',
+	comment => 'Computers that joined the domain'
     }	
 };
 
@@ -118,9 +122,11 @@ while ( my ($group, $entry) = each(%$entries) ) {
 
     # Map the created unix group to the given $entry
     system($net, 'groupmap', 'add', 
-	   "ntgroup=" . $entry->{'name'}, 
 	   "unixgroup=" . $group, 
-	   "rid=" . $entry->{'rid'}
+	   "ntgroup=" . $entry->{'name'}, 
+	   "rid=" . $entry->{'rid'},
+	   "type=" . $entry->{'type'},
+	   "comment=" . $entry->{'comment'}
 	);
 
     if($? != 0) {

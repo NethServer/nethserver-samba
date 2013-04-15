@@ -31,11 +31,11 @@
 	    next;
 	}
 
-	$ibaysOutput .= esmith::templates::processTemplate ({
+	$ibaysOutput .= (esmith::templates::processTemplate ({
 	    MORE_DATA => { ibayRecord => $ibay, ibayProfile => $ibayProfile },
 	    TEMPLATE_PATH => $templatePath,
 	    OUTPUT_TYPE => 'string',
-        }) || '';
+        }) . "\n") || '';
     }
     return $ibaysOutput;
 }

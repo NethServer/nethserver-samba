@@ -52,7 +52,7 @@ foreach my $srcIbay ($srcAccountsDb->ibays()) {
     $dstIbay->merge_props(
 	SmbStatus => 'enabled',
 	SmbRecycleBinStatus => 'disabled',
-	SmbProfileType => 'default',
+	SmbProfileType => 'migration',
 	);
 
     #
