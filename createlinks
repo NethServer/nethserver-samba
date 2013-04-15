@@ -38,8 +38,6 @@ my ($event, $daemon, $pkg);
 event_actions('nethserver-samba-update', qw(
 	      initialize-default-databases 00
 	      nethserver-samba-conf 20
-	      firewall-adjust 30
-	      runlevel-adjust 30
 	      nethserver-samba-sam-conf 95
 	      nethserver-samba-user-create 96
 	      nethserver-samba-group-create 97

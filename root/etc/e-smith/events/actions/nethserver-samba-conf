@@ -36,6 +36,11 @@ use esmith::event;
 my $ldap = NethServer::Directory->new();
 my $internalSuffix = NethServer::Directory::getInternalSuffix();
 my $exitCode = 0;
+my $daemon = 'smb';
+
+if(!NethServer::Service::start($daemon) != 0) {
+    die("Could not start `$daemon`.\n");
+}
 
 $ldap->loadLdifSchema('samba', '/etc/openldap/schema/samba.ldif') || die("Could not load the samba LDIF schema");
 
