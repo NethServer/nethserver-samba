@@ -87,10 +87,6 @@ $ldap->loadLdifSchema('samba', '/etc/openldap/schema/samba.ldif') || die("Could 
 
 } # END LDAP
 
-NethServer::Service::manage_add('nethserver-samba',
-				'smb',
-				'nmb',
-				'winbind');
 
 # Enable acl and user_xattr on / filesystem
 my $confdb = esmith::ConfigDB->open;
