@@ -47,7 +47,7 @@ class Samba extends \Nethgui\Controller\Table\RowPluginAction
         $schema = array(
             array('SmbStatus', Validate::SERVICESTATUS, Table::FIELD),
             array('SmbProfileType', FALSE, Table::FIELD),
-    #        array('SmbShadowCopyStatus', Validate::SERVICESTATUS, Table::FIELD),
+            // array('SmbShadowCopyStatus', Validate::SERVICESTATUS, Table::FIELD),
             array('SmbRecycleBinStatus', Validate::SERVICESTATUS, Table::FIELD),
             array('SmbRecycleBinVersionsStatus', Validate::SERVICESTATUS, Table::FIELD),
         );
