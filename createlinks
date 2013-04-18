@@ -34,6 +34,12 @@ templates2events("/etc/samba/smb.conf", qw(
 ));
 
 my ($event, $daemon, $pkg);
+#
+# nethserver-samba-update event (smb.conf template expanded above)
+#
+event_templates('nethserver-samba-update', qw(
+    /etc/httpd/admin-conf/httpd.conf
+));
 
 event_actions('nethserver-samba-update', qw(
 	      initialize-default-databases 00
@@ -41,6 +47,10 @@ event_actions('nethserver-samba-update', qw(
 	      nethserver-samba-sam-conf 95
 	      nethserver-samba-user-create 96
 	      nethserver-samba-group-sync 97
+));
+
+event_services('nethserver-samba-update', qw(
+    httpd-admin reload
 ));
 
 # Map shared group in SAM db

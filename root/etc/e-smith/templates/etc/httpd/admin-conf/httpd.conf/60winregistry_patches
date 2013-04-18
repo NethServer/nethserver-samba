@@ -1,0 +1,12 @@
+#
+# 60winregistry_patches -- *.reg file patches for Windows clients
+#
+
+Alias /winregistry-patches /var/lib/nethserver/winregistry-patches
+
+<Directory /var/lib/nethserver/winregistry-patches/>
+       Options +Indexes
+       Order Allow,Deny
+       Allow from all
+</Directory>
+
