@@ -7,3 +7,4 @@ map archive          = no
 map readonly         = no
 inherit acls         = yes
 map acl inherit      = yes
+guest ok             = { ($ibay{SmbGuestAccessType} || 'none') =~ /^rw?$/ ? 'yes' : 'no' }

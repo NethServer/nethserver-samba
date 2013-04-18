@@ -8,3 +8,7 @@ $L['SmbShadowCopyStatus_label'] = 'Shadow copy';
 $L['SmbStatus_label'] = 'Abilita Samba'; 
 $L['profileName_custom_label'] = 'Personalizzato'; 
 $L['profileName_default_label'] = 'Predefinito'; 
+$L['SmbGuestAccess_label'] = 'Accesso guest';
+$L['SmbGuestAccessType_none_label'] = 'Nessuno';
+$L['SmbGuestAccessType_r_label'] = 'Solo lettura';
+$L['SmbGuestAccessType_rw_label'] = 'Lettura e scrittura';

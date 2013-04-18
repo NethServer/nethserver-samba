@@ -50,12 +50,14 @@ class Samba extends \Nethgui\Controller\Table\RowPluginAction
             // array('SmbShadowCopyStatus', Validate::SERVICESTATUS, Table::FIELD),
             array('SmbRecycleBinStatus', Validate::SERVICESTATUS, Table::FIELD),
             array('SmbRecycleBinVersionsStatus', Validate::SERVICESTATUS, Table::FIELD),
+            array('SmbGuestAccessType', '/^(none|rw|r)$/', Table::FIELD),
         );
 
         $this->setSchemaAddition($schema);
         $this
             ->setDefaultValue('SmbProfileType', 'default')
             ->setDefaultValue('SmbStatus', 'enabled')
+            ->setDefaultValue('SmbGuestAccessType', 'none')
         ;
         parent::initialize();
 
@@ -111,7 +113,7 @@ class Samba extends \Nethgui\Controller\Table\RowPluginAction
     {
         $request = $this->getRequest();
         if ($request->isMutation() && $request->hasParameter('customValue')) {
-            $this->getLog()->notice(sprintf('COPY %s to SmbProfileType', $this->parameters['customValue']));
+            NETHGUI_DEBUG && $this->getLog()->notice(sprintf('COPY %s to SmbProfileType', $this->parameters['customValue']));
             $this->parameters['SmbProfileType'] = $this->parameters['customValue'];
             return TRUE;
         }
