@@ -23,6 +23,9 @@
 use esmith::Build::CreateLinks qw(:all);
 use File::Path;
 
+#
+# Many events expand smb.conf:
+#
 templates2events("/etc/samba/smb.conf", qw(
     nethserver-samba-update
     nethserver-samba-save
@@ -33,7 +36,6 @@ templates2events("/etc/samba/smb.conf", qw(
     network-create
 ));
 
-my ($event, $daemon, $pkg);
 #
 # nethserver-samba-update event (smb.conf template expanded above)
 #
@@ -50,7 +52,19 @@ event_actions('nethserver-samba-update', qw(
 ));
 
 event_services('nethserver-samba-update', qw(
-    httpd-admin reload
+   smb restart
+   nmb restart
+   winbind restart
+   httpd-admin reload
+));
+
+#
+# nethserver-samba-save event (smb.conf template expanded above)
+#
+event_services('nethserver-samba-save', qw(
+   smb restart
+   nmb restart
+   winbind restart
 ));
 
 # Map shared group in SAM db
@@ -118,34 +132,18 @@ event_actions('password-modify', qw(
               nethserver-samba-user-modify     50
 ));
 
-# event nethserver-samba-save
-safe_symlink("restart", "root/etc/e-smith/events/nethserver-samba-save/services2adjust/$_") 
-    foreach (qw(smb nmb winbind));
 
-	     
-#
-# restart daemons on update of required packages :
-#
-foreach $daemon (qw(nmb smb winbind)) {
-    foreach $pkg (qw(base directory samba)) {
-	safe_symlink("restart", 
-		     "root/etc/e-smith/events/nethserver-$pkg-update/services2adjust/$daemon")
-    }	
-}
-
-
+	   
 #--------------------------------------------------
 # actions for interface-update event
 #--------------------------------------------------
 event_templates('interface-update',
                 '/etc/samba/smb.conf');
-event_services('interface-update',
-               'smb' => 'restart');
-event_services('interface-update',
-               'nmb' => 'restart');
-event_services('interface-update',
-               'winbind' => 'restart');
-
+event_services('interface-update', qw(
+   smb restart
+   nmb restart
+   winbind restart
+));
 
 #
 # migration-import event (refs #1657)
