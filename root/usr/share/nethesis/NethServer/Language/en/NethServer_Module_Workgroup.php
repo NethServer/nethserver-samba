@@ -16,3 +16,4 @@ $L['server_label'] = 'Server name';
 $L['workgroup-update_failure'] = 'Errors occured during Samba configuration.'; 
 $L['workgroup-update_success'] = 'Samba configuration updated.'; 
 $L['workgroup_label'] = 'Domain or workgroup name'; 
+$L['WinregistryPatches_label'] = 'Client registry settings';

@@ -42,6 +42,7 @@ class Configure extends \Nethgui\Controller\AbstractController
         $this->declareParameter('PDCName', Validate::HOSTNAME, array('configuration', 'smb', 'PDCName'));
         $this->declareParameter('PDCIP', Validate::IPv4, array('configuration', 'smb', 'PDCIP'));
         $this->declareParameter('Realm', Validate::HOSTNAME, array('configuration', 'smb', 'Realm'));
+       
     }
 
     protected function onParametersSaved($changedParameters)
@@ -49,4 +50,10 @@ class Configure extends \Nethgui\Controller\AbstractController
         $this->getPlatform()->signalEvent('nethserver-samba-save@post-process');
     }
 
+
+    public function prepareView(\Nethgui\View\ViewInterface $view)
+    {
+        parent::prepareView($view);
+        $view['WinregistryPatches'] = $view->getSiteUrl() . '/winregistry-patches';
+    }
 }

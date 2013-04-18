@@ -20,3 +20,4 @@ $L['server_label'] = 'Nome del server';
 $L['workgroup-update_failure'] = 'Si sono verificati errori durante la configurazione'; 
 $L['workgroup-update_success'] = 'Configurazione Samba aggiornata correttamente.'; 
 $L['workgroup_label'] = 'Nome del dominio o gruppo di lavoro'; 
+$L['WinregistryPatches_label'] = 'Impostazioni di registro per i client';
