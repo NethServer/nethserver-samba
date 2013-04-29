@@ -61,6 +61,11 @@ $ldap->loadLdifSchema('samba', '/etc/openldap/schema/samba.ldif') || die("Could 
 	      objectClass => ['top', 'organizationalUnit'],
 	      ou => 'Idmap',
 	  ] ],       	
+	[ 'ou=Computers,' . $internalSuffix,
+	  attrs => [
+	      objectClass => ['top', 'organizationalUnit'],
+	      ou => 'Computers',
+	  ] ],       	
 	);
 
     foreach(@entries) {

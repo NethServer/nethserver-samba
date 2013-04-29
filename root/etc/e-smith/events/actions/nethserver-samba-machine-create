@@ -28,12 +28,12 @@
 package esmith;
 
 use strict;
-use esmith::ConfigDB;
 use esmith::AccountsDB;
-use esmith::util;
-use User::pwent;
+use NethServer::Directory;
+use User::grent;
 
 my $accountsDb = esmith::AccountsDB->open or die("Couldn't open accounts db\n");
+my $ldap = NethServer::Directory->new();
 
 my $event = shift;
 my $machineName = shift;
@@ -49,6 +49,11 @@ my $lock;
 # Create accounts DB record, if not exist
 my $machine = $accountsDb->get($machineName);
 if ($machine) {
+    # Check account type correctness
+    if ($machine->prop('type') ne 'machine') {
+	die("Account $machineName is not of type machine\n");
+    }
+
     $uid = $machine->prop('Uid');
 } else {
     use esmith::lockfile;
@@ -58,25 +63,26 @@ if ($machine) {
 
     # Create the machine record in AccountsDB
     $accountsDb->new_record($machineName, {type => "machine", Uid => $uid});
+
 }
 
-# Check account type correctness
-if ($machine->prop('type') ne 'machine') {
-    die("Account $machineName is not of type machine\n");
+if( ! $uid) {
+    die("[ERROR] Could not read $machineName Uid prop!\n");
 }
 
-system(
-    '/usr/sbin/luseradd',
-    $uid > 0 ? ('-u', $uid) : (),
-    '-g', 'domcomputers',
-    '-c', $machineName . ' samba machine account',
-    '-M',
-    '-d', '/noexistingpath',
-    '-s', '/bin/false',
-    $machineName
-    );
+my $unixGroup = getgrnam('domcomputers') || getgrnam('nobody');
 
-if($? != 0) {
+my $response = $ldap->add(sprintf("uid=%s,ou=Computers,%s", $machineName, NethServer::Directory::getInternalSuffix()), attrs => [
+	       objectClass => ['account', 'posixAccount'],
+	       cn => $machineName . ' Samba machine account',
+	       description => $machineName . ' Samba machine account',
+	       uid => $machineName,
+	       uidNumber => $uid,
+	       gidNumber => $unixGroup->gid,
+	       homeDirectory => '/none',
+	   ]);
+
+if($response->is_error) {
     die("Failed to create machine account $machineName.\n");
 }
 
@@ -85,8 +91,6 @@ if($lock) {
     esmith::lockfile::UnlockFile($lock);
 }
 
-system('/usr/sbin/lusermod', '-L', $machineName) == 0
-    or warn("Could not lock password for $machineName\n");
 
 
 

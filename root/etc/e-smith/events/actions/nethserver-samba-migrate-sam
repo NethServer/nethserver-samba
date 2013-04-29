@@ -152,7 +152,8 @@ foreach ($dstAccountsDb->get_all_by_prop(type => 'machine'),
 	next;
     }
 
-    my $userDn = sprintf('uid=%s,ou=People,%s', $uid, $LdapInternalSuffix);
+    my $branch = $_->prop('type') eq 'machine' ? 'Computers' : 'People';
+    my $userDn = sprintf('uid=%s,ou=%s,%s', $uid, $branch, $LdapInternalSuffix);
 
     my $attrs = {};
 
