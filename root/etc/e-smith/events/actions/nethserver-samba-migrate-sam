@@ -307,6 +307,13 @@ sub importDomainSid($$)
 	}
     }
     close(FH);
+
+    system(qq(/usr/bin/net setlocalsid $sid));
+    if( $? != 0)  {
+	warn "[WARNING] failed to set local machine SID!\n";
+	return '';
+    }
+
     return $sid;
 }
 
