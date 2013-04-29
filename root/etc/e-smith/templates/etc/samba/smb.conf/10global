@@ -80,3 +80,6 @@ preserve case = yes
 ; A specific share profile can re-enable it
 unix extensions = no
 
+; Guest access (#1882). Shares must be guest-ok, to allow it.
+map to guest = Bad User
+
