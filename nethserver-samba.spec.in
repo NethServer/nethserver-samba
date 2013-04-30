@@ -43,6 +43,19 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-,root,root)
 
 %changelog
+* Tue Apr 30 2013 Davide Principi <davide.principi@nethesis.it> - 1.2.0-1.ns6
+- Store machine accounts under ou=Computers branch #1890 
+- Implant migrated SID as "localsid" #1895
+- Shared folder guest access #1882
+- winregistry-patches served by httpd-admin #1799
+- SharedFolder UI plugin: hide profile widget #1881
+- Full automatic package install/upgrade/uninstall support #1870 #1872 #1874
+- Update group description when changed from UI #1861
+- Migration ibay profile #1855
+- Fixed idmap LDAP backend configuration: pre-defined groups were not available after migration #1829
+- Partial implementation of Active Directory domain join #1746
+- Removed shadow copy checkbox from UI #1750
+
 * Tue Mar 19 2013 Davide Principi <davide.principi@nethesis.it> - 1.1.0-1.ns6
 - smb.conf template: implement ibay profiles. Refs #1724
 - /etc/fstab template: enable acl & xattrs attributes. #1658
