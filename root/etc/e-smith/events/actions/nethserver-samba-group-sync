@@ -47,7 +47,23 @@ if($group) {
     }
     @groups = ($group);
 } else {
+    # 'shared' group is created by nethserver-ibays and must be in SAM
+    # DB:
     @groups = ('shared', map { $_->key } $accountsDb->groups());   
+}
+
+# Check if idmap LDAP backend is configured before to proceed.  This
+# action can be invoked before samba is configured (in other words:
+# before nethserver-samba-update has been executed)!  For instance
+# group-create and nethserver-ibays-update events use this action.
+my $secretsFile = '/var/lib/samba/private/secrets.tdb';
+if( ! -r $secretsFile) {
+    exit 0;
+}
+my $secretsOutput = qx(/usr/bin/tdbtool $secretsFile keys);
+if( $secretsOutput !~ m(SECRETS/GENERIC/IDMAP_LDAP_\*)m ) {
+    warn "[WARNING] Idmap backend is still not configured. Action skipped\n";
+    exit 0;
 }
 
 
@@ -64,8 +80,7 @@ foreach my $group (@groups) {
 
 	my $groupEntry = getgrnam($group);
 	if( ! $groupEntry) {
-	    warn "[ERROR] Group entry '$group' not found!\n";
-	    $exitCode ++;
+	    warn "[WARNING] Group entry '$group' not found! Skipped.\n";
 	    next;
 	}
 
