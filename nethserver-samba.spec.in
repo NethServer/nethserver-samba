@@ -43,6 +43,9 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-,root,root)
 
 %changelog
+* Tue May  7 2013 Davide Principi <davide.principi@nethesis.it> - 1.2.1-1.ns6
+- nethserver-samba-group-sync action: check if samba idmap backend is functional before going on, and don't fail if a unix group does not exist #1870
+
 * Tue Apr 30 2013 Davide Principi <davide.principi@nethesis.it> - 1.2.0-1.ns6
 - Store machine accounts under ou=Computers branch #1890 
 - Implant migrated SID as "localsid" #1895
