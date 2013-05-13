@@ -41,6 +41,10 @@ templates2events("/etc/samba/smb.conf", qw(
 #
 event_templates('nethserver-samba-update', qw(
     /etc/httpd/admin-conf/httpd.conf
+    /etc/pam.d/system-auth-nh
+    /etc/pam.d/password-auth-nh
+    /etc/krb5.conf
+    /etc/nsswitch.conf
 ));
 
 event_actions('nethserver-samba-update', qw(
@@ -61,6 +65,13 @@ event_services('nethserver-samba-update', qw(
 #
 # nethserver-samba-save event (smb.conf template expanded above)
 #
+event_templates('nethserver-samba-save', qw(
+    /etc/pam.d/system-auth-nh
+    /etc/pam.d/password-auth-nh
+    /etc/krb5.conf
+    /etc/nsswitch.conf
+));
+
 event_services('nethserver-samba-save', qw(
    smb restart
    nmb restart
