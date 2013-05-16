@@ -35,13 +35,13 @@ class Configure extends \Nethgui\Controller\AbstractController
         parent::initialize();
         
         $roleValidator = $this->getPlatform()->createValidator()->memberOf('WS', 'PDC', 'ADS');
+        $hostnameOrEmptyValidator = $this->createValidator()->orValidator($this->createValidator(Validate::HOSTNAME), $this->createValidator(Validate::EMPTYSTRING));
         
         $this->declareParameter('workgroup', Validate::HOSTNAME, array('configuration', 'smb', 'Workgroup'));        
         $this->declareParameter('role', $roleValidator, array('configuration', 'smb', 'ServerRole'));
         $this->declareParameter('RoamingProfiles', Validate::YES_NO, array('configuration', 'smb', 'RoamingProfiles'));
-        $this->declareParameter('PDCName', Validate::HOSTNAME, array('configuration', 'smb', 'PDCName'));
-        $this->declareParameter('PDCIP', Validate::IPv4, array('configuration', 'smb', 'PDCIP'));
-        $this->declareParameter('Realm', Validate::HOSTNAME, array('configuration', 'smb', 'Realm'));
+        $this->declareParameter('AdsController', $hostnameOrEmptyValidator, array('configuration', 'smb', 'AdsController'));
+        $this->declareParameter('AdsRealm', $hostnameOrEmptyValidator, array('configuration', 'smb', 'AdsRealm'));
        
     }
 
@@ -55,5 +55,6 @@ class Configure extends \Nethgui\Controller\AbstractController
     {
         parent::prepareView($view);
         $view['WinregistryPatches'] = $view->getSiteUrl() . '/winregistry-patches';
+        $view['defaultRealm'] = strtoupper($this->getPlatform()->getDatabase('configuration')->getType('DomainName'));
     }
 }

@@ -1,8 +1,7 @@
 <?php 
 
-$L['PDCIP_label'] = 'PDC IP address'; 
-$L['PDCName_label'] = 'PDC server name'; 
-$L['Realm_label'] = 'Realm'; 
+$L['AdsController_label'] = 'Controller';
+$L['AdsRealm_label'] = 'Realm';
 $L['RoamingProfiles_label'] = 'Enable roaming profiles'; 
 $L['Server role'] = 'Server role'; 
 $L['Workgroup setup'] = 'Workgroup configuration';
