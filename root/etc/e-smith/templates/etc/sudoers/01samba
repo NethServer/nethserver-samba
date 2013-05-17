@@ -1,0 +1,7 @@
+{
+    #
+    # 01samba
+    #
+    push @cmnd_alias_httpd_admin, '/usr/libexec/nethserver/smbads';
+    '';
+}

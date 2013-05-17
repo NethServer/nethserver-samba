@@ -16,6 +16,7 @@ Requires: samba-winbind
 Requires: tdb-tools
 Requires: cyrus-sasl-gssapi
 Requires: krb5-workstation
+Requires: perl-Authen-Krb5
 
 %description
 * Samba PDC, Workstation, ADS roles

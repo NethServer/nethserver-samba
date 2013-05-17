@@ -33,16 +33,15 @@ class Configure extends \Nethgui\Controller\AbstractController
     public function initialize()
     {
         parent::initialize();
-        
+
         $roleValidator = $this->getPlatform()->createValidator()->memberOf('WS', 'PDC', 'ADS');
         $hostnameOrEmptyValidator = $this->createValidator()->orValidator($this->createValidator(Validate::HOSTNAME), $this->createValidator(Validate::EMPTYSTRING));
-        
-        $this->declareParameter('workgroup', Validate::HOSTNAME, array('configuration', 'smb', 'Workgroup'));        
-        $this->declareParameter('role', $roleValidator, array('configuration', 'smb', 'ServerRole'));
+
+        $this->declareParameter('Workgroup', Validate::HOSTNAME, array('configuration', 'smb', 'Workgroup'));
+        $this->declareParameter('ServerRole', $roleValidator, array('configuration', 'smb', 'ServerRole'));
         $this->declareParameter('RoamingProfiles', Validate::YES_NO, array('configuration', 'smb', 'RoamingProfiles'));
         $this->declareParameter('AdsController', $hostnameOrEmptyValidator, array('configuration', 'smb', 'AdsController'));
         $this->declareParameter('AdsRealm', $hostnameOrEmptyValidator, array('configuration', 'smb', 'AdsRealm'));
-       
     }
 
     protected function onParametersSaved($changedParameters)
@@ -50,6 +49,20 @@ class Configure extends \Nethgui\Controller\AbstractController
         $this->getPlatform()->signalEvent('nethserver-samba-save@post-process');
     }
 
+    public function nextPath()
+    {
+        $isAuthNeeded = FALSE;
+        $request = $this->getRequest();
+        if ($request->hasParameter('ServerRole') && $request->getParameter('ServerRole') === 'ADS') {
+            // $this->isAuthNeeded = exitcode of `net -k ads testjoin`
+            $isAuthNeeded = $this->getPlatform()->exec('/usr/bin/sudo /usr/libexec/nethserver/smbads test')->getExitCode() === 0 ? FALSE : TRUE;
+        }
+
+        if ($isAuthNeeded) {
+            return 'Authenticate';
+        }
+        return parent::nextPath();
+    }
 
     public function prepareView(\Nethgui\View\ViewInterface $view)
     {
@@ -57,4 +70,5 @@ class Configure extends \Nethgui\Controller\AbstractController
         $view['WinregistryPatches'] = $view->getSiteUrl() . '/winregistry-patches';
         $view['defaultRealm'] = strtoupper($this->getPlatform()->getDatabase('configuration')->getType('DomainName'));
     }
+
 }

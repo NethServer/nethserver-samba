@@ -1,22 +1,24 @@
 <?php
+/* @var $view Nethgui\Renderer\Xhtml */
+
+echo $view->header()->setAttribute('template', $T('Configure_header'));
 
 //$winregistryLink = $view->button('WinregistryPatches', $view::BUTTON_LINK);
-$winregistryLink = $view->literal(sprintf('<a href="%s">%s</a>', $view['WinregistryPatches'], $T('WinregistryPatches_label')));
+$winregistryLink = $view->literal(sprintf('<div class="labeled-control"><a href="%s">%s</a></div>', $view['WinregistryPatches'], $T('WinregistryPatches_label')));
 
-echo $view->panel()
-    ->insert($view->header()->setAttribute('template', 'Workgroup setup'))
-    ->insert($view->textInput('workgroup'))
-    ->insert($view->fieldset()->setAttribute('template', 'Server role')
-        ->insert($view->fieldsetSwitch('role', 'WS'))
-        ->insert($view->fieldsetSwitch('role', 'PDC')
+echo $view->panel()        
+    
+        ->insert($view->radioButton('ServerRole', 'WS'))
+        ->insert($view->fieldsetSwitch('ServerRole', 'PDC', $view::FIELDSET_EXPANDABLE)
+            ->insert($view->textInput('Workgroup'))
             ->insert($view->checkBox('RoamingProfiles', 'yes')->setAttribute('uncheckedValue', 'no'))
             ->insert($winregistryLink)
         )
-        ->insert($view->fieldsetSwitch('role', 'ADS')            
+        ->insert($view->fieldsetSwitch('ServerRole', 'ADS', $view::FIELDSET_EXPANDABLE)
             ->insert($view->textInput('AdsRealm')->setAttribute('placeholder', $view['defaultRealm']))
             ->insert($view->textInput('AdsController'))
         )
-    )
+    
 ;
 
 echo $view->buttonList($view::BUTTON_SUBMIT | $view::BUTTON_HELP);

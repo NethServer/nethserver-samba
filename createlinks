@@ -45,6 +45,7 @@ event_templates('nethserver-samba-update', qw(
     /etc/pam.d/password-auth-nh
     /etc/krb5.conf
     /etc/nsswitch.conf
+    /etc/sudoers
 ));
 
 event_actions('nethserver-samba-update', qw(
@@ -170,3 +171,18 @@ event_services('migration-import', qw(
     smb restart
     nmb restart
 ));
+
+
+#
+# nethserver-samba-adsjoin (refs #1746) This event must be signalled
+# after nethserver-samba-save: it is assumed that smb.conf is properly
+# configured
+#
+event_actions('nethserver-samba-adsjoin', qw(
+    nethserver-samba-smbads 01
+));
+
+event_services('nethserver-samba-adsjoin', qw(
+    winbind restart
+));
+
