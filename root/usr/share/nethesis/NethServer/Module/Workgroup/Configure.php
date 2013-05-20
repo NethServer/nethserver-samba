@@ -37,11 +37,39 @@ class Configure extends \Nethgui\Controller\AbstractController
         $roleValidator = $this->getPlatform()->createValidator()->memberOf('WS', 'PDC', 'ADS');
         $hostnameOrEmptyValidator = $this->createValidator()->orValidator($this->createValidator(Validate::HOSTNAME), $this->createValidator(Validate::EMPTYSTRING));
 
-        $this->declareParameter('Workgroup', Validate::HOSTNAME, array('configuration', 'smb', 'Workgroup'));
+        $this->declareParameter('PdcDomain', $hostnameOrEmptyValidator, array('configuration', 'smb', 'Workgroup'));
+        $this->declareParameter('AdsDomain', $hostnameOrEmptyValidator, array('configuration', 'smb', 'Workgroup')); 
+            
         $this->declareParameter('ServerRole', $roleValidator, array('configuration', 'smb', 'ServerRole'));
         $this->declareParameter('RoamingProfiles', Validate::YES_NO, array('configuration', 'smb', 'RoamingProfiles'));
         $this->declareParameter('AdsController', $hostnameOrEmptyValidator, array('configuration', 'smb', 'AdsController'));
         $this->declareParameter('AdsRealm', $hostnameOrEmptyValidator, array('configuration', 'smb', 'AdsRealm'));
+    }
+
+    public function readPdcDomain($v1) 
+    {
+        return $v1;
+    }
+
+    public function writePdcDomain($value) 
+    {
+        if($this->parameters['ServerRole'] === 'PDC') {
+            return array($value);
+        }
+        return FALSE;
+    }
+
+    public function readAdsDomain($v1) 
+    {
+        return $v1;
+    }
+
+    public function writeAdsDomain($value) 
+    {
+        if($this->parameters['ServerRole'] === 'ADS') {
+            return array($value);
+        }
+        return FALSE;
     }
 
     protected function onParametersSaved($changedParameters)
@@ -69,6 +97,7 @@ class Configure extends \Nethgui\Controller\AbstractController
         parent::prepareView($view);
         $view['WinregistryPatches'] = $view->getSiteUrl() . '/winregistry-patches';
         $view['defaultRealm'] = strtoupper($this->getPlatform()->getDatabase('configuration')->getType('DomainName'));
+        $view['defaultDomain'] = \Nethgui\array_head(explode('.', strtoupper($this->getPlatform()->getDatabase('configuration')->getType('DomainName'))));
     }
 
 }
