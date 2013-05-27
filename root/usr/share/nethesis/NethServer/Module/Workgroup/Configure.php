@@ -30,6 +30,11 @@ use Nethgui\System\PlatformInterface as Validate;
 class Configure extends \Nethgui\Controller\AbstractController
 {
 
+    /**
+     * @var bool
+     */
+    private $isAuthNeeded = FALSE;
+
     public function initialize()
     {
         parent::initialize();
@@ -74,19 +79,23 @@ class Configure extends \Nethgui\Controller\AbstractController
 
     protected function onParametersSaved($changedParameters)
     {
-        $this->getPlatform()->signalEvent('nethserver-samba-save@post-process');
+        $this->getPlatform()->signalEvent('nethserver-samba-save');
+
+        if($this->parameters['ServerRole'] === 'ADS') {
+            $this->isAuthNeeded = $this->getPlatform()->exec('/usr/bin/sudo /usr/libexec/nethserver/smbads test')->getExitCode() === 0 ? FALSE : TRUE;
+        }
+
+        if($this->isAuthNeeded === FALSE
+           && $this->parameters['ServerRole'] === 'ADS') {
+            // Re-expand templates and reloads daemons, if
+            // Authenticate action is not needed:
+            $this->getPlatform()->signalEvent('nethserver-samba-adsjoin', array('test'));
+        }       
     }
 
     public function nextPath()
     {
-        $isAuthNeeded = FALSE;
-        $request = $this->getRequest();
-        if ($request->hasParameter('ServerRole') && $request->getParameter('ServerRole') === 'ADS') {
-            // $this->isAuthNeeded = exitcode of `net -k ads testjoin`
-            $isAuthNeeded = $this->getPlatform()->exec('/usr/bin/sudo /usr/libexec/nethserver/smbads test')->getExitCode() === 0 ? FALSE : TRUE;
-        }
-
-        if ($isAuthNeeded) {
+        if ($this->isAuthNeeded) {
             return 'Authenticate';
         }
         return parent::nextPath();
