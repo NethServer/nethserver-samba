@@ -46,6 +46,7 @@ event_templates('nethserver-samba-update', qw(
     /etc/krb5.conf
     /etc/nsswitch.conf
     /etc/sudoers
+    /etc/hosts
 ));
 
 event_actions('nethserver-samba-update', qw(
@@ -71,6 +72,7 @@ event_templates('nethserver-samba-save', qw(
     /etc/pam.d/password-auth-nh
     /etc/krb5.conf
     /etc/nsswitch.conf
+    /etc/hosts
 ));
 
 event_services('nethserver-samba-save', qw(
@@ -178,6 +180,10 @@ event_services('migration-import', qw(
 # after nethserver-samba-save: it is assumed that smb.conf is properly
 # configured
 #
+event_templates('nethserver-samba-adsjoin', qw(
+    /etc/hosts
+));
+
 event_actions('nethserver-samba-adsjoin', qw(
     nethserver-samba-smbads 01
 ));

@@ -17,7 +17,9 @@ echo $view->panel()
         ->insert($view->fieldsetSwitch('ServerRole', 'ADS', $view::FIELDSET_EXPANDABLE)
             ->insert($view->textInput('AdsRealm')->setAttribute('placeholder', $view['defaultRealm']))
             ->insert($view->textInput('AdsDomain')->setAttribute('placeholder', $view['defaultDomain']))
-            ->insert($view->textInput('AdsController'))
+     
+            // DISABLED: this is probed automatically:
+            // ->insert($view->textInput('AdsController'))
         )
     
 ;

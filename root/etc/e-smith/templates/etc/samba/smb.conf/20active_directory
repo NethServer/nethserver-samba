@@ -8,7 +8,7 @@
 
     my $realm = $smb{AdsRealm} || uc($DomainName);
 
-    $OUT = <<EOF;
+    $OUT = qq(
 kerberos method = system keytab
 realm = ${realm}
 winbind enum users = Yes
@@ -16,6 +16,11 @@ winbind enum groups = Yes
 winbind use default domain = Yes
 template homedir = /var/lib/nethserver/home/%U
 # template shell = /bin/bash
-EOF
+);
 
+    # Force a specific domain controller name:
+    if($smb{AdsController}) {
+	$OUT .= "create krb5 conf = No\n";
+	$OUT .= sprintf("password server = %s\n", $smb{AdsController});
+    } 
 }

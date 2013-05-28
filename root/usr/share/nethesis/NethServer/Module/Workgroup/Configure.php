@@ -47,7 +47,10 @@ class Configure extends \Nethgui\Controller\AbstractController
             
         $this->declareParameter('ServerRole', $roleValidator, array('configuration', 'smb', 'ServerRole'));
         $this->declareParameter('RoamingProfiles', Validate::YES_NO, array('configuration', 'smb', 'RoamingProfiles'));
-        $this->declareParameter('AdsController', $hostnameOrEmptyValidator, array('configuration', 'smb', 'AdsController'));
+
+        // DISABLED: this is probed automatically:
+        // $this->declareParameter('AdsController', $hostnameOrEmptyValidator, array('configuration', 'smb', 'AdsController'));
+
         $this->declareParameter('AdsRealm', $hostnameOrEmptyValidator, array('configuration', 'smb', 'AdsRealm'));
     }
 

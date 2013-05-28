@@ -18,9 +18,17 @@
     )};
 
     if($smb{AdsController}) {
-	my $fqdnAdsController = lc(join('.', $smb{AdsController}, $DomainName));
-	$conf->{realms}->{$realm}->{kdc} = $fqdnAdsController . ':88';
-	$conf->{realms}->{$realm}->{admin_server} = $fqdnAdsController . ':749';
+	my $adsController;
+
+	# Append DomainName on non-fqdn hostnames (or IP address)
+	if($smb{AdsController} !~ /\./) {
+	    $adsController = lc(join('.', $smb{AdsController}, $DomainName));
+	} else {
+	    $adsController = $smb{AdsController};
+	}
+
+	$conf->{realms}->{$realm}->{kdc} = $adsController . ':88';
+	$conf->{realms}->{$realm}->{admin_server} = $adsController . ':749';
 	$conf->{realms}->{$realm}->{default_domain} = $DomainName;
 	$conf->{domain_realm}{$DomainName} = $realm; 
 	$conf->{domain_realm}{'.' . $DomainName} = $realm; 
