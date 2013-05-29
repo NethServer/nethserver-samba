@@ -32,7 +32,7 @@ use Time::Local;
 my %opts;
 my $verbose = 0;
 
-getopts('rcjtu:F:v', \%opts);
+getopts('vu:F:', \%opts);
 
 if($opts{v}) {
     $verbose = 1;
@@ -93,7 +93,7 @@ if($command eq 'join') {
 	kerberos_destroy();
     }
 
-    if( ! refresh_credential_caches()) {
+    if( ! refresh_credential_caches($service)) {
 	warn("[ERROR] $0: failed initialize credential caches\n");
 	exit 6;
     }
@@ -136,7 +136,7 @@ if($command eq 'tgt') {
 	open(STDOUT, '>/dev/null');
     }
 
-    if( ! refresh_credential_caches()) {
+    if( ! refresh_credential_caches($service)) {
 	exit 6;
     }
 
@@ -169,7 +169,7 @@ if($command eq 'env') {
 
 }
 
-warn("[ERROR] Usage: $0 [[-k] | [-u username] [-F filename]] test|join|changepassword|tgt|env [service]    \n");
+warn("[ERROR] Usage: $0 [-u username] [-F filename] test|join|changepassword|tgt|env [service]\n");
 exit 1;
 
 #
@@ -402,6 +402,7 @@ sub tgt_status
 
 sub refresh_credential_caches()
 {
+    my $service = shift;
     my @cfgs = ();
 
     if($service) {
