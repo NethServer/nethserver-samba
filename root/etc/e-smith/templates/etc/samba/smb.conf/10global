@@ -14,7 +14,7 @@ interfaces = 127.0.0.1 {
 hosts allow = { join(' ', @hostsAllow) }
 deadtime = { int($smb{DeadTime}) }
 
-{ $smb{ServerRole} =~ /^PDC|ADS$/ ? '' : '# ' } workgroup = { 
+{ $smb{ServerRole} =~ /^PDC|ADS$/ ? '' : '# ' }workgroup = { 
    my $defaultDomain = uc((split('\.', $DomainName))[0]);
    return $smb{Workgroup} || $defaultDomain;
 }
