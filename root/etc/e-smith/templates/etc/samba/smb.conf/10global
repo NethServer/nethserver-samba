@@ -16,7 +16,8 @@ deadtime = { int($smb{DeadTime}) }
 
 { $smb{ServerRole} =~ /^PDC|ADS$/ ? '' : '# ' }workgroup = { 
    my $defaultDomain = uc((split('\.', $DomainName))[0]);
-   return $smb{Workgroup} || $defaultDomain;
+   $workgroup = $smb{Workgroup} || $defaultDomain;
+   return $workgroup;
 }
 netbios aliases = { join(' ', @netbiosAliasList) }
 server string = NethServer Samba %v
@@ -50,7 +51,9 @@ idmap config * : backend = ldap
 idmap config * : ldap_url = ldap://127.0.0.1
 idmap config * : ldap_base_dn = ou=Idmap,{$LdapInternalDomainSuffix}
 idmap config * : ldap_user_dn = cn=samba,{$LdapInternalDomainSuffix}
-idmap config * : range = 50000-100000
+idmap config * : range = 50000-99999
+idmap config {$workgroup} : range = 5000 - 9999
+idmap config {$workgroup} : backend = nss
 obey pam restrictions = yes
 
 ; Invoked only if a passwd entry is missing:
