@@ -14,9 +14,13 @@ interfaces = 127.0.0.1 {
 hosts allow = { join(' ', @hostsAllow) }
 deadtime = { int($smb{DeadTime}) }
 
-{ $smb{ServerRole} =~ /^PDC|ADS$/ ? '' : '# ' }workgroup = { 
-   my $defaultDomain = uc((split('\.', $DomainName))[0]);
-   $workgroup = $smb{Workgroup} || $defaultDomain;
+workgroup = { 
+   if($smb{ServerRole} =~ /^(PDC|ADS)$/) {
+       my $defaultDomain = uc((split('\.', $DomainName))[0]);
+       $workgroup = $smb{Workgroup} || $defaultDomain;
+   } else {
+       $workgroup = 'WORKGROUP';
+   }
    return $workgroup;
 }
 netbios aliases = { join(' ', @netbiosAliasList) }
@@ -52,8 +56,8 @@ idmap config * : ldap_url = ldap://127.0.0.1
 idmap config * : ldap_base_dn = ou=Idmap,{$LdapInternalDomainSuffix}
 idmap config * : ldap_user_dn = cn=samba,{$LdapInternalDomainSuffix}
 idmap config * : range = 50000-99999
-idmap config {$workgroup} : range = 5000 - 9999
-idmap config {$workgroup} : backend = nss
+{ $smb{ServerRole} eq 'ADS' ? '# ' : '' }idmap config {$workgroup} : range = 5000 - 9999
+{ $smb{ServerRole} eq 'ADS' ? '# ' : '' }idmap config {$workgroup} : backend = nss
 obey pam restrictions = yes
 
 ; Invoked only if a passwd entry is missing:
