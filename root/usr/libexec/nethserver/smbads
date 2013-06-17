@@ -379,23 +379,45 @@ sub tgt_status
 	return 0;
     }
 
-    my $now = time();
-    my $deadline = $now + $period;
-    my $renewt = $creds->renew_till();
-    my $endt = $creds->endtime();
 
+    my $tolerance = int($period * 5 / 100);
+
+    my $now = time();
+
+    my $n = $now + $tolerance;
+    my $d = $now + $period + $tolerance;
+
+    # endtime() will newer exceed renew_till():
+    my $endt = $creds->endtime();
+   
     $cch->end_seq_get($iterator);
 
-    if($deadline < $endt) {
+    #
+    # now, current time()
+    # P, given period
+    # t, tolerance = 5% of P
+    # n = now + tolerance
+    # d, deadline = now + P + t
+    #
+    # CCCCCCCCBBBBBBBBBBBBBBBBBBBBBBBBBBBBBAAAA
+    # --|----|-----------------------|----|----
+    #  now  n=now+t                  P   d=P+t
+    #
+
+    # case A
+    if($endt > $d) {
 	return 2; # ticket is valid and will be still valid after
-		  # $period
+		  # $period. No action needed.
     }
 
-    if($now < $endt && $deadline >= $endt ) {
-	return 1; # ticket must be renewed
+    # case B
+    if($endt > $n) {
+	return 1; # ticket will not be valid after period, but it can
+		  # be still renewed.
     }
 
-    return 0; # ticket is not renewable
+    # case C
+    return 0; # ticket is not renewable. A new ticket is required.
 
 }
 
