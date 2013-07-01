@@ -92,4 +92,3 @@ unix extensions = no
 
 ; Guest access (#1882). Shares must be guest-ok, to allow it.
 map to guest = Bad User
-
