@@ -56,7 +56,7 @@ idmap config * : ldap_url = ldap://127.0.0.1
 idmap config * : ldap_base_dn = ou=Idmap,{$LdapInternalDomainSuffix}
 idmap config * : ldap_user_dn = cn=samba,{$LdapInternalDomainSuffix}
 idmap config * : range = 50000-99999
-{ $smb{ServerRole} eq 'ADS' ? '# ' : '' }idmap config {$workgroup} : range = 5000 - 9999
+{ $smb{ServerRole} eq 'ADS' ? '# ' : '' }idmap config {$workgroup} : range = 0 - 9999
 { $smb{ServerRole} eq 'ADS' ? '# ' : '' }idmap config {$workgroup} : backend = nss
 obey pam restrictions = yes
 
