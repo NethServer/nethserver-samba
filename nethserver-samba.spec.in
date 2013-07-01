@@ -47,6 +47,10 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-,root,root)
 
 %changelog
+* Mon Jul 01 2013 Davide Principi <davide.principi@nethesis.it> - 1.3.4-1.ns6
+- File permissions not inherited when POSIX ACL is present - Bug #2039 [NethServer]
+- Share connection error NT_STATUS_ACCESS_DENIED  - Bug #1997 [NethServer]
+
 * Mon Jun 17 2013 Davide Principi <davide.principi@nethesis.it> - 1.3.3-1.ns6
 - Added a 5% of tolerance to deadline time, to avoid ticket expiration during renewal - Feature #1746 [NethServer]
 
