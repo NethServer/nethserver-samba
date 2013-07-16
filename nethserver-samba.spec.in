@@ -47,6 +47,9 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-,root,root)
 
 %changelog
+* Tue Jul 16 2013 Davide Principi <davide.principi@nethesis.it> - 1.3.6-1.ns6
+- Yum transaction aborted while installing nethserver-file-server group - Bug #2041 [Nethgui]
+
 * Thu Jul 04 2013 Davide Principi <davide.principi@nethesis.it> - 1.3.5-1.ns6
 - Fixed "value is not boolean!" warning - Bug #2039 [NethServer]
 
