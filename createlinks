@@ -61,7 +61,7 @@ event_services('nethserver-samba-update', qw(
    smb restart
    nmb restart
    winbind restart
-   httpd-admin reload
+   httpd-admin graceful
 ));
 
 #
