@@ -57,11 +57,13 @@ event_actions('nethserver-samba-update', qw(
 	      nethserver-samba-group-sync 97
 ));
 
+# The httpd-admin reload action is mapped to "graceful" restart since 
+# nethserver-lib:1c52af5 See #2014
 event_services('nethserver-samba-update', qw(
    smb restart
    nmb restart
    winbind restart
-   httpd-admin graceful
+   httpd-admin reload
 ));
 
 #
