@@ -26,34 +26,30 @@
 # along with NethServer.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-
 use strict;
 
 use NethServer::Directory;
 use NethServer::Service;
+use NethServer::Password;
 use esmith::event;
+use esmith::ConfigDB;
 
-my $ldap = NethServer::Directory->new();
-my $internalSuffix = NethServer::Directory::getInternalSuffix();
-my $exitCode = 0;
-my $daemon = 'smb';
+my $errors = 0;
 
-if(!NethServer::Service::start($daemon) != 0) {
-    die("Could not start `$daemon`.\n");
-}
+sub sambaLdapConfig
+{ 
 
-$ldap->loadLdifSchema('samba', '/etc/openldap/schema/samba.ldif') || die("Could not load the samba LDIF schema");
+    my $password = NethServer::Password->new('samba', {length=>8})->save()->getAscii();
+    my $ldap = NethServer::Directory->new();
 
-{ # BEGIN LDAP
+    if( ! $ldap) {
+	warn "[ERROR] could not connect LDAP server\n";
+	return 0;
+    }
 
-    my $password = NethServer::Directory::getUserPassword('samba', 0);
-
-    #
-    # Store the LDAP password in samba secrets.tdb database, for both
-    # ldap and idmap backends:
-    #
-    qx(/usr/bin/smbpasswd -w '$password');
-    qx(/usr/bin/net idmap secret '*' '$password');
+    my $internalSuffix = NethServer::Directory::getInternalSuffix();
+    my $errors = 0;
+    $ldap->loadLdifSchema('samba', '/etc/openldap/schema/samba.ldif') || die("Could not load the samba LDIF schema");
 
     my @entries = (
 	[ 'ou=Idmap,' . $internalSuffix,
@@ -71,15 +67,14 @@ $ldap->loadLdifSchema('samba', '/etc/openldap/schema/samba.ldif') || die("Could 
     foreach(@entries) {
 	my $message = $ldap->merge(@{$_});
 	if($message->is_error()) {
-	    warn 'error merging ' . @{$_}[0];
-	    $exitCode ++;
+	    warn '[ERROR] merging ' . @{$_}[0];
+	    $errors ++;
 	}
     }
 
     #
     # LDAP ACL setup for samba service account: (ex nethserver-samba-aclsetup)
     # 
-
     my $sambaWho = qq(by dn.exact="cn=samba,$internalSuffix" peername.ip="127.0.0.1");
 
     # Configure the samba service account to access samba LDAP DB:
@@ -87,14 +82,32 @@ $ldap->loadLdifSchema('samba', '/etc/openldap/schema/samba.ldif') || die("Could 
 
     # Grant write permission to samba and make sambaNTPassword
     # readable only by samba user:
-    $ldap->enforceAccessDirective($sambaWho . ' write by self write by * none', 'sambaNTPassword') || $exitCode ++;
-    $ldap->enforceAccessDirective($sambaWho . ' write', '*') ||  $exitCode ++;
+    $ldap->enforceAccessDirective($sambaWho . ' write by self write by * none', 'sambaNTPassword') || $errors ++;
+    $ldap->enforceAccessDirective($sambaWho . ' write', '*') ||  $errors ++;
 
-} # END LDAP
+    #
+    # Store the LDAP password in samba secrets.tdb database, for both
+    # ldap and idmap backends:
+    #
+    qx(/usr/bin/smbpasswd -w '$password');
+    qx(/usr/bin/net idmap secret '*' '$password');
 
+    return $errors == 0;
+}
+
+my $confdb = esmith::ConfigDB->open() || die("Could not open ConfigDB");
+
+if(sambaLdapConfig()) {
+    my $smb = NethServer::Service->new('smb', $confdb);
+    if($smb->is_running()) {
+	$smb->stop();
+    }
+    $smb->start() || $errors++;
+} else {
+    $errors++;
+}
 
 # Enable acl and user_xattr on / filesystem
-my $confdb = esmith::ConfigDB->open;
 my $fstab = $confdb->get('fstab') or return "";
 
 my $prop = $fstab->prop('/') || 'defaults';
@@ -103,9 +116,8 @@ $prop .= ",user_xattr" unless ($prop =~ /user_xattr/);
 $fstab->set_prop('/',$prop);
 
 if( ! esmith::event::event_signal('fstab-update')) {
-    warn "[WARNING] Errors during fstab-update event";
-    $exitCode ++;
+    warn "[ERROR] Errors during fstab-update event";
+    $errors ++;
 }
 
-
-exit($exitCode);
+exit($errors == 0 ? 0 : 1);
