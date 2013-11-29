@@ -57,7 +57,7 @@ if($command eq 'test') {
 }
 
 #
-# join: exec() `net ads join` and initialzie daemons keytabs
+# join: exec() `net ads join` and initialize daemons keytabs
 #
 if($command eq 'join') {
 
@@ -124,6 +124,21 @@ if($command eq 'changepassword') {
     exit 0;
 }
 
+#
+# initkeytab
+#
+if($command eq 'initkeytab') {
+    my $machine = get_machine_principal();
+    ! $verbose && open(STDOUT, '>/dev/null');
+    kerberos_initialize($machine);
+    if( ! init_keytabs(1, $machine)) {
+	warn("[ERROR] $0: failed to initialize keytabs\n");
+	exit 5;
+    }
+    kerberos_destroy();
+    exit 0;
+}
+
 
 #
 # tgt: test TGT validity for the given service. If the TGT is expired
@@ -169,7 +184,7 @@ if($command eq 'env') {
 
 }
 
-warn("[ERROR] Usage: $0 [-u username] [-F filename] test|join|changepassword|tgt|env [service]\n");
+warn("[ERROR] Usage: $0 [-u username] [-F filename] initkeytab|test|join|changepassword|tgt|env [service]\n");
 exit 1;
 
 #
