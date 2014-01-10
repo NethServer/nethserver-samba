@@ -215,8 +215,8 @@ foreach ($dstAccountsDb->get_all_by_prop(type => 'machine'),
 #
 foreach my $gid ( keys %{{
     (map { $_->key => 1 } $dstAccountsDb->get_all_by_prop(type => 'group')), 
-    getgrnam('shared') ? ( 'shared' => 1 ) : (),
     qw(
+      locals       1
       domadmins    1
       domusers     1
       domguests    1
@@ -227,7 +227,10 @@ foreach my $gid ( keys %{{
 
     my $attrs = {};
 
-    if($groupDb{$gid}) {
+    if($gid eq 'locals' && $groupDb{'shared'}) {
+	# Map "locals" group to "shared":
+	$attrs->{sambaSID} = $domainSid . '-' . $groupDb{'shared'}->{rid};
+    } elsif($groupDb{$gid}) {
 	$attrs->{sambaSID} = $domainSid . '-' . $groupDb{$gid}->{rid};
     } else {
 	warn "[WARNING] SID not found for group $gid.\n";

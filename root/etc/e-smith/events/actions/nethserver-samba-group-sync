@@ -47,9 +47,9 @@ if($group) {
     }
     @groups = ($group);
 } else {
-    # 'shared' group is created by nethserver-ibays and must be in SAM
-    # DB:
-    @groups = ('shared', map { $_->key } $accountsDb->groups());   
+    # 'locals' group is created by nethserver-directory and must be in
+    # SAM DB:
+    @groups = ('locals', map { $_->key } $accountsDb->groups());   
 }
 
 # Check if idmap LDAP backend is configured before to proceed.  This
@@ -96,10 +96,7 @@ foreach my $group (@groups) {
     #
     # Update the SAM group entry
     #
-
-    # 'shared' group is not in accountsDb:
     my $description = $accountsDb->get_prop($group, 'Description') || '';
-
     system($net, qw(sam set comment), $group, $description);
     if($? != 0) {
 	warn "[ERROR] Failed to set group `$group` comment attribute in SAM database!\n";
