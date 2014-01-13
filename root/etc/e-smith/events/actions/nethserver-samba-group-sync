@@ -43,7 +43,7 @@ my $net = '/usr/bin/net';
 
 if($group) {
     if($accountsDb->get_prop($group, 'type') ne 'group') {
-	die("Invalid group account name: `$group`");
+	die("[ERROR] Invalid group account name: `$group`");
     }
     @groups = ($group);
 } else {

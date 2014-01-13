@@ -52,9 +52,6 @@ event_templates('nethserver-samba-update', qw(
 event_actions('nethserver-samba-update', qw(
 	      initialize-default-databases 00
 	      nethserver-samba-conf 20
-	      nethserver-samba-sam-conf 95
-	      nethserver-samba-user-create 96
-	      nethserver-samba-group-sync 97
 ));
 
 # The httpd-admin reload action is mapped to "graceful" restart since 
@@ -81,11 +78,6 @@ event_services('nethserver-samba-save', qw(
    smb restart
    nmb restart
    winbind restart
-));
-
-# Map shared group in SAM db
-event_actions('nethserver-ibays-update', qw(
-	      nethserver-samba-group-sync 97
 ));
 
 # actions for group-create event:
@@ -194,3 +186,11 @@ event_services('nethserver-samba-adsjoin', qw(
     winbind restart
 ));
 
+#
+# Initialize SAM DB
+#
+event_actions('runlevel-adjust', qw(
+      nethserver-samba-user-create 96
+      nethserver-samba-sam-conf 97
+      nethserver-samba-group-sync 98
+));
