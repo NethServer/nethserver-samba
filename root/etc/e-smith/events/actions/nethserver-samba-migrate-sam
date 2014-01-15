@@ -148,7 +148,7 @@ foreach ($dstAccountsDb->get_all_by_prop(type => 'machine'),
     my $uid = $_->key;
 
     if( ! getpwnam($uid)) {
-	warn "[WARNING] $uid is was not found in passwd database: skipped.\n";
+	warn "[WARNING] $uid was not found in passwd database: skipped.\n";
 	next;
     }
 
