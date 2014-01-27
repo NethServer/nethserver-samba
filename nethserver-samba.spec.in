@@ -29,6 +29,7 @@ Requires: perl-Authen-Krb5
 %setup
 
 %build
+%{makedocs}
 perl createlinks
 
 %install
