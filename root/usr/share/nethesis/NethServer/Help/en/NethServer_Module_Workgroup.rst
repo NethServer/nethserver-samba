@@ -2,7 +2,7 @@
 Windows network
 ===============
 
-Manage the server role in the Windows network.
+Manage the server role in a Windows network.
 
 Role
 ====
@@ -14,7 +14,7 @@ Workstation
     Enabling this option NethServer will behave as a normal workstation.
 
 Domain Controller
-    Enabling this option NethServer is configured as a domain controller of the network.
+    Enabling this option NethServer will be configured as a domain controller for the network.
 
 Domain
     The name of the domain.
@@ -24,7 +24,7 @@ Enable roaming profiles
     regardless of the computer on which the user is logged in.
 
 Active Directory member
-    The server becomes member of an existing Active Directory domain. 
+    The server becomes member of an existing Active Directory domain.
     The domain administrator password is needed.
 
 Realm
@@ -40,8 +40,8 @@ Enter the credentials to allow NethServer to become a member
 of an Active Directory domain.
 
 Username
-    Username of the Active Directory administrator .
+    Username of the Active Directory administrator.
 
 Password
-    Password of the Active Directory administrator .
-           
+    Password of the Active Directory administrator.
+
