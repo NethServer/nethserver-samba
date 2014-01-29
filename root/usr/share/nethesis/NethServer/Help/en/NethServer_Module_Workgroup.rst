@@ -2,35 +2,33 @@
 Windows network
 ===============
 
-Manage server role in the Windows network.
+Manage the server role in the Windows network.
 
 Role
 ====
 
-Select the role that the system will have on the network:
-workstations, domain controllers or member of Active Directory.
+Select the NethServer role within the network:
+workstation, domain controller or Active Directory member.
 
 Workstation
-    By enabling this option, the system will behave as a normal
-    workstation.
+    Enabling this option NethServer will behave as a normal workstation.
 
-Domain Controllers
-    By enabling this option, the system is configured as domain
-    controllers on the network.
+Domain Controller
+    Enabling this option NethServer is configured as a domain controller of the network.
 
 Domain
     The name of the domain.
 
 Enable roaming profiles
-    If enabled, the user thread is save it on the server so that can
-    be used regardless of the computer on which is logged on.
+    If enabled, the user profile is saved on the server. All user data will be always accessible,
+    regardless of the computer on which the user is logged in.
 
-Member of the Active Directory
-    The server becomes a member of an existing Active Directory
-    domain.  You must have domain administrator credentials.
+Active Directory member
+    The server becomes member of an existing Active Directory domain. 
+    The domain administrator password is needed.
 
 Realm
-    Realm of Active Directory (for instance, *mydomain.local*).
+    Active Directory real, for example: mydomain.local
 
 Domain
     Name of the Active Directory domain.
@@ -38,14 +36,12 @@ Domain
 Active Directory authentication
 -------------------------------
 
-Enter the credentials for the system to become a member
+Enter the credentials to allow NethServer to become a member
 of an Active Directory domain.
 
 Username
-    Username administrator Domain Controller Active
-    Directory.
+    Username of the Active Directory administrator .
 
 Password
-    Password of the user administrator Domain Controller
-    Active Directory.
-
+    Password of the Active Directory administrator .
+           
