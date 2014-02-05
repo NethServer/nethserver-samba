@@ -48,6 +48,11 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-,root,root)
 
 %changelog
+* Wed Feb 05 2014 Davide Principi <davide.principi@nethesis.it> - 1.4.1-1.ns6
+- RST format for help files - Enhancement #2627 [NethServer]
+- Move admin user in LDAP DB - Feature #2492 [NethServer]
+- Update all inline help documentation - Task #1780 [NethServer]
+
 * Wed Dec 18 2013 Davide Principi <davide.principi@nethesis.it> - 1.4.0-1.ns6
 - Kerberos keytab file is missing for new services - Bug #2407 [NethServer]
 - Directory: backup service accounts passwords  - Enhancement #2063 [NethServer]
