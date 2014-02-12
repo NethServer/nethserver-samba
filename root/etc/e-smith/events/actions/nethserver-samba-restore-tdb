@@ -1,0 +1,9 @@
+#!/bin/bash
+
+if [ -f /var/lib/nethserver/backup/secrets_tdb.dump ]; then
+   if [ -f /var/lib/samba/private/secrets.tdb ]; then # backup old tdb
+       mv /var/lib/samba/private/secrets.tdb /var/lib/samba/private/secrets.tdb.bak
+   fi
+   /usr/bin/tdbrestore /var/lib/samba/private/secrets.tdb < /var/lib/nethserver/backup/secrets_tdb.dump
+   chmod 600 /var/lib/samba/private/secrets.tdb
+fi
