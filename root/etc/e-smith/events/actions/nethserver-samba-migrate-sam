@@ -93,7 +93,7 @@ if($serverRole ne 'PDC') {
 }
 
 # Clean previous LDAP sambaDomain objects:
-$ldap->delete(sprintf('sambaDomainName=%s,%s', $domainName, $LdapInternalSuffix));
+dropLdapSambaDomains();
 
 # Import the domain SID entry, from secrets.tdb
 my $domainSid = importDomainSid($domainName, $sourceDir . '/etc/samba/secrets.tdb') or die("[ERROR] Could not obtain domain SID\n");
@@ -450,4 +450,20 @@ sub addExistingGroups()
 	}
     }
 
+}
+
+
+sub dropLdapSambaDomains
+{
+    my $result = $ldap->search(
+	base => $LdapInternalSuffix, 
+	scope => 'one', 
+	filter => "objectClass=sambaDomain",
+        );
+    if(defined $result) {
+        foreach my $entry ($result->entries()) {
+	    $entry->delete();
+	    $entry->update($ldap);
+	}
+    }
 }
