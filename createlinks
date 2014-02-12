@@ -210,3 +210,11 @@ event_actions('runlevel-adjust', qw(
       nethserver-samba-sam-conf 97
       nethserver-samba-group-sync 98
 ));
+
+#
+# Event hostname-modify
+#
+event_actions('hostname-modify', qw(
+      nethserver-samba-setsidfromdb 40
+));
+

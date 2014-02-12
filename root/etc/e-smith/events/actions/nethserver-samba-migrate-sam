@@ -98,6 +98,9 @@ $ldap->delete(sprintf('sambaDomainName=%s,%s', $domainName, $LdapInternalSuffix)
 # Import the domain SID entry, from secrets.tdb
 my $domainSid = importDomainSid($domainName, $sourceDir . '/etc/samba/secrets.tdb') or die("[ERROR] Could not obtain domain SID\n");
 
+# Store SID in DB for hostname changes:
+$dstConfigDb->set_prop('smb', 'Sid', $domainSid);
+
 warn "[INFO] $domainName SID is $domainSid\n";
 
 #
