@@ -39,13 +39,12 @@ if( ! $sourceDir ) {
 my $srcAccountsDb = esmith::AccountsDB->open_ro(join('', $sourceDir, $esmithDbDir, '/accounts')) or die("Could not open source accounts database in $sourceDir \n");
 my $dstAccountsDb = esmith::AccountsDB->open('accounts') or die("Could not open destination account db\n");
 
-foreach my $srcIbay ($srcAccountsDb->ibays()) {
-    my $ibayName = $srcIbay->key;
-    my $dstIbay = $dstAccountsDb->get($ibayName);
+foreach my $dstIbay ($dstAccountsDb->get_all_by_prop('type' => 'ibay'), $dstAccountsDb->get_all_by_prop('type' => 'ibay-migrate')) {
+    my $ibayName = $dstIbay->key;
+    my $srcIbay = $srcAccountsDb->get($ibayName);
 
-    if( ! $dstIbay) {
-	warn("[ERROR] ibay $ibayName was not migrated by nethserver-ibays module?!\n");
-	$errors++;
+    if( ! $srcIbay) {
+	warn("[WARNING] ibay $ibayName is missing from source accounts DB. Skipped.\n");
 	next;
     }
 
