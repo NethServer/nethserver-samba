@@ -48,6 +48,11 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-,root,root)
 
 %changelog
+* Wed Feb 26 2014 Davide Principi <davide.principi@nethesis.it> - 1.4.2-1.ns6
+- Revamp web UI style - Enhancement #2656 [NethServer]
+- Samba: backup secrets.tdb in config backup - Enhancement #2653 [NethServer]
+- Implement hostname-modify event for samba  - Enhancement #2626 [NethServer]
+
 * Wed Feb 05 2014 Davide Principi <davide.principi@nethesis.it> - 1.4.1-1.ns6
 - RST format for help files - Enhancement #2627 [NethServer]
 - Move admin user in LDAP DB - Feature #2492 [NethServer]
