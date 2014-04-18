@@ -37,15 +37,11 @@ rm -rf $RPM_BUILD_ROOT
 (cd root   ; find . -depth -print | cpio -dump $RPM_BUILD_ROOT)
 %{genfilelist} $RPM_BUILD_ROOT \
     > %{name}-%{version}-filelist
-echo "%doc COPYING"          >> %{name}-%{version}-filelist
-
-%clean 
-rm -rf $RPM_BUILD_ROOT
-
-%post
 
 %files -f %{name}-%{version}-filelist
+%doc COPYING
 %defattr(-,root,root)
+%config(noreplace) /var/lib/nethserver/netlogon/netlogon.bat
 
 %changelog
 * Wed Feb 26 2014 Davide Principi <davide.principi@nethesis.it> - 1.4.2-1.ns6
