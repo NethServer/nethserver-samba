@@ -33,6 +33,12 @@ Realm
 Domain
     Name of the Active Directory domain.
 
+LDAP accounts branch 
+    Identifies the search base for groups and users in LDAP
+    database. The value depends on how Active Directory is configured;
+    a typical setting would be ``ou=People``. The domain
+    components (DC) parts are appended automatically.
+
 Active Directory authentication
 -------------------------------
 

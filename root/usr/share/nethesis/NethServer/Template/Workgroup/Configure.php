@@ -20,6 +20,7 @@ echo $view->panel()
      
             // DISABLED: this is probed automatically:
             // ->insert($view->textInput('AdsController'))
+            ->insert($view->textInput('AdsLdapAccountsBranch')->setAttribute('placeholder', $view['defaultLdapAccountsBranch']))
         )
     
 ;

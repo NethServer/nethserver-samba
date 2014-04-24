@@ -16,3 +16,4 @@ $L['Workgroup_Description'] = 'Manage Windows network (SAMBA)';
 $L['Workgroup_Tags'] = 'samba pdc workstation workgroup window pdc controller domain share roaming realm smb';
 $L['Workgroup_Title'] = 'Windows Network';
 $L['Join_failed_message'] = 'Failed to join Active Directory';
+$L['AdsLdapAccountsBranch_label'] = 'LDAP accounts branch';

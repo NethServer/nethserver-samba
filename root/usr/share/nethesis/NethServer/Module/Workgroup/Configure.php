@@ -52,6 +52,7 @@ class Configure extends \Nethgui\Controller\AbstractController
         // $this->declareParameter('AdsController', $hostnameOrEmptyValidator, array('configuration', 'smb', 'AdsController'));
 
         $this->declareParameter('AdsRealm', $hostnameOrEmptyValidator, array('configuration', 'smb', 'AdsRealm'));
+        $this->declareParameter('AdsLdapAccountsBranch', Validate::ANYTHING, array('configuration', 'smb', 'AdsLdapAccountsBranch'));
     }
 
     public function readPdcDomain($v1) 
@@ -110,6 +111,7 @@ class Configure extends \Nethgui\Controller\AbstractController
         $view['WinregistryPatches'] = $view->getSiteUrl() . '/winregistry-patches';
         $view['defaultRealm'] = strtoupper($this->getPlatform()->getDatabase('configuration')->getType('DomainName'));
         $view['defaultDomain'] = \Nethgui\array_head(explode('.', strtoupper($this->getPlatform()->getDatabase('configuration')->getType('DomainName'))));
+        $view['defaultLdapAccountsBranch'] = 'cn=Users';
     }
 
 }

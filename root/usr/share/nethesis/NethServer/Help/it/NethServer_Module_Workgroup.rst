@@ -37,6 +37,13 @@ Realm
 Dominio
     Nome del dominio Active Directory.
 
+Ramo LDAP degli account
+    Individua la base della ricerca per i gruppi e gli utenti nel
+    database LDAP. Il valore dipende da come è configurato Active
+    Directory; un'impostazione tipica è ``ou=Qualcosa``. Le parti DC
+    (Domain Component) sono aggiunte automaticamente.
+
+
 Autenticazione Active Directory
 -------------------------------
 
