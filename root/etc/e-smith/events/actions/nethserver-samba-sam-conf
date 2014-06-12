@@ -103,37 +103,51 @@ sub initializeGroupRecord
 
 while ( my ($group, $entry) = each(%$entries) ) {
     
-    if(getgrnam($group)) {
-	# warn "Ignoring existing group `$group`..\n";
-	next;
+    if( ! getgrnam($group)) {
+
+	# Create a system user and private group entry:
+	qx($luseradd -d /var/lib/nethserver/home/$group -M -s /bin/false $group);
+	if($? != 0) {
+	    warn "Failed to create system samba group `$group`";
+	    $exitCode ++;
+	    next;
+	}
+
+	if( ! initializeGroupRecord($group, $entry->{'name'})) {
+	    $exitCode ++;
+	}
+
     }
 
-    # Create a system user and private group entry:
-    qx($luseradd -d /var/lib/nethserver/home/$group -M -s /bin/false $group);
-    if($? != 0) {
-	warn "Failed to create system samba group `$group`";
-	$exitCode ++;
-	next;
+    #
+    # Remap group if RID is not expected. Refs #2733
+    #
+    my $addMapping = 0;
+    my $sidOutput = `$net sam show $group 2>/dev/null`;
+    if($? == 0 && $sidOutput !~ m/-\Q$entry->{'rid'}\E$/) {
+	system($net, 'groupmap', 'delete', 'ntgroup=' . $group);
+	$addMapping = 1;
+    } elsif($? != 0) {
+	$addMapping = 1;
     }
 
-    if( ! initializeGroupRecord($group, $entry->{'name'})) {
-	$exitCode ++;
+    if($addMapping) {
+	# Map the created unix group to the given $entry
+	system($net, 'groupmap', 'add', 
+	       "unixgroup=" . $group, 
+	       "ntgroup=" . $entry->{'name'}, 
+	       "rid=" . $entry->{'rid'},
+	       "type=" . $entry->{'type'},
+	       "comment=" . $entry->{'comment'}
+	    );
+
+	if($? != 0) {
+	    warn "Failed to map unix group `$group` to samba rid " . $entry->{'rid'};
+	    $exitCode ++;
+	    next;
+	}	
     }
 
-    # Map the created unix group to the given $entry
-    system($net, 'groupmap', 'add', 
-	   "unixgroup=" . $group, 
-	   "ntgroup=" . $entry->{'name'}, 
-	   "rid=" . $entry->{'rid'},
-	   "type=" . $entry->{'type'},
-	   "comment=" . $entry->{'comment'}
-	);
-
-    if($? != 0) {
-	warn "Failed to map unix group `$group` to samba rid " . $entry->{'rid'};
-	$exitCode ++;
-	next;
-    }
 }
 
 #
