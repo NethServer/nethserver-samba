@@ -44,6 +44,11 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) /var/lib/nethserver/netlogon/netlogon.bat
 
 %changelog
+* Thu Jun 12 2014 Giacomo Sanchietti <giacomo.sanchietti@nethesis.it> - 1.4.3-1.ns6
+- Configurable AD accounts LDAP subtree - Enhancement #2727
+- Keep changes to netlogon.bat - Enhancement #2725
+- Backup config: minimize creation of new backup - Enhancement #2699
+
 * Wed Feb 26 2014 Davide Principi <davide.principi@nethesis.it> - 1.4.2-1.ns6
 - Revamp web UI style - Enhancement #2656 [NethServer]
 - Samba: backup secrets.tdb in config backup - Enhancement #2653 [NethServer]
