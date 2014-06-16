@@ -1,6 +1,6 @@
 [global]
 
-log level = 3
+log level = 0
 bind interfaces only = yes
 interfaces = 127.0.0.1 {
     use esmith::NetworksDB;
