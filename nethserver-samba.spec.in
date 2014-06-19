@@ -44,6 +44,10 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) /var/lib/nethserver/netlogon/netlogon.bat
 
 %changelog
+* Thu Jun 19 2014 Giacomo Sanchietti <giacomo.sanchietti@nethesis.it> - 1.4.4-1.ns6
+- Fix bug #2733 - Domain Administrators rights not enforced by workstations.
+- Decrease default Samba log verbosity #2747
+
 * Thu Jun 12 2014 Giacomo Sanchietti <giacomo.sanchietti@nethesis.it> - 1.4.3-1.ns6
 - Configurable AD accounts LDAP subtree - Enhancement #2727
 - Keep changes to netlogon.bat - Enhancement #2725
