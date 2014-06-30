@@ -73,12 +73,15 @@ my $serverRole = $srcConfigDb->get_prop('smb', 'ServerRole') || 'WS';
 
 warn "[INFO] migrating domain $domainName (role $serverRole)\n";
 
+my @pdcProps = (    
+    RoamingProfiles => $srcConfigDb->get_prop('smb', 'RoamingProfiles') || 'no',
+    NetbiosAliasList => uc($srcConfigDb->get_value('SystemName')));
+
 # Copy some smb props in dst db:
 $dstConfigDb->get('smb')->merge_props(
     ServerRole => $serverRole,
     Workgroup => uc($domainName),
-    RoamingProfiles => $srcConfigDb->get_prop('smb', 'RoamingProfiles') || 'no',
-    NetbiosAliasList => uc($srcConfigDb->get_value('SystemName')),
+    $serverRole eq 'PDC' ? @pdcProps : ()
 );
 $dstConfigDb->reload();
 
@@ -87,183 +90,25 @@ if($? != 0) {
     die("[ERROR] failed to expand /etc/samba/smb.conf template");
 }
 
-if($serverRole ne 'PDC') {
-    warn "[INFO] server role is set to $serverRole. Nothing left to do.\n";
-    exit(0);
-}
-
-# Clean previous LDAP sambaDomain objects:
-dropLdapSambaDomains();
-
-# Import the domain SID entry, from secrets.tdb
-my $domainSid = importDomainSid($domainName, $sourceDir . '/etc/samba/secrets.tdb') or die("[ERROR] Could not obtain domain SID\n");
-
-# Store SID in DB for hostname changes:
-$dstConfigDb->set_prop('smb', 'Sid', $domainSid);
-
-warn "[INFO] $domainName SID is $domainSid\n";
+my %userDb = getSmbPasswd($sourceDir . '/etc/samba/smbpasswd');
 
 #
 # re-expand /etc/hosts to include our NetbiosAliasList
 #
 system(qw(/sbin/e-smith/expand-template /etc/hosts));
 
-#
-# migrate machine accounts
-#
-foreach ($srcAccountsDb->get_all_by_prop(type => 'machine')) {
-
-    if($dstAccountsDb->get($_->key)) {
-	print "[WARNING] skipping existing machine account " . $_->key . "\n";
-	next;
-    }
-
-    $dstAccountsDb->set_prop($_->key, 'Uid', $_->prop('Uid'), type => 'machine');
-
-    my $secret = esmith::util::genRandomHash();
-
-    open(PH, '|-', '/usr/bin/pdbedit -t -a -m -u ' . $_->key . ' >/dev/null 2>&1');
-    print PH $secret . "\n" . $secret . "\n";
-    if( ! close(PH)) {
-	warn "[ERROR] failed to add machine account " . $_->key . " in SAM db\n";
-	$errors ++;
-    }
+if($serverRole eq 'WS') {
+    wsMigration();
+} elsif($serverRole eq 'PDC') {
+    pdcMigration();
+} else {
+    warn "[INFO] server role is set to $serverRole. Nothing left to do.\n";
 }
-
-my %userDb = getSmbPasswd($sourceDir . '/etc/samba/smbpasswd');
-my $useGroupMappingDb = (-f $sourceDir . '/var/lib/samba/group_mapping.ldb');
-my %groupDb = $useGroupMappingDb ? 
-    getSambaGroupDb($sourceDir . '/var/lib/samba/group_mapping.ldb') 
-    : getStaticGroupDb($sourceDir . '/etc/group');
-
-addExistingGroups(\%groupDb);
-
-#print Dumper(\%userDb);
-#print Dumper(\%groupDb);
-#exit(0);
-
-#
-# sync user and machine SIDs and passwords
-#
-foreach ($dstAccountsDb->get_all_by_prop(type => 'machine'), 
-	 $dstAccountsDb->get_all_by_prop(type => 'user')) {
-
-    my $uid = $_->key;
-
-    if( ! getpwnam($uid)) {
-	warn "[WARNING] $uid was not found in passwd database: skipped.\n";
-	next;
-    }
-
-    my $branch = $_->prop('type') eq 'machine' ? 'Computers' : 'People';
-    my $userDn = sprintf('uid=%s,ou=%s,%s', $uid, $branch, $LdapInternalSuffix);
-
-    my $attrs = {};
-
-    if($userDb{$uid}) {
-	$attrs->{sambaSID} = $domainSid . '-' . $userDb{$uid}->{rid};
-	$attrs->{sambaNTPassword} = $userDb{$uid}->{password};
-    } else {
-	warn "[ERROR] smbpasswd entry not found: $uid.\n";
-	$errors++;
-	next;
-    }
-
-    $ldapResponse = $ldap->modify($userDn, replace => $attrs);
-    if($ldapResponse->is_error) {
-	warn "[ERROR] failed to update $userDn SAM entry\n";
-	$errors++;
-	next;
-    } 
-   
-    # For 'user' records, update user primary group and set Samba prop
-    # 'enabled':
-    if($_->prop('type') eq 'user') {
-
-	my $groupDn = sprintf('cn=%s,ou=Groups,%s', $uid, $LdapInternalSuffix);
-
-	if($groupDb{$uid}) {
-	    my $rid = $groupDb{$uid}->{rid};
-
-	    $ldapResponse = $ldap->modify($groupDn, replace => {
-		'sambaSID' => $domainSid . '-' . $rid
-					  });	
-	    
-	    if($ldapResponse->is_error) {
-		warn "[ERROR] failed to update $groupDn SAM entry\n";
-		$errors++
-	    }
-
-	} else {
-	    warn "[WARNING] rid not found for user $uid primary group\n";
-	    next;
-	}
-
-	# This is normally set on record creation, but
-	# nethserver-directory-migrate doesn't push it in:
-	$_->set_prop('Samba', 'enabled');
-
-	# ..so a modify event must be signalled:
-	if( ! esmith::event::event_signal('user-modify', $uid)) {
-	    warn("[ERROR] user-modify $uid event failed\n");
-	    $errors++;
-	}
-	
-    }
-
-}
-
-#
-# migrate groups SIDs
-#
-foreach my $gid ( keys %{{
-    (map { $_->key => 1 } $dstAccountsDb->get_all_by_prop(type => 'group')), 
-    qw(
-      locals       1
-      domadmins    1
-      domusers     1
-      domguests    1
-      domcomputers 1 
-    )}} ) {
-
-    my $groupDn = sprintf('cn=%s,ou=Groups,%s', $gid, $LdapInternalSuffix);
-
-    my $attrs = {};
-
-    if($gid eq 'locals' && $groupDb{'shared'}) {
-	# Map "locals" group to "shared":
-	$attrs->{sambaSID} = $domainSid . '-' . $groupDb{'shared'}->{rid};
-    } elsif($groupDb{$gid}) {
-	$attrs->{sambaSID} = $domainSid . '-' . $groupDb{$gid}->{rid};
-    } else {
-	warn "[WARNING] SID not found for group $gid.\n";
-    }
-
-    $ldapResponse = $ldap->modify($groupDn, replace => $attrs);
-    if($ldapResponse->is_error) {
-	warn "[ERROR] failed to update $groupDn SAM entry\n";
-	$errors++
-    }
-    
-}
-
 
 # Restart services:
 if( ! esmith::event::event_signal('nethserver-samba-save')) {
     warn("[ERROR] nethserver-samba-save event failed\n");
     $errors++;
-}
-
-
-#
-# import winbind idmap cache
-#
-if( -f $sourceDir . '/var/lib/samba/winbindd_idmap.tdb') {
-    system(qq(/usr/bin/net idmap dump ${sourceDir}/var/lib/samba/winbindd_idmap.tdb | /usr/bin/net idmap restore));
-    if($? != 0) {
-	warn "[ERROR] failed to restore idmap\n";
-	$errors++;
-    }
 }
 
 if($errors > 0) {
@@ -273,6 +118,206 @@ if($errors > 0) {
 
 # action ends:
 exit(0);
+
+####################
+# END of migration
+####################
+
+#
+# Migrate user, group and machine accounts; fix account SID.
+#
+sub pdcMigration 
+{
+    # Clean previous LDAP sambaDomain objects:
+    dropLdapSambaDomains();
+
+    # Import the domain SID entry, from secrets.tdb
+    my $domainSid = importDomainSid($domainName, $sourceDir . '/etc/samba/secrets.tdb') or die("[ERROR] Could not obtain domain SID\n");
+
+    # Store SID in DB for futre hostname changes:
+    $dstConfigDb->set_prop('smb', 'Sid', $domainSid);
+
+    warn "[INFO] $domainName SID is $domainSid\n";
+
+
+    #
+    # migrate machine accounts
+    #
+    foreach ($srcAccountsDb->get_all_by_prop(type => 'machine')) {
+
+	if($dstAccountsDb->get($_->key)) {
+	    print "[WARNING] skipping existing machine account " . $_->key . "\n";
+	    next;
+	}
+
+	$dstAccountsDb->set_prop($_->key, 'Uid', $_->prop('Uid'), type => 'machine');
+
+	my $secret = esmith::util::genRandomHash();
+
+	open(PH, '|-', '/usr/bin/pdbedit -t -a -m -u ' . $_->key . ' >/dev/null 2>&1');
+	print PH $secret . "\n" . $secret . "\n";
+	if( ! close(PH)) {
+	    warn "[ERROR] failed to add machine account " . $_->key . " in SAM db\n";
+	    $errors ++;
+	}
+    }
+
+    my $useGroupMappingDb = (-f $sourceDir . '/var/lib/samba/group_mapping.ldb');
+    my %groupDb = $useGroupMappingDb ? 
+	getSambaGroupDb($sourceDir . '/var/lib/samba/group_mapping.ldb') 
+	: getStaticGroupDb($sourceDir . '/etc/group');
+
+    addExistingGroups(\%groupDb);
+
+    #
+    # sync user and machine SIDs and passwords
+    #
+    foreach ($dstAccountsDb->get_all_by_prop(type => 'machine'), 
+	     $dstAccountsDb->get_all_by_prop(type => 'user')) {
+
+	my $uid = $_->key;
+
+	if( ! getpwnam($uid)) {
+	    warn "[WARNING] $uid was not found in passwd database: skipped.\n";
+	    next;
+	}
+
+	my $branch = $_->prop('type') eq 'machine' ? 'Computers' : 'People';
+	my $userDn = sprintf('uid=%s,ou=%s,%s', $uid, $branch, $LdapInternalSuffix);
+
+	my $attrs = {};
+
+	if($userDb{$uid}) {
+	    $attrs->{sambaSID} = $domainSid . '-' . $userDb{$uid}->{rid};
+	    $attrs->{sambaNTPassword} = $userDb{$uid}->{password};
+	} else {
+	    warn "[ERROR] smbpasswd entry not found: $uid.\n";
+	    $errors++;
+	    next;
+	}
+
+	$ldapResponse = $ldap->modify($userDn, replace => $attrs);
+	if($ldapResponse->is_error) {
+	    warn "[ERROR] failed to update $userDn SAM entry\n";
+	    $errors++;
+	    next;
+	} 
+
+	# For 'user' records, update user primary group and set Samba prop
+	# 'enabled':
+	if($_->prop('type') eq 'user') {
+
+	    my $groupDn = sprintf('cn=%s,ou=Groups,%s', $uid, $LdapInternalSuffix);
+
+	    if($groupDb{$uid}) {
+		my $rid = $groupDb{$uid}->{rid};
+
+		$ldapResponse = $ldap->modify($groupDn, replace => {
+		    'sambaSID' => $domainSid . '-' . $rid
+					      });	
+
+		if($ldapResponse->is_error) {
+		    warn "[ERROR] failed to update $groupDn SAM entry\n";
+		    $errors++
+		}
+
+	    } else {
+		warn "[WARNING] rid not found for user $uid primary group\n";
+		next;
+	    }
+
+	    # This is normally set on record creation, but
+	    # nethserver-directory-migrate doesn't push it in:
+	    $_->set_prop('Samba', 'enabled');
+
+	    # ..so a modify event must be signalled:
+	    if( ! esmith::event::event_signal('user-modify', $uid)) {
+		warn("[ERROR] user-modify $uid event failed\n");
+		$errors++;
+	    }
+
+	}
+
+    }
+
+    #
+    # migrate groups SIDs
+    #
+    foreach my $gid ( keys %{{
+	(map { $_->key => 1 } $dstAccountsDb->get_all_by_prop(type => 'group')), 
+	qw(
+	  locals       1
+	  domadmins    1
+	  domusers     1
+	  domguests    1
+	  domcomputers 1 
+	)}} ) {
+
+	my $groupDn = sprintf('cn=%s,ou=Groups,%s', $gid, $LdapInternalSuffix);
+
+	my $attrs = {};
+
+	if($gid eq 'locals' && $groupDb{'shared'}) {
+	    # Map "locals" group to "shared":
+	    $attrs->{sambaSID} = $domainSid . '-' . $groupDb{'shared'}->{rid};
+	} elsif($groupDb{$gid}) {
+	    $attrs->{sambaSID} = $domainSid . '-' . $groupDb{$gid}->{rid};
+	} else {
+	    warn "[WARNING] SID not found for group $gid.\n";
+	}
+
+	$ldapResponse = $ldap->modify($groupDn, replace => $attrs);
+	if($ldapResponse->is_error) {
+	    warn "[ERROR] failed to update $groupDn SAM entry\n";
+	    $errors++
+	}
+
+    }
+}
+
+#
+# In WS mode migration, only NTLM password hash are retained.
+#
+sub wsMigration
+{
+    foreach ($dstAccountsDb->get_all_by_prop(type => 'user')) {
+	my $uid = $_->key;
+
+	if( ! getpwnam($uid)) {
+	    warn "[WARNING] $uid was not found in passwd database: skipped.\n";
+	    next;
+	}
+
+	my $userDn = sprintf('uid=%s,ou=%s,%s', $uid, 'People', $LdapInternalSuffix);
+	my $attrs = {};
+
+	if($userDb{$uid}) {
+	    $attrs->{sambaNTPassword} = $userDb{$uid}->{password};
+	} else {
+	    warn "[ERROR] smbpasswd entry not found: $uid.\n";
+	    $errors++;
+	    next;
+	}
+
+	$ldapResponse = $ldap->modify($userDn, replace => $attrs);
+	if($ldapResponse->is_error) {
+	    warn "[ERROR] failed to update $userDn SAM entry\n";
+	    $errors++;
+	    next;
+	} 
+       
+	# This is normally set on record creation, but
+	# nethserver-directory-migrate doesn't push it in:
+	$_->set_prop('Samba', 'enabled');
+
+	# ..so a modify event must be signalled:
+	if( ! esmith::event::event_signal('user-modify', $uid)) {
+	    warn("[ERROR] user-modify $uid event failed\n");
+	    $errors++;
+	}
+    }
+}
+
 
 
 #
