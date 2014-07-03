@@ -44,6 +44,9 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) /var/lib/nethserver/netlogon/netlogon.bat
 
 %changelog
+* Thu Jul 03 2014 Giacomo Sanchietti <giacomo.sanchietti@nethesis.it> - 1.4.5-1.ns6
+- Fix: Login to Samba fails after migration - Bug #2780
+
 * Thu Jun 19 2014 Giacomo Sanchietti <giacomo.sanchietti@nethesis.it> - 1.4.4-1.ns6
 - Fix bug #2733 - Domain Administrators rights not enforced by workstations.
 - Decrease default Samba log verbosity #2747
