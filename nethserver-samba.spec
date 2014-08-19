@@ -1,7 +1,7 @@
 Summary: Nethserver specific Samba configuration files and templates
 Name: nethserver-samba
-Version: @@VERSION@@
-Release: @@RELEASE@@
+Version: 1.4.5
+Release: 1%{?dist}
 License: GPL
 Source: %{name}-%{version}.tar.gz
 BuildArch: noarch
