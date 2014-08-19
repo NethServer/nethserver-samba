@@ -74,7 +74,9 @@ warn "[INFO] migrating domain $domainName (role $serverRole)\n";
 
 my @pdcProps = (    
     RoamingProfiles => $srcConfigDb->get_prop('smb', 'RoamingProfiles') || 'no',
-    NetbiosAliasList => uc($srcConfigDb->get_value('SystemName')));
+    NetbiosAliasList => uc($srcConfigDb->get_value('SystemName')),
+    LogonDrive => sprintf("%s:", $srcConfigDb->get_prop('smb', 'LogonDrive') || 'Z'),
+);
 
 # Copy some smb props in dst db:
 $dstConfigDb->get('smb')->merge_props(
