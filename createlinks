@@ -74,6 +74,10 @@ event_templates('nethserver-samba-save', qw(
     /etc/hosts
 ));
 
+event_actions('nethserver-samba-save', qw(
+   nethserver-samba-clearsid 00
+));
+
 event_services('nethserver-samba-save', qw(
    smb restart
    nmb restart
