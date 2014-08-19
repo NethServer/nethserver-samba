@@ -37,7 +37,6 @@ use Data::Dumper;
 
 sub importDomainSid($$);
 sub getSmbPasswd($);
-sub getSambaGroupDb($);
 sub getStaticGroupDb($);
 
 
@@ -163,9 +162,7 @@ sub pdcMigration
     }
 
     my $useGroupMappingDb = (-f $sourceDir . '/var/lib/samba/group_mapping.ldb');
-    my %groupDb = $useGroupMappingDb ? 
-	getSambaGroupDb($sourceDir . '/var/lib/samba/group_mapping.ldb') 
-	: getStaticGroupDb($sourceDir . '/etc/group');
+    my %groupDb = getStaticGroupDb($sourceDir . '/etc/group');
 
     addExistingGroups(\%groupDb);
 
@@ -386,49 +383,6 @@ sub getStaticGroupDb($)
     }
 
     return %db;
-}
-
-#
-# read group name => RID association
-#
-sub getSambaGroupDb($)
-{
-    my $groupMappingFile = shift;
-
-    my %h = ();
-
-    open(my $LH, '-|', qq(/usr/bin/ldb3search -H tdb://$groupMappingFile objectClass=groupMap sid gidNumber)) or die("[ERROR] Could not read group mappings: $!\n");
-
-    my $ldif = Net::LDAP::LDIF->new($LH, 'r', onerror => 'die');
-
-    while( ! $ldif->eof()) {
-	my $entry = $ldif->read_entry();
-
-	if( ! $entry) {
-	    warn "[WARNING] an LDIF read_entry() call failed!\n";
-	    next;
-	}
-
-	my $group = getgrgid($entry->get_value('gidNumber'));
-	
-	my $dn = $entry->dn();
-
-	$dn =~ /^rid=(\d+),domain=.*$/;
-
-	if(defined $group && defined $1) {
-	    $h{$group->name} = {
-		rid => $1,
-		gid => $group->gid,
-	    };
-
-	    if($h{$group->name}->{rid} != $algorithmicRidBase + 1 + ($group->gid * 2)) {
-		warn "[WARNING] calculated rid was different from DB value for group " . $group->name . "\n";
-	    }
-	}
-    }
-
-    close($LH);   
-    return %h;
 }
 
 #
