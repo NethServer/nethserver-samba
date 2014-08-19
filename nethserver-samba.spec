@@ -30,6 +30,8 @@ Requires: perl-Authen-Krb5
 
 %build
 %{makedocs}
+mkdir -p root%{perl_vendorlib}
+mv -v NethServer root%{perl_vendorlib}
 perl createlinks
 
 %install

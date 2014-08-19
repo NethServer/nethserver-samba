@@ -14,14 +14,7 @@ interfaces = 127.0.0.1 {
 hosts allow = { join(' ', @hostsAllow) }
 deadtime = { int($smb{DeadTime}) }
 
-workgroup = { 
-   $defaultWorkgroup = 'WORKGROUP';
-   if($smb{ServerRole} =~ /^(PDC|ADS)$/) {
-       $defaultWorkgroup = uc((split('\.', $DomainName))[0]);
-   }
-   $workgroup = $smb{Workgroup} || $defaultWorkgroup;
-   return $workgroup;
-}
+workgroup = { $workgroup }
 netbios aliases = { join(' ', @netbiosAliasList) }
 server string = NethServer Samba %v
 security = { $smb{ServerRole} eq 'ADS' ? 'ADS' : 'user' }
