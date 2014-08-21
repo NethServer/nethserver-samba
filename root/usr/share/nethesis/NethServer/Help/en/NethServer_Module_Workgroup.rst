@@ -13,6 +13,9 @@ workstation, domain controller or Active Directory member.
 Workstation
     Enabling this option the server will behave as a normal workstation.
 
+Workgroup name
+    The name of the network workgroup identifier, used only to browse the network.
+
 Domain Controller
     Enabling this option the server will be configured as a domain controller for the network.
 

@@ -17,3 +17,4 @@ $L['Workgroup_Tags'] = 'samba pdc workstation workgroup lavoro window pdc contro
 $L['Workgroup_Title'] = 'Rete Windows';
 $L['Join_failed_message'] = 'Registrazione in Active Directory fallita';
 $L['AdsLdapAccountsBranch_label'] = 'Ramo LDAP degli account';
+$L['WorkgroupName_label'] = 'Nome del gruppo di lavoro';

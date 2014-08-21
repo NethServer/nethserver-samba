@@ -14,6 +14,9 @@ Workstation
     Abilitando tale opzione il sistema si comporterà come una normale
     workstation.
 
+Nome del gruppo di lavoro
+    Identificatore del gruppo di lavoro, utile solo a sfogliare la rete.
+
 Controller di dominio
     Abilitando tale opzione il sistema viene configurato come
     controller di dominio della rete.
