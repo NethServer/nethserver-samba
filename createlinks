@@ -52,6 +52,7 @@ event_templates('nethserver-samba-update', qw(
 event_actions('nethserver-samba-update', qw(
 	      initialize-default-databases 00
 	      nethserver-samba-conf 20
+              nethserver-samba-netcacheflush 99
 ));
 
 # The httpd-admin reload action is mapped to "graceful" restart since 
@@ -76,6 +77,7 @@ event_templates('nethserver-samba-save', qw(
 
 event_actions('nethserver-samba-save', qw(
    nethserver-samba-clearsid 00
+   nethserver-samba-netcacheflush 99
 ));
 
 event_services('nethserver-samba-save', qw(
@@ -213,6 +215,7 @@ event_actions('runlevel-adjust', qw(
       nethserver-samba-user-create 96
       nethserver-samba-sam-conf 97
       nethserver-samba-group-sync 98
+      nethserver-samba-netcacheflush 99
 ));
 
 #

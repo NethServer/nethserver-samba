@@ -1,0 +1,8 @@
+#!/usr/bin/bash
+
+#
+# Clear ID mapping cache
+#
+
+exec /usr/bin/net cache flush
+
