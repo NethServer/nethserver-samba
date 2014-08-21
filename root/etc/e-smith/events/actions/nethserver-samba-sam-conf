@@ -44,7 +44,7 @@ my $entries = {
 	name => 'Domain Admins',
 	comment => 'Designated administrators of the domain'
     },
-    domusers => {
+    locals => {
 	rid => 513,
 	type => 'd',
 	name => 'Domain Users',
@@ -99,6 +99,14 @@ sub initializeGroupRecord
 	);
 
     return 1; # success
+}
+
+#
+# Domain Users NT group is mapped to "locals". Refs #2792
+#
+if(getpwnam('domusers')) {
+    warn "[WARNING] removing obsolete user/group domusers..\n";
+    system(qw(/usr/sbin/luserdel domusers));
 }
 
 while ( my ($group, $entry) = each(%$entries) ) {
