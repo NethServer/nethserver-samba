@@ -17,3 +17,4 @@ $L['Workgroup_Tags'] = 'samba pdc workstation workgroup window pdc controller do
 $L['Workgroup_Title'] = 'Windows Network';
 $L['Join_failed_message'] = 'Failed to join Active Directory';
 $L['AdsLdapAccountsBranch_label'] = 'LDAP accounts branch';
+$L['WorkgroupName_label'] = 'Workgroup name';

@@ -37,7 +37,6 @@ use Data::Dumper;
 
 sub importDomainSid($$);
 sub getSmbPasswd($);
-sub getSambaGroupDb($);
 sub getStaticGroupDb($);
 
 
@@ -75,7 +74,9 @@ warn "[INFO] migrating domain $domainName (role $serverRole)\n";
 
 my @pdcProps = (    
     RoamingProfiles => $srcConfigDb->get_prop('smb', 'RoamingProfiles') || 'no',
-    NetbiosAliasList => uc($srcConfigDb->get_value('SystemName')));
+    NetbiosAliasList => uc($srcConfigDb->get_value('SystemName')),
+    LogonDrive => sprintf("%s:", $srcConfigDb->get_prop('smb', 'LogonDrive') || 'Z'),
+);
 
 # Copy some smb props in dst db:
 $dstConfigDb->get('smb')->merge_props(
@@ -150,7 +151,8 @@ sub pdcMigration
 	    next;
 	}
 
-	$dstAccountsDb->set_prop($_->key, 'Uid', $_->prop('Uid'), type => 'machine');
+	my $machineUid = exists $userDb{$_->key}->{uid} ? $userDb{$_->key}->{uid} : '';
+	$dstAccountsDb->set_prop($_->key, 'Uid', $_->prop('Uid') || $machineUid, type => 'machine');
 
 	my $secret = esmith::util::genRandomHash();
 
@@ -162,10 +164,7 @@ sub pdcMigration
 	}
     }
 
-    my $useGroupMappingDb = (-f $sourceDir . '/var/lib/samba/group_mapping.ldb');
-    my %groupDb = $useGroupMappingDb ? 
-	getSambaGroupDb($sourceDir . '/var/lib/samba/group_mapping.ldb') 
-	: getStaticGroupDb($sourceDir . '/etc/group');
+    my %groupDb = getStaticGroupDb($sourceDir . '/etc/group');
 
     addExistingGroups(\%groupDb);
 
@@ -248,7 +247,6 @@ sub pdcMigration
 	qw(
 	  locals       1
 	  domadmins    1
-	  domusers     1
 	  domguests    1
 	  domcomputers 1 
 	)}} ) {
@@ -257,10 +255,7 @@ sub pdcMigration
 
 	my $attrs = {};
 
-	if($gid eq 'locals' && $groupDb{'shared'}) {
-	    # Map "locals" group to "shared":
-	    $attrs->{sambaSID} = $domainSid . '-' . $groupDb{'shared'}->{rid};
-	} elsif($groupDb{$gid}) {
+	if($groupDb{$gid}) {
 	    $attrs->{sambaSID} = $domainSid . '-' . $groupDb{$gid}->{rid};
 	} else {
 	    warn "[WARNING] SID not found for group $gid.\n";
@@ -389,49 +384,6 @@ sub getStaticGroupDb($)
 }
 
 #
-# read group name => RID association
-#
-sub getSambaGroupDb($)
-{
-    my $groupMappingFile = shift;
-
-    my %h = ();
-
-    open(my $LH, '-|', qq(/usr/bin/ldb3search -H tdb://$groupMappingFile objectClass=groupMap sid gidNumber)) or die("[ERROR] Could not read group mappings: $!\n");
-
-    my $ldif = Net::LDAP::LDIF->new($LH, 'r', onerror => 'die');
-
-    while( ! $ldif->eof()) {
-	my $entry = $ldif->read_entry();
-
-	if( ! $entry) {
-	    warn "[WARNING] an LDIF read_entry() call failed!\n";
-	    next;
-	}
-
-	my $group = getgrgid($entry->get_value('gidNumber'));
-	
-	my $dn = $entry->dn();
-
-	$dn =~ /^rid=(\d+),domain=.*$/;
-
-	if(defined $group && defined $1) {
-	    $h{$group->name} = {
-		rid => $1,
-		gid => $group->gid,
-	    };
-
-	    if($h{$group->name}->{rid} != $algorithmicRidBase + 1 + ($group->gid * 2)) {
-		warn "[WARNING] calculated rid was different from DB value for group " . $group->name . "\n";
-	    }
-	}
-    }
-
-    close($LH);   
-    return %h;
-}
-
-#
 # obtain user's password hash from smbpasswd DB
 #
 sub getSmbPasswd($)
@@ -449,7 +401,7 @@ sub getSmbPasswd($)
 	# and "algorithmic rid base" in smb.conf(5) manpage
 	my $rid = ($uidNumber * 2) + $algorithmicRidBase;
 
-	my $data = { rid => $rid, password => $nthash };
+	my $data = { rid => $rid, password => $nthash, uid => $uidNumber };
 
 	# Insert keys in upper/lower/mixed case:
 	$db{$uname} = $data;

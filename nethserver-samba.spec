@@ -1,7 +1,7 @@
 Summary: Nethserver specific Samba configuration files and templates
 Name: nethserver-samba
-Version: @@VERSION@@
-Release: @@RELEASE@@
+Version: 1.4.5
+Release: 1%{?dist}
 License: GPL
 Source: %{name}-%{version}.tar.gz
 BuildArch: noarch
@@ -30,6 +30,8 @@ Requires: perl-Authen-Krb5
 
 %build
 %{makedocs}
+mkdir -p root%{perl_vendorlib}
+mv -v NethServer root%{perl_vendorlib}
 perl createlinks
 
 %install
