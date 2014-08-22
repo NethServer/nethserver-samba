@@ -7,7 +7,7 @@ echo $view->header()->setAttribute('template', $T('Configure_header'));
 $winregistryLink = $view->literal(sprintf('<div class="labeled-control"><a href="%s">%s</a></div>', $view['WinregistryPatches'], $T('WinregistryPatches_label')));
 
 echo $view->panel()
-        ->insert($view->fieldsetSwitch('ServerRole', 'WS')
+        ->insert($view->fieldsetSwitch('ServerRole', 'WS', $view::FIELDSET_EXPANDABLE)
             ->insert($view->textInput('WorkgroupName')->setAttribute('placeholder', $view['defaultWorkgroup']))
         )
         ->insert($view->fieldsetSwitch('ServerRole', 'PDC', $view::FIELDSET_EXPANDABLE)
