@@ -163,7 +163,6 @@ sub pdcMigration
 	}
     }
 
-    my $useGroupMappingDb = (-f $sourceDir . '/var/lib/samba/group_mapping.ldb');
     my %groupDb = getStaticGroupDb($sourceDir . '/etc/group');
 
     addExistingGroups(\%groupDb);
