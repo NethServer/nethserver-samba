@@ -31,6 +31,7 @@ use strict;
 use esmith::AccountsDB;
 use NethServer::Directory;
 use User::grent;
+use esmith::lockfile;
 
 my $accountsDb = esmith::AccountsDB->open or die("Couldn't open accounts db\n");
 my $ldap = NethServer::Directory->new();
@@ -53,21 +54,17 @@ if ($machine) {
     if ($machine->prop('type') ne 'machine') {
 	die("Account $machineName is not of type machine\n");
     }
-
     $uid = $machine->prop('Uid');
 } else {
-    use esmith::lockfile;
-
-    $lock = esmith::lockfile::LockFileOrWait("/var/lib/nethserver/db/accounts");
-    $uid = $accountsDb->get_next_uid;
-
     # Create the machine record in AccountsDB
-    $accountsDb->new_record($machineName, {type => "machine", Uid => $uid});
-
+    $machine = $accountsDb->new_record($machineName, {type => "machine"});
 }
 
 if( ! $uid) {
-    die("[ERROR] Could not read $machineName Uid prop!\n");
+    # Allocate and store new Uid in AccountsDB:
+    $lock = esmith::lockfile::LockFileOrWait("/var/lib/nethserver/db/accounts"); 
+    $uid = $accountsDb->get_next_uid;
+    $machine->set_prop('Uid', $uid);
 }
 
 my $unixGroup = getgrnam('domcomputers') || getgrnam('nobody');
