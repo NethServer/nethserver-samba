@@ -151,7 +151,8 @@ sub pdcMigration
 	    next;
 	}
 
-	$dstAccountsDb->set_prop($_->key, 'Uid', $_->prop('Uid'), type => 'machine');
+	my $machineUid = exists $userDb{$_->key}->{uid} ? $userDb{$_->key}->{uid} : '';
+	$dstAccountsDb->set_prop($_->key, 'Uid', $_->prop('Uid') || $machineUid, type => 'machine');
 
 	my $secret = esmith::util::genRandomHash();
 
@@ -400,7 +401,7 @@ sub getSmbPasswd($)
 	# and "algorithmic rid base" in smb.conf(5) manpage
 	my $rid = ($uidNumber * 2) + $algorithmicRidBase;
 
-	my $data = { rid => $rid, password => $nthash };
+	my $data = { rid => $rid, password => $nthash, uid => $uidNumber };
 
 	# Insert keys in upper/lower/mixed case:
 	$db{$uname} = $data;
