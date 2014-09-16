@@ -1,6 +1,6 @@
 Summary: Nethserver specific Samba configuration files and templates
 Name: nethserver-samba
-Version: 1.4.5
+Version: 1.4.6
 Release: 1%{?dist}
 License: GPL
 Source: %{name}-%{version}.tar.gz
@@ -46,6 +46,15 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) /var/lib/nethserver/netlogon/netlogon.bat
 
 %changelog
+* Tue Sep 16 2014 Giacomo Sanchietti <giacomo.sanchietti@nethesis.it> - 1.4.6-1.ns6
+- Fix: Samba machine accounts not migrated - Bug #2832
+- Fix: Can't access group shared folder (samba WS mode) - Bug #2815 
+- Fix: Smb logon drive ignored during migration - Bug #2811 
+- Fix: Samba SAM db migration fails on group_mapping.ldb - Bug #2806 
+- Samba domain SID deep checking - Enhancement #2840
+- Edit workgroup name when role is Workstation - Enhancement #2803 
+- Samba: map local users to Domain Users - Enhancement #2792 
+
 * Thu Jul 03 2014 Giacomo Sanchietti <giacomo.sanchietti@nethesis.it> - 1.4.5-1.ns6
 - Fix: Login to Samba fails after migration - Bug #2780
 
