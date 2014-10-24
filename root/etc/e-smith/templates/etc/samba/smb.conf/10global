@@ -6,10 +6,14 @@ interfaces = 127.0.0.1 {
     use esmith::NetworksDB;
     use esmith::util;
     my $ndb = esmith::NetworksDB->open_ro() || return '';
-    my $LocalIP = $ndb->green()->prop('ipaddr') || return '';
-    my $LocalNetmask = $ndb->green()->prop('netmask') || return '';
+    my @nets;
+    foreach ($ndb->green()) {
+        my $LocalIP = $_->prop('ipaddr') || next;
+        my $LocalNetmask = $_->prop('netmask') || next;
+        push(@nets, esmith::util::computeLocalNetworkShortSpec($LocalIP, $LocalNetmask));
+    }
 
-    return esmith::util::computeLocalNetworkShortSpec($LocalIP, $LocalNetmask);
+    return join(' ',@nets);
 }
 hosts allow = { join(' ', @hostsAllow) }
 deadtime = { int($smb{DeadTime}) }
