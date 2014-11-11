@@ -1,6 +1,6 @@
 Summary: Nethserver specific Samba configuration files and templates
 Name: nethserver-samba
-Version: 1.4.6
+Version: 1.4.7
 Release: 1%{?dist}
 License: GPL
 Source: %{name}-%{version}.tar.gz
@@ -46,6 +46,9 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) /var/lib/nethserver/netlogon/netlogon.bat
 
 %changelog
+* Tue Nov 11 2014 Davide Principi <davide.principi@nethesis.it> - 1.4.7-1.ns6
+- Samba access denied from second green network - Bug #2925 [NethServer]
+
 * Tue Sep 16 2014 Giacomo Sanchietti <giacomo.sanchietti@nethesis.it> - 1.4.6-1.ns6
 - Fix: Samba machine accounts not migrated - Bug #2832
 - Fix: Can't access group shared folder (samba WS mode) - Bug #2815 
