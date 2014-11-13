@@ -21,6 +21,7 @@
 package NethServer::Samba;
 
 use strict;
+use esmith::ConfigDB;
 
 =head1 NethServer::Samba package
 

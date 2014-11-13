@@ -29,6 +29,7 @@ use strict;
 
 use esmith::AccountsDB;
 use User::pwent;
+use NethServer::Samba;
 
 my $exitCode = 0;
 
@@ -36,6 +37,7 @@ my $luseradd = '/usr/sbin/luseradd';
 my $lgroupmod = '/usr/sbin/lgroupmod';
 my $net = '/usr/bin/net';
 my $accountsDb = esmith::AccountsDB->open() or die("Could not open AccountsDB");
+my $prefix = NethServer::Samba->new()->get_local_name();
 
 my $entries = {
     domadmins => {
@@ -131,7 +133,7 @@ while ( my ($group, $entry) = each(%$entries) ) {
     # Remap group if RID is not expected. Refs #2733
     #
     my $addMapping = 0;
-    my $sidOutput = `$net sam show $group 2>/dev/null`;
+    my $sidOutput = `$net sam show "$prefix\\$group" 2>/dev/null`;
     if($? == 0 && $sidOutput !~ m/-\Q$entry->{'rid'}\E$/) {
 	system($net, 'groupmap', 'delete', 'ntgroup=' . $group);
 	$addMapping = 1;

@@ -32,6 +32,7 @@ use strict;
 use esmith::AccountsDB;
 use File::Path;
 use User::pwent;
+use NethServer::Samba;
 
 my $event = shift;
 my $user = shift;
@@ -53,6 +54,7 @@ if($user) {
     @users = map { $_->key } $accountsDb->users();   
 }
 
+my $prefix = NethServer::Samba->new()->get_local_name();
 
 foreach my $user (@users) {
 
@@ -100,7 +102,7 @@ foreach my $user (@users) {
     }
 
     # Make sure the password is in expired state, to avoid valid empty passwords:
-    if(system($net, qw(sam set pwdmustchangenow), $user, 'yes') != 0) {
+    if(system($net, qw(sam set pwdmustchangenow), "$prefix\\$user", 'yes') != 0) {
 	warn "Failed to set password state of SAM user `$user` to expired";
 	$exitCode ++;
     }

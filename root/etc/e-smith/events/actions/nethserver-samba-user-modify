@@ -25,6 +25,7 @@
 
 use strict;
 use esmith::AccountsDB;
+use NethServer::Samba;
 
 my $event = shift || die("Missing event argument!");
 my $user= shift || die("No user specified");
@@ -37,35 +38,33 @@ if($record->prop('type') ne 'user') {
     die("`$user` is not a user record");
 }
 
+my $prefix = NethServer::Samba->new()->get_local_name();
+
 # Update SAM db to reflect the "active" state of the user account:
-{
     my $isEnabled;
-    
+
     if($record->prop('__state') eq 'active' 
        && $record->prop('Samba') eq 'enabled') {
 	$isEnabled = 1;
     } else {
 	$isEnabled = 0;
     }
-    
+
     # Set the [D]isabled flag:
-    if(system($net, qw(sam set disabled), $user, ! $isEnabled ? 'yes' : 'no') != 0) {
-	warn "Failed to change enabled state of SAM user `$user`";
+    if(system($net, qw(sam set disabled), "$prefix\\$user", ! $isEnabled ? 'yes' : 'no') != 0) {
+	warn "Failed to change enabled state of SAM user `$prefix\\$user`";
 	$exitCode ++;
     }
-}
 
 # Update SAM user fullname and comment
-{
     my $fullName = join(' ', $record->prop('FirstName'), $record->prop('LastName'));
     foreach my $attribute (qw(fullname comment)) {
-	system($net, 'sam', 'set', $attribute, $user, $fullName);
+	system($net, 'sam', 'set', $attribute, "$prefix\\$user", $fullName);
 	if($? != 0) {
-	    warn "Failed to change full name of SAM user `$user`";
+	    warn "Failed to change full name of SAM user `$prefix\\$user`";
 	    $exitCode ++;
 	}
     }
-} 
 
 exit($exitCode == 0 ? 0 : 1);
 
