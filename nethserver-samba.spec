@@ -9,9 +9,9 @@ BuildRequires: nethserver-devtools
 URL: %{url_prefix}/%{name} 
 
 Requires: nethserver-directory >= 1.1.1-5
-Requires: samba >= 3.4.3
-Requires: samba-client >= 3.4.3
-Requires: samba-common >= 3.4.3
+Requires: samba < 4.0.0
+Requires: samba-client < 4.0.0
+Requires: samba-common < 4.0.0
 Requires: samba-winbind
 Requires: tdb-tools
 Requires: cyrus-sasl-gssapi
