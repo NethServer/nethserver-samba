@@ -1,6 +1,6 @@
 Summary: Nethserver specific Samba configuration files and templates
 Name: nethserver-samba
-Version: 1.4.7
+Version: 1.4.8
 Release: 1%{?dist}
 License: GPL
 Source: %{name}-%{version}.tar.gz
@@ -46,6 +46,10 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) /var/lib/nethserver/netlogon/netlogon.bat
 
 %changelog
+* Tue Dec 09 2014 Giacomo Sanchietti <giacomo.sanchietti@nethesis.it> - 1.4.8-1.ns6
+- Samba: error "USER is a Domain, not a user" - Bug #2951 [NethServer]
+- Change dependency to Samba < 4.0 -  Refs #2955 [NethServer]
+
 * Tue Nov 11 2014 Davide Principi <davide.principi@nethesis.it> - 1.4.7-1.ns6
 - Samba access denied from second green network - Bug #2925 [NethServer]
 
