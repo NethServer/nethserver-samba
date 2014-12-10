@@ -38,7 +38,7 @@ if($record->prop('type') ne 'user') {
     die("`$user` is not a user record");
 }
 
-my $prefix = NethServer::Samba->new()->get_local_name();
+my $prefix = NethServer::Samba->new()->get_sam_prefix();
 
 # Update SAM db to reflect the "active" state of the user account:
 my $isEnabled;

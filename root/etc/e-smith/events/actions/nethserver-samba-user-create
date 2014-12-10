@@ -54,7 +54,7 @@ if($user) {
     @users = map { $_->key } $accountsDb->users();   
 }
 
-my $prefix = NethServer::Samba->new()->get_local_name();
+my $prefix = NethServer::Samba->new()->get_sam_prefix();
 
 foreach my $user (@users) {
 

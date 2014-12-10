@@ -31,6 +31,7 @@
 use strict;
 use esmith::AccountsDB;
 use User::grent;
+use NethServer::Samba;
 
 my $event = shift;
 my $group = shift;
@@ -64,12 +65,13 @@ if( $secretsOutput !~ m(SECRETS/GENERIC/IDMAP_LDAP_\*)m ) {
     exit 0;
 }
 
+my $prefix = NethServer::Samba->new()->get_sam_prefix();
 
 foreach my $group (@groups) {
 
 
     # Check if a SAM entry exists (group or user)
-    my $entrySid = qx($net sam show "$group" 2>/dev/null);
+    my $entrySid = qx($net sam show "$prefix\\$group" 2>/dev/null);
     chomp($entrySid);
     if($? != 0) {
 	#
@@ -95,12 +97,13 @@ foreach my $group (@groups) {
     # Update the SAM group entry
     #
     my $description = $accountsDb->get_prop($group, 'Description') || '';
-    system($net, qw(sam set comment), $group, $description);
+    system($net, qw(sam set comment), $prefix . '\\' . $group, $description);
     if($? != 0) {
 	warn "[ERROR] Failed to set group `$group` comment attribute in SAM database!\n";
 	$exitCode ++;
 	next;
     }
+
 
 }
 

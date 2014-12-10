@@ -105,4 +105,41 @@ sub _fetch_getlocalsid
     $self->{'__localSid'} = $2 || '';
 }
 
+=head2 get_sam_prefix()
+
+Retrieve the prefix for `net sam` commands. The prefix depends on the
+server role.
+
+=cut
+sub get_sam_prefix()
+{
+    my $self = shift;
+    return ($self->{ServerRole} eq 'PDC') ? $self->get_domain_name() : $self->get_local_name();
+}
+
+=head2 get_domain_name()
+
+Fetch the domain name from secrets.tdb
+
+=cut
+sub get_domain_name()
+{
+    my $self = shift;
+    if( ! exists $self->{'__domainName'}) {
+	$self->_fetch_getdomainsid();
+    }
+    return $self->{'__domainName'};
+}
+
+sub _fetch_getdomainsid
+{
+    my $self = shift;
+    my $out = qx(/usr/bin/net getdomainsid);
+    chomp($out);
+    $out =~ m/^SID for domain (.*) is: (.*)$/m;
+    $self->{'__domainName'} = $1 || '';
+    $self->{'__domainSid'} = $2 || '';
+}
+
+
 1;
