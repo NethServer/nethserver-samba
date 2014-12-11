@@ -1,6 +1,6 @@
 Summary: Nethserver specific Samba configuration files and templates
 Name: nethserver-samba
-Version: 1.4.8
+Version: 1.4.9
 Release: 1%{?dist}
 License: GPL
 Source: %{name}-%{version}.tar.gz
@@ -46,6 +46,9 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) /var/lib/nethserver/netlogon/netlogon.bat
 
 %changelog
+* Thu Dec 11 2014 Giacomo Sanchietti <giacomo.sanchietti@nethesis.it> - 1.4.9-1.ns6
+- Samba: error "GROUP is a Domain, not a group" - Bug #2976 [NethServer]
+
 * Tue Dec 09 2014 Giacomo Sanchietti <giacomo.sanchietti@nethesis.it> - 1.4.8-1.ns6
 - Samba: error "USER is a Domain, not a user" - Bug #2951 [NethServer]
 - Change dependency to Samba < 4.0 -  Refs #2955 [NethServer]
