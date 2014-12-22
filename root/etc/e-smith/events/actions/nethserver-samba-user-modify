@@ -30,15 +30,21 @@ use NethServer::Samba;
 my $event = shift || die("Missing event argument!");
 my $user= shift || die("No user specified");
 my $accountsDb = esmith::AccountsDB->open() || die("Could not open accounts database");
-my $record = $accountsDb->get($user) || die("User `$user` not found in accounts database");
 my $exitCode = 0;
 my $net = '/usr/bin/net';
+
+my $prefix = NethServer::Samba->new()->get_sam_prefix();
+
+if(system($net . ' sam show "$prefix\\$user" &>/dev/null') != 0) {
+    exit(0); # Ignore password modification if user does not exist in
+	     # SAM db.
+}
+
+my $record = $accountsDb->get($user) || die("User `$user` not found in accounts database");
 
 if($record->prop('type') ne 'user') {
     die("`$user` is not a user record");
 }
-
-my $prefix = NethServer::Samba->new()->get_sam_prefix();
 
 # Update SAM db to reflect the "active" state of the user account:
 my $isEnabled;
@@ -52,7 +58,7 @@ if($record->prop('__state') eq 'active'
 
 # Set the [D]isabled flag:
 if(system($net, qw(sam set disabled), "$prefix\\$user", ! $isEnabled ? 'yes' : 'no') != 0) {
-    warn "Failed to change enabled state of SAM user `$prefix\\$user`";
+    warn "[ERROR] Failed to change enabled state of SAM user `$prefix\\$user`";
     $exitCode ++;
 }
 
@@ -61,7 +67,7 @@ my $fullName = join(' ', $record->prop('FirstName'), $record->prop('LastName'));
 foreach my $attribute (qw(fullname comment)) {
     system($net, 'sam', 'set', $attribute, "$prefix\\$user", $fullName);
     if($? != 0) {
-	warn "Failed to change full name of SAM user `$prefix\\$user`";
+	warn "[ERROR] Failed to change full name of SAM user `$prefix\\$user`";
 	$exitCode ++;
     }
 }
