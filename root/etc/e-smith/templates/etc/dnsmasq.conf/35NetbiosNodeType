@@ -1,7 +1,13 @@
+#
+# 35NetbiosNodeType -- PDC only
+#
 {
-    my $role = $smb{ServerRole} || 'WS';
-    if( $role eq 'PDC' || $role eq 'ADS' ) {
-	$OUT .= "# netbios node type:\n";
-	$OUT .= "dhcp-option=46,8\n";
+    if( $smb{ServerRole} eq 'PDC') {
+	$OUT .= "# netbios h-node type:\n";
+	$OUT .= "dhcp-option=option:netbios-nodetype,8\n";
+    } else {
+        $OUT .= '# disabled';
     }
 }
+
+

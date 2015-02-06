@@ -5,7 +5,7 @@ bind interfaces only = yes
 interfaces = 127.0.0.1 {
     use esmith::NetworksDB;
     use esmith::util;
-    my $ndb = esmith::NetworksDB->open_ro() || return '';
+    $ndb = esmith::NetworksDB->open_ro() || return '';
     my @nets;
     foreach ($ndb->green()) {
         my $LocalIP = $_->prop('ipaddr') || next;
@@ -29,11 +29,19 @@ logon drive = { $smb{LogonDrive} }
 logon home = { $smb{RoamingProfiles} eq 'yes' ?  '\\\%L\%U\._winprofile' : '\\\%L\%U'}
 logon path = { $smb{RoamingProfiles} eq 'yes' ?  '\\\%L\Profiles\%U' : ''}
 
-; WINS setup
-wins support = {$smb{WinsServerStatus} eq 'enabled' ? 'Yes' : 'No'}
-wins server = {$smb{WinsServerStatus} ne 'enabled' ? $smb{WinsServerIP} : ''}
-remote announce = {$smb{WinsServerStatus} ne 'enabled' ? $smb{WinsServerIP} : ''}
-remote browse sync = {$smb{WinsServerStatus} ne 'enabled' ? $smb{WinsServerIP} : ''}
+; WINS setup {
+  if(grep { $_->prop('ipaddr') eq ($smb{WinsServerIP} || '') } $ndb->green) {
+    $winsServerIp = '';
+    $OUT = '(point to the server itself)';
+  } else {
+    $winsServerIp = $smb{WinsServerIP};
+    $OUT = '(other server)';
+  }
+}
+wins support = { $smb{ServerRole} eq 'PDC' ? 'Yes' : 'No'}
+wins server = { $smb{ServerRole} eq 'PDC' ? '' : $winsServerIp }
+remote announce = { $smb{ServerRole} eq 'PDC' ? '' :  $winsServerIp }
+remote browse sync = { $smb{ServerRole} eq 'PDC' ? '' : $winsServerIp }
 
 ; LDAP database backend configuration
 passdb backend = ldapsam:ldap://127.0.0.1

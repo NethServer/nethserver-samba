@@ -1,25 +1,25 @@
+#
+# 35NetbiosNameServers
+#
 {
-    #
-    # 35NetbiosNameServers
-    #
-
     my $WINS = '';
 
-    if($smb{WinsServerStatus} eq 'enabled') {
+    if($smb{ServerRole} eq 'PDC') {
 	# Local server
 	$WINS = $ndb->green()->prop('ipaddr');
     } elsif($smb{WinsServerIP}) {
 	# Remote server
 	$WINS = $smb{WinsServerIP};
     } else {
-	# We don’t have any WINS server: don't configre WINS on dhcp
+	# We don't have any WINS server: don't configure WINS on DHCP
 	# clients.
-	return '';
+	return '# disabled';
     }
 
     $OUT .= "# set netbios-over-TCP/IP nameserver(s) aka WINS server(s)\n";
-    $OUT .= 'dhcp-option=44,' . $WINS . "\n\n";
-
+    $OUT .= 'dhcp-option=option:netbios-ns,' . $WINS . "\n";
     $OUT .= "# netbios datagram distribution server\n";
-    $OUT .= 'dhcp-option=45,' . $WINS . "\n";
+    $OUT .= 'dhcp-option=option:netbios-dd,' . $WINS . "\n";
 }
+
+
