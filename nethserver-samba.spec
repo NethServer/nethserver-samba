@@ -1,6 +1,6 @@
 Summary: Nethserver specific Samba configuration files and templates
 Name: nethserver-samba
-Version: 1.4.10
+Version: 1.4.11
 Release: 1%{?dist}
 License: GPL
 Source: %{name}-%{version}.tar.gz
@@ -46,6 +46,9 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) /var/lib/nethserver/netlogon/netlogon.bat
 
 %changelog
+* Tue Feb 10 2015 Giacomo Sanchietti <giacomo.sanchietti@nethesis.it> - 1.4.11-1.ns6
+- WINS registrations flood log.nmbd - Bug #3013 [NethServer]
+
 * Tue Jan 20 2015 Giacomo Sanchietti <giacomo.sanchietti@nethesis.it> - 1.4.10-1.ns6
 - root user: nethserver-samba-password-modify error - Bug #2968 [NethServer]
 
