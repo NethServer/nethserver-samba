@@ -3,10 +3,6 @@
   # bug3013_ns6.5 -- remove on 6.6
   #
 
-  my $role = $DB->get_prop('smb', 'ServerRole') || '';
-  my $status = $DB->get_prop_and_delete('smb', 'WinsServerStatus') || '';
-  if($role eq 'PDC' || $status eq 'disabled') {
-    $DB->set_prop('smb', 'WinsServerIP', '');
-  }
+  $DB->get_prop_and_delete('smb', 'WinsServerStatus');
   '';
 }
