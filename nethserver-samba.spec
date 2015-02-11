@@ -5,7 +5,7 @@ Release: 1%{?dist}
 License: GPL
 Source: %{name}-%{version}.tar.gz
 BuildArch: noarch
-BuildRequires: nethserver-devtools
+BuildRequires: nethserver-devtools, gettext
 URL: %{url_prefix}/%{name} 
 
 Requires: nethserver-directory >= 1.1.1-5
@@ -30,6 +30,9 @@ Requires: perl-Authen-Krb5
 
 %build
 %{makedocs}
+for D in locale/*/LC_MESSAGES; do
+  [ -d "$D" ] && msgfmt -v $D/%{name}.po -o $D/%{name}.mo
+done
 mkdir -p root%{perl_vendorlib}
 mv -v NethServer root%{perl_vendorlib}
 perl createlinks
@@ -40,7 +43,12 @@ rm -rf $RPM_BUILD_ROOT
 %{genfilelist} $RPM_BUILD_ROOT \
     > %{name}-%{version}-filelist
 
-%files -f %{name}-%{version}-filelist
+for F in locale/*/LC_MESSAGES/%{name}.mo; do
+   install -D $F $RPM_BUILD_ROOT/%{_datadir}/$F
+done
+%{find_lang} %{name}
+
+%files -f %{name}-%{version}-filelist -f %{name}.lang
 %doc COPYING
 %defattr(-,root,root)
 %config(noreplace) /var/lib/nethserver/netlogon/netlogon.bat
