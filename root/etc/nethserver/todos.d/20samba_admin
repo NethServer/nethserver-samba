@@ -1,0 +1,44 @@
+#!/usr/bin/python
+
+#
+# Copyright (C) 2015 Nethesis S.r.l.
+# http://www.nethesis.it - support@nethesis.it
+#
+# This script is part of NethServer.
+#
+# NethServer is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License,
+# or any later version.
+#
+# NethServer is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with NethServer.  If not, see COPYING.
+#
+
+import gettext
+import json
+import os
+import sys
+
+out = ''
+
+try:
+    out = os.popen('pdbedit -u admin -L -w').read()
+except:
+    pass
+
+if(not out):
+    exit(1)
+
+parts = out.split(':')
+
+if(parts[4].startswith('[NDU') and parts[3].startswith('NO PASSWORD')):
+    gettext.install('nethserver-samba')
+    msg = {"action": {"label": _('Change admin\'s password'), "url": '/User'}, "text": _('Required to enable admin\'s Samba account')}
+    json.dump(msg, sys.stdout)
+
