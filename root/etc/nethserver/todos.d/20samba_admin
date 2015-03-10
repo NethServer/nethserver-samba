@@ -39,6 +39,6 @@ parts = out.split(':')
 
 if(parts[4].startswith('[NDU') and parts[3].startswith('NO PASSWORD')):
     gettext.install('nethserver-samba')
-    msg = {"action": {"label": _('Change admin\'s password'), "url": '/User'}, "text": _('Required to enable admin\'s Samba account')}
+    msg = {"action": {"label": _('Change admin\'s password'), "url": '/User'}, "text": _('Required to enable admin\'s Samba account'), "icon": "key"}
     json.dump(msg, sys.stdout)
 
