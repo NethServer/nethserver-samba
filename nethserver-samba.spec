@@ -1,6 +1,6 @@
 Summary: Nethserver specific Samba configuration files and templates
 Name: nethserver-samba
-Version: 1.5.0
+Version: 1.5.1
 Release: 1%{?dist}
 License: GPL
 Source: %{name}-%{version}.tar.gz
@@ -46,6 +46,9 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) /var/lib/nethserver/netlogon/netlogon.bat
 
 %changelog
+* Thu Apr 23 2015 Davide Principi <davide.principi@nethesis.it> - 1.5.1-1
+- Language packs support - Feature #3115 [NethServer]
+
 * Tue Mar 10 2015 Davide Principi <davide.principi@nethesis.it> - 1.5.0-1
 - Differentiate root and admin users - Feature #3026 [NethServer]
 
