@@ -5,18 +5,19 @@ Release: 1%{?dist}
 License: GPL
 Source: %{name}-%{version}.tar.gz
 BuildArch: noarch
-BuildRequires: nethserver-devtools
 URL: %{url_prefix}/%{name} 
 
-Requires: nethserver-directory >= 1.1.1-5
-Requires: samba < 4.0.0
-Requires: samba-client < 4.0.0
-Requires: samba-common < 4.0.0
+Requires: nethserver-directory
+Requires: samba
+Requires: samba-client
+Requires: samba-common
 Requires: samba-winbind
 Requires: tdb-tools
 Requires: cyrus-sasl-gssapi
 Requires: krb5-workstation
 Requires: perl-Authen-Krb5
+
+BuildRequires: nethserver-devtools
 
 %description
 * Samba PDC, Workstation, ADS roles
@@ -35,15 +36,16 @@ mv -v NethServer root%{perl_vendorlib}
 perl createlinks
 
 %install
-rm -rf $RPM_BUILD_ROOT
-(cd root   ; find . -depth -print | cpio -dump $RPM_BUILD_ROOT)
-%{genfilelist} $RPM_BUILD_ROOT \
-    > %{name}-%{version}-filelist
+rm -rf %{buildroot}
+(cd root   ; find . -depth -print | cpio -dump %{buildroot})
+%{genfilelist} %{buildroot} > %{name}-%{version}-filelist
 
 %files -f %{name}-%{version}-filelist
 %doc COPYING
 %defattr(-,root,root)
 %config(noreplace) /var/lib/nethserver/netlogon/netlogon.bat
+%dir %{_nseventsdir}/%{name}-update
+
 
 %changelog
 * Thu Apr 23 2015 Davide Principi <davide.principi@nethesis.it> - 1.5.1-1
