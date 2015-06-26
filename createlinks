@@ -32,8 +32,7 @@ templates2events("/etc/samba/smb.conf", qw(
     ibay-create
     ibay-delete
     ibay-modify
-    network-delete
-    network-create
+    trusted-networks-modify
 ));
 
 #
@@ -106,8 +105,7 @@ event_actions($_,
     ibay-create
     ibay-delete
     ibay-modify
-    network-create
-    network-delete
+    trusted-networks-modify
     printer-create
     printer-delete
 ));
