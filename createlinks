@@ -32,7 +32,6 @@ templates2events("/etc/samba/smb.conf", qw(
     ibay-create
     ibay-delete
     ibay-modify
-    trusted-networks-modify
 ));
 
 #
@@ -105,7 +104,6 @@ event_actions($_,
     ibay-create
     ibay-delete
     ibay-modify
-    trusted-networks-modify
     printer-create
     printer-delete
 ));
@@ -147,14 +145,13 @@ event_actions('password-modify', qw(
 
 	   
 #--------------------------------------------------
-# actions for interface-update event
+# actions for trusted-networks-modify event
 #--------------------------------------------------
-event_templates('interface-update',
+event_templates('trusted-networks-modify',
                 '/etc/samba/smb.conf');
-event_services('interface-update', qw(
+event_services('trusted-networks-modify', qw(
    smb restart
    nmb restart
-   winbind restart
 ));
 
 #--------------------------------------------------
