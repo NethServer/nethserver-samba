@@ -1,6 +1,6 @@
 Summary: Nethserver specific Samba configuration files and templates
 Name: nethserver-samba
-Version: 1.5.2
+Version: 1.5.3
 Release: 1%{?dist}
 License: GPL
 Source: %{name}-%{version}.tar.gz
@@ -46,6 +46,10 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) /var/lib/nethserver/netlogon/netlogon.bat
 
 %changelog
+* Tue Sep 29 2015 Davide Principi <davide.principi@nethesis.it> - 1.5.3-1
+- Make Italian language pack optional - Enhancement #3265 [NethServer]
+- Event trusted-networks-modify - Enhancement #3195 [NethServer]
+
 * Wed Jul 15 2015 Giacomo Sanchietti <giacomo.sanchietti@nethesis.it> - 1.5.2-1
 - Event trusted-networks-modify - Enhancement #3195 [NethServer]
 
