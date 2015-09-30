@@ -39,7 +39,7 @@ unless ( defined $a && $a->prop('type') eq "user-deleted" )
 }
 
 my @dirs = (
-	'','V2','V3','V4','V5'
+	'','.V2','.V3','.V4','.V5'
         
 ); 
 
