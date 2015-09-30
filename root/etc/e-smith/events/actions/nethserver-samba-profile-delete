@@ -39,14 +39,15 @@ unless ( defined $a && $a->prop('type') eq "user-deleted" )
 }
 
 my @dirs = (
-    '/var/lib/nethserver/profile/' . $account, 
-    '/var/lib/nethserver/profile/' . $account. '.V2',
+	'','V2','V3','V4','V5'
+        
 ); 
 
-foreach (@dirs) {
+foreach my $dir (@dirs)  {
+	$userdir ='/var/lib/nethserver/profile/' . $account.$dir
  
-    next unless -d $_;
-    rmtree( $_ ) || warn "Couldn't remove user `$account` profile directory $_\n";
+    next unless -d $userdir;
+    rmtree( $userdir) || warn "Couldn't remove user `$account` profile directory $userdir \n";
 
 }
 
