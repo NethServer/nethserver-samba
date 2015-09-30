@@ -45,18 +45,22 @@ foreach my $user ( @newusers )
 
     # seems that .V2 profile dir is used by clients, starting from
     # Windows 7..
+    
+    
     my @dirs = (
-	'/var/lib/nethserver/profile/' . $user,
-	'/var/lib/nethserver/profile/' . $user . '.V2'
+    '','.V2','.V3','.V4','.V5'
 	);
     
+        
     foreach my $dir (@dirs)  {
-	if( ! -d $dir) {
-	    mkdir $dir;
-	    esmith::util::chownFile($user, $user, $dir) || 
-		warn "Couldn't change ownership of $dir\n";
+	$userdir ='/var/lib/nethserver/profile/' . $user.$dir
+	
+	if( ! -d $userdir) {
+	    mkdir $userdir;
+	    esmith::util::chownFile($user, $user, $userdir) || 
+		warn "Couldn't change ownership of $userdir\n";
 	} 
-	chmod 0700, $dir;  # Remove setgid bit
+	chmod 0700, $userdir;  # Remove setgid bit
     }
 }
 
