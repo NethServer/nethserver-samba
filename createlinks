@@ -50,6 +50,7 @@ event_templates('nethserver-samba-update', qw(
 event_actions('nethserver-samba-update', qw(
 	      initialize-default-databases 00
 	      nethserver-samba-conf 20
+	      nethserver-samba-profile-create 25
               nethserver-samba-netcacheflush 99
 ));
 

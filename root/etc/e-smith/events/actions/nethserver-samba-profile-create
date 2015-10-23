@@ -47,7 +47,10 @@ foreach my $user ( @newusers )
     # Windows 7..
     my @dirs = (
 	'/var/lib/nethserver/profile/' . $user,
-	'/var/lib/nethserver/profile/' . $user . '.V2'
+	'/var/lib/nethserver/profile/' . $user . '.V2',
+	'/var/lib/nethserver/profile/' . $user . '.V3',
+	'/var/lib/nethserver/profile/' . $user . '.V4',
+	'/var/lib/nethserver/profile/' . $user . '.V5'
 	);
     
     foreach my $dir (@dirs)  {
