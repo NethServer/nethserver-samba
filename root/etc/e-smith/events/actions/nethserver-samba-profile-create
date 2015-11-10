@@ -43,14 +43,13 @@ foreach my $user ( @newusers )
     die "$user is not a user account\n"
         unless ( grep /^$user$/, @users );
 
-    # seems that .V2 profile dir is used by clients, starting from
-    # Windows 7..
+    # Windows 7 and above each have a new user profile type defined by the .Vx file extension.
     my @dirs = (
 	'/var/lib/nethserver/profile/' . $user,
-	'/var/lib/nethserver/profile/' . $user . '.V2',
-	'/var/lib/nethserver/profile/' . $user . '.V3',
-	'/var/lib/nethserver/profile/' . $user . '.V4',
-	'/var/lib/nethserver/profile/' . $user . '.V5'
+	'/var/lib/nethserver/profile/' . $user . '.V2', # Windows 7
+	'/var/lib/nethserver/profile/' . $user . '.V3', # Windows 8
+	'/var/lib/nethserver/profile/' . $user . '.V4', # Windows 8.1
+	'/var/lib/nethserver/profile/' . $user . '.V5' # Windows 10
 	);
     
     foreach my $dir (@dirs)  {
