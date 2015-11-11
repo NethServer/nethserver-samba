@@ -30,5 +30,5 @@ echo $view->fieldsetSwitch('SmbStatus', 'enabled', $view::FIELDSETSWITCH_CHECKBO
 //    ->insert($vfsShadow)
 //    ->insert($customValues)
     ->insert($guestAccess)
-//    ->insert($browseableState)
+    ->insert($browseableState)
 ;
