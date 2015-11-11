@@ -59,7 +59,7 @@ class Samba extends \Nethgui\Controller\Table\RowPluginAction
             ->setDefaultValue('SmbProfileType', 'default')
             ->setDefaultValue('SmbStatus', 'enabled')
             ->setDefaultValue('SmbGuestAccessType', 'none')
-            ->setDefaultValue('SmbShareBrowseable', 'true')
+            ->setDefaultValue('SmbShareBrowseable', 'enabled')
         ;
         parent::initialize();
 
