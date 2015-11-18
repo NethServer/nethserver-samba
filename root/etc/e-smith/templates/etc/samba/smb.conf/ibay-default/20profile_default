@@ -11,3 +11,4 @@ map readonly         = no
 inherit acls         = yes
 map acl inherit      = yes
 guest ok             = { ($ibay{SmbGuestAccessType} || 'none') =~ /^rw?$/ ? 'yes' : 'no' }
+browseable           = { $ibay{SmbShareBrowseable} eq 'enabled' ? 'yes' : 'no' }

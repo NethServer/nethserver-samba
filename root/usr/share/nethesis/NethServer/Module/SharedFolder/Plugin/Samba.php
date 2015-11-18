@@ -51,6 +51,7 @@ class Samba extends \Nethgui\Controller\Table\RowPluginAction
             array('SmbRecycleBinStatus', Validate::SERVICESTATUS, Table::FIELD),
             array('SmbRecycleBinVersionsStatus', Validate::SERVICESTATUS, Table::FIELD),
             array('SmbGuestAccessType', '/^(none|rw|r)$/', Table::FIELD),
+            array('SmbShareBrowseable', Validate::SERVICESTATUS, Table::FIELD),
         );
 
         $this->setSchemaAddition($schema);
@@ -58,6 +59,7 @@ class Samba extends \Nethgui\Controller\Table\RowPluginAction
             ->setDefaultValue('SmbProfileType', 'default')
             ->setDefaultValue('SmbStatus', 'enabled')
             ->setDefaultValue('SmbGuestAccessType', 'none')
+            ->setDefaultValue('SmbShareBrowseable', 'enabled')
         ;
         parent::initialize();
 
