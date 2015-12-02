@@ -26,3 +26,8 @@ Guest Access
      * None 
      * Read-only 
      * Read and write
+
+Browseable
+     Controls the visibility of the shared folder. When this flag is
+     set, the shared folder is listed publicly. This does not affect
+     the permission to use this resource.
