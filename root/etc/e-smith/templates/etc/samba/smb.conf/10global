@@ -1,6 +1,9 @@
 [global]
 
+# Disable logging, will add parameters to allow configuration of logging in the future
 log level = 0
+
+# Only bind to allowed NIC's
 bind interfaces only = yes
 interfaces = 127.0.0.1 {
     use esmith::NetworksDB;
@@ -16,9 +19,14 @@ interfaces = 127.0.0.1 {
     return join(' ',@nets);
 }
 hosts allow = { join(' ', @hostsAllow) }
+
+# Idle time before disconnecting the client
 deadtime = { int($smb{DeadTime}) }
 
 workgroup = { $workgroup }
+
+# Alias NETBIOS names, used to provide access to Samba via multiple hostnames
+
 netbios aliases = { join(' ', @netbiosAliasList) }
 server string = NethServer Samba %v
 security = { $smb{ServerRole} eq 'ADS' ? 'ADS' : 'user' }

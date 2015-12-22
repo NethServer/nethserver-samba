@@ -1,6 +1,6 @@
 Summary: Nethserver specific Samba configuration files and templates
 Name: nethserver-samba
-Version: 1.5.1
+Version: 1.5.4
 Release: 1%{?dist}
 License: GPL
 Source: %{name}-%{version}.tar.gz
@@ -48,6 +48,17 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Wed Dec 02 2015 Giacomo Sanchietti <giacomo.sanchietti@nethesis.it> - 1.5.4-1
+- Roaming profile doesn't  work with W8,W8.1,W10 - Bug #3277 [NethServer]
+- Hide samba share - Feature #3208 [NethServer]
+
+* Tue Sep 29 2015 Davide Principi <davide.principi@nethesis.it> - 1.5.3-1
+- Make Italian language pack optional - Enhancement #3265 [NethServer]
+- Event trusted-networks-modify - Enhancement #3195 [NethServer]
+
+* Wed Jul 15 2015 Giacomo Sanchietti <giacomo.sanchietti@nethesis.it> - 1.5.2-1
+- Event trusted-networks-modify - Enhancement #3195 [NethServer]
+
 * Thu Apr 23 2015 Davide Principi <davide.principi@nethesis.it> - 1.5.1-1
 - Language packs support - Feature #3115 [NethServer]
 

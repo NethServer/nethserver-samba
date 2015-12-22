@@ -20,10 +20,13 @@ $guestAccess = $view->fieldset()->setAttribute('template', $T('SmbGuestAccess_la
     ->insert($view->radioButton('SmbGuestAccessType', 'rw'))
 ;
 
+$browseableState = $view->checkBox('SmbShareBrowseable', 'enabled')->setAttribute('uncheckedValue', 'disabled');
+
 echo $view->fieldsetSwitch('SmbStatus', 'enabled', $view::FIELDSETSWITCH_CHECKBOX)
     ->setAttribute('uncheckedValue', 'disabled')
     ->insert($vfsRecycle)
 //    ->insert($vfsShadow)
 //    ->insert($customValues)
     ->insert($guestAccess)
+    ->insert($browseableState)
 ;

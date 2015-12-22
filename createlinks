@@ -32,8 +32,6 @@ templates2events("/etc/samba/smb.conf", qw(
     ibay-create
     ibay-delete
     ibay-modify
-    network-delete
-    network-create
 ));
 
 #
@@ -52,6 +50,7 @@ event_templates('nethserver-samba-update', qw(
 event_actions('nethserver-samba-update', qw(
 	      initialize-default-databases 00
 	      nethserver-samba-conf 20
+	      nethserver-samba-profile-create 25
               nethserver-samba-netcacheflush 99
 ));
 
@@ -106,8 +105,6 @@ event_actions($_,
     ibay-create
     ibay-delete
     ibay-modify
-    network-create
-    network-delete
     printer-create
     printer-delete
 ));
@@ -149,14 +146,13 @@ event_actions('password-modify', qw(
 
 	   
 #--------------------------------------------------
-# actions for interface-update event
+# actions for trusted-networks-modify event
 #--------------------------------------------------
-event_templates('interface-update',
+event_templates('trusted-networks-modify',
                 '/etc/samba/smb.conf');
-event_services('interface-update', qw(
+event_services('trusted-networks-modify', qw(
    smb restart
    nmb restart
-   winbind restart
 ));
 
 #--------------------------------------------------
