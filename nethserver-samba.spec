@@ -12,6 +12,7 @@ Requires: samba
 Requires: samba-client
 Requires: samba-common
 Requires: samba-winbind
+Requires: samba-winbind-clients
 Requires: tdb-tools
 Requires: cyrus-sasl-gssapi
 Requires: krb5-workstation

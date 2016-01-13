@@ -79,19 +79,19 @@ foreach my $user (@users) {
 	next;
     }
 
+    # Map the primary group in SAM database, before the user
+    qx($net sam mapunixgroup "$user");
+    if($? != 0) {
+	warn "Failed to map user's unix group `$user` in SAM database";
+	$exitCode ++;
+    }
+
     # Add to SAM:
     qx($smbpasswd -a -n -d "$user" >/dev/null 2>&1);
     if($? != 0) {
 	warn "Failed to add user `$user` in SAM database";
 	$exitCode ++;
 	next;
-    }
-
-    # Map user's unix group in SAM database
-    qx($net sam mapunixgroup "$user");
-    if($? != 0) {
-	warn "Failed to map user's unix group `$user` in SAM database";
-	$exitCode ++;
     }
 
     # Default user Samba state ( Refs #974 ):

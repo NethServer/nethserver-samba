@@ -91,7 +91,7 @@ sub sambaLdapConfig
     # ldap and idmap backends:
     #
     qx(/usr/bin/smbpasswd -w '$password');
-    qx(/usr/bin/net idmap secret '*' '$password');
+    qx(/usr/bin/net idmap set secret '*' '$password');
 
     return $errors == 0;
 }
