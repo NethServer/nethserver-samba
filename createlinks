@@ -1,0 +1,100 @@
+#!/usr/bin/perl -w
+
+#
+# Copyright (C) 2012 Nethesis S.r.l.
+# http://www.nethesis.it - support@nethesis.it
+# 
+# This script is part of NethServer.
+# 
+# NethServer is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License,
+# or any later version.
+# 
+# NethServer is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with NethServer.  If not, see <http://www.gnu.org/licenses/>.
+#
+
+use esmith::Build::CreateLinks qw(:all);
+use File::Path;
+
+# Group ownership is changed to admin group, 
+# if the ibay group owner is deleted:
+event_actions('group-delete', 
+	     "nethserver-ibays-reset-group" => "10"
+    );
+
+# create
+event_actions('ibay-create', qw(
+	     nethserver-ibays-ibay-create 15
+	     nethserver-ibays-set-permissions 20
+));
+
+# modify
+event_actions('ibay-modify', qw(
+	     nethserver-ibays-set-permissions 20
+));
+
+# delete
+event_actions('ibay-delete', 
+	     'nethserver-ibays-ibay-delete' => '15'
+    );
+
+# reset permissions
+event_actions('ibay-reset-permissions', qw(
+	     nethserver-ibays-set-permissions 20
+));
+
+# package install/update
+event_actions('nethserver-ibays-update', qw(
+	     initialize-default-databases 00
+));
+
+#--------------------------------------------------
+# actions for ibay-name validator
+#--------------------------------------------------
+validator_actions('ibay-create', qw(
+                  uniq-account 20
+                  ibay-length 30
+));
+
+validator_actions('ibay-delete', qw(
+                  account-removable 20
+));
+
+
+#
+# migration-import event (refs #1688)
+#
+event_actions('migration-import', qw(
+    nethserver-ibays-migrate-begin  30
+    nethserver-ibays-migrate-commit 60
+));
+
+#
+# post-restore-data event
+#
+event_actions('post-restore-data', qw(
+    nethserver-ibays-restore         60
+));
+
+
+#
+# FIXME: using runlevel-adjust event to initialize ibays from default DB
+# records:
+#
+event_actions('runlevel-adjust', qw(
+    create-default-ibays 96
+));
+
+#
+# pre-backup-data event
+#
+event_actions('pre-backup-data', qw(
+    nethserver-ibays-dump-acls         50
+));

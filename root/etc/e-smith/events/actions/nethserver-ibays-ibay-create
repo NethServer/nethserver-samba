@@ -1,0 +1,50 @@
+#!/usr/bin/perl -w
+
+#
+# Copyright (C) 2012 Nethesis S.r.l.
+# http://www.nethesis.it - support@nethesis.it
+# copyright (C) 1999-2005 Mitel Networks Corporation
+# 
+# This script is part of NethServer.
+# 
+# NethServer is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License,
+# or any later version.
+# 
+# NethServer is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with NethServer.  If not, see <http://www.gnu.org/licenses/>.
+#
+
+package esmith;
+
+use strict;
+use Errno;
+use esmith::AccountsDB;
+
+my $ibayBasePath = '/var/lib/nethserver/ibay/';
+
+my $event = shift;
+my $ibayName = shift;
+
+die "ibayName argument missing" unless defined ($ibayName);
+
+my $accountdb = esmith::AccountsDB->open();
+my $ibay = $accountdb->get($ibayName) or 
+	die "Couldn't find $ibayName record in accounts db\n";
+
+if ($ibay->prop('type') ne 'ibay') {
+    die "Account $ibayName is not an ibay account; create ibay event failed.\n"
+}
+
+my $ibayPath = $ibayBasePath . $ibayName;
+
+if ( ! -d $ibayPath ) {
+    mkdir $ibayPath;
+}
+
