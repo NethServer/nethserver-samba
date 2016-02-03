@@ -38,7 +38,6 @@ templates2events("/etc/samba/smb.conf", qw(
 # nethserver-samba-update event (smb.conf template expanded above)
 #
 event_templates('nethserver-samba-update', qw(
-    /etc/httpd/admin-conf/httpd.conf
     /etc/pam.d/system-auth-nh
     /etc/pam.d/password-auth-nh
     /etc/krb5.conf
