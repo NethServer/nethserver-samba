@@ -28,73 +28,12 @@
 
 use strict;
 
-use NethServer::Directory;
-use NethServer::Service;
 use NethServer::Password;
 use NethServer::Samba;
 use esmith::event;
 use esmith::ConfigDB;
 
 my $errors = 0;
-
-sub sambaLdapConfig
-{ 
-
-    my $password = NethServer::Password->new('samba', {length=>8})->save()->getAscii();
-    my $ldap = NethServer::Directory->new();
-
-    if( ! $ldap) {
-	warn "[ERROR] could not connect LDAP server\n";
-	return 0;
-    }
-
-    my $internalSuffix = NethServer::Directory::getInternalSuffix();
-    my $errors = 0;
-    $ldap->loadLdifSchema('samba', '/etc/openldap/schema/samba.ldif') || die("Could not load the samba LDIF schema");
-
-    my @entries = (
-	[ 'ou=Idmap,' . $internalSuffix,
-	  attrs => [
-	      objectClass => ['top', 'organizationalUnit'],
-	      ou => 'Idmap',
-	  ] ],       	
-	[ 'ou=Computers,' . $internalSuffix,
-	  attrs => [
-	      objectClass => ['top', 'organizationalUnit'],
-	      ou => 'Computers',
-	  ] ],       	
-	);
-
-    foreach(@entries) {
-	my $message = $ldap->merge(@{$_});
-	if($message->is_error()) {
-	    warn '[ERROR] merging ' . @{$_}[0];
-	    $errors ++;
-	}
-    }
-
-    #
-    # LDAP ACL setup for samba service account: (ex nethserver-samba-aclsetup)
-    # 
-    my $sambaWho = qq(by dn.exact="cn=samba,$internalSuffix" peername.ip="127.0.0.1");
-
-    # Configure the samba service account to access samba LDAP DB:
-    $ldap->configServiceAccount('samba');
-
-    # Grant write permission to samba and make sambaNTPassword
-    # readable only by samba user:
-    $ldap->enforceAccessDirective($sambaWho . ' write by self write by * none', 'sambaNTPassword') || $errors ++;
-    $ldap->enforceAccessDirective($sambaWho . ' write', '*') ||  $errors ++;
-
-    #
-    # Store the LDAP password in samba secrets.tdb database, for both
-    # ldap and idmap backends:
-    #
-    qx(/usr/bin/smbpasswd -w '$password');
-    qx(/usr/bin/net idmap set secret '*' '$password');
-
-    return $errors == 0;
-}
 
 my $confdb = esmith::ConfigDB->open() || die("Could not open ConfigDB");
 my $sambao = NethServer::Samba->new();
@@ -104,15 +43,6 @@ if( ! $confdb->get_prop('smb', 'Sid')) {
     $confdb->set_prop('smb', 'Sid', $sambao->get_local_sid());
 }
 
-if(sambaLdapConfig()) {
-    my $smb = NethServer::Service->new('smb', $confdb);
-    if($smb->is_running()) {
-	$smb->stop();
-    }
-    $smb->start() || $errors++;
-} else {
-    $errors++;
-}
 
 # Enable acl and user_xattr on / filesystem
 my $fstab = $confdb->get('fstab') or return "";

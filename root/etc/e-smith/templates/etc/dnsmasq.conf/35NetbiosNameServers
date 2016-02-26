@@ -4,16 +4,13 @@
 {
     my $WINS = '';
 
-    if($smb{ServerRole} eq 'PDC') {
-	# Local server
-	$WINS = $ndb->green()->prop('ipaddr');
-    } elsif($smb{WinsServerIP}) {
-	# Remote server
-	$WINS = $smb{WinsServerIP};
+    if($smb{WinsServerIP}) {
+        # Remote server
+        $WINS = $smb{WinsServerIP};
     } else {
-	# We don't have any WINS server: don't configure WINS on DHCP
-	# clients.
-	return '# disabled';
+        # We don't have any WINS server: don't configure WINS on DHCP
+        # clients.
+        return '# disabled';
     }
 
     $OUT .= "# set netbios-over-TCP/IP nameserver(s) aka WINS server(s)\n";

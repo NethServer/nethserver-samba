@@ -30,12 +30,6 @@ workgroup = { $workgroup }
 netbios aliases = { join(' ', @netbiosAliasList) }
 server string = NethServer Samba %v
 security = { $smb{ServerRole} eq 'ADS' ? 'ADS' : 'user' }
-logon script = netlogon.bat
-domain logons = { $smb{ServerRole} eq 'PDC' ? 'yes' : 'no' }
-domain master = { $smb{ServerRole} eq 'PDC' ? 'yes' : 'no' }
-logon drive = { $smb{LogonDrive} }
-logon home = { $smb{RoamingProfiles} eq 'yes' ?  '\\\%L\%U\._winprofile' : '\\\%L\%U'}
-logon path = { $smb{RoamingProfiles} eq 'yes' ?  '\\\%L\Profiles\%U' : ''}
 
 ; WINS setup {
   if(grep { $_->prop('ipaddr') eq ($smb{WinsServerIP} || '') } $ndb->green) {
@@ -46,61 +40,9 @@ logon path = { $smb{RoamingProfiles} eq 'yes' ?  '\\\%L\Profiles\%U' : ''}
     $OUT = '(other server)';
   }
 }
-wins support = { $smb{ServerRole} eq 'PDC' ? 'Yes' : 'No'}
-wins server = { $smb{ServerRole} eq 'PDC' ? '' : $winsServerIp }
-remote announce = { $smb{ServerRole} eq 'PDC' ? '' :  $winsServerIp }
-remote browse sync = { $smb{ServerRole} eq 'PDC' ? '' : $winsServerIp }
-
-; LDAP database backend configuration
-passdb backend = ldapsam:ldap://127.0.0.1
-ldapsam:trusted = yes
-ldapsam:editposix = no
-ldap group suffix = ou=Groups
-ldap user suffix = ou=People
-ldap machine suffix = ou=Computers
-ldap ssl = off
-ldap admin dn = cn=samba,{$LdapInternalDomainSuffix}
-ldap suffix = {$LdapInternalDomainSuffix}
-ldap passwd sync = no
-ldap idmap suffix = ou=Idmap
-idmap config * : backend = ldap
-idmap config * : ldap_url = ldap://127.0.0.1
-idmap config * : ldap_base_dn = ou=Idmap,{$LdapInternalDomainSuffix}
-idmap config * : ldap_user_dn = cn=samba,{$LdapInternalDomainSuffix}
-idmap config * : range = 50000-99999
-idmap config { $smb{ServerRole} eq 'PDC' ? $workgroup : uc($SystemName) } : range = 0 - 9999
-idmap config { $smb{ServerRole} eq 'PDC' ? $workgroup : uc($SystemName) } : backend = nss
-obey pam restrictions = yes
-
-; Invoked only if a passwd entry is missing:
-add machine script = /sbin/e-smith/signal-event nethserver-samba-machine-create '%u'
-
-; Winbind options
-winbind nested groups = Yes
-winbind offline logon = yes
-
-; The following are needed to allow password changing from Windows to
-; update the Linux sytsem password also.
-; NOTE: Use these with 'encrypt passwords' and 'smb passwd file' above.
-; NOTE2: You do NOT need these to allow workstations to change only
-;        the encrypted SMB passwords. They allow the Unix password
-;        to be kept in sync with the SMB password.
-unix password sync = yes
-pam password change = no
-passwd program = /usr/bin/passwd %u 
-passwd chat = *New*password* %n\n *Retype*new*password* %n\n *passwd:*all*authentication*tokens*updated*successfully*
-check password script = /sbin/e-smith/samba_check_password
-
-; Case Preservation can be handy - system default is _no_
-; NOTE: These can be set on a per share basis
-preserve case = yes
-
-; TODO check 'private dir' default value
-
-; Enabling unix extensions causes a lot of problems with file and directory
-; permissions in i-bays (reported with OS X clients). We disable them by default
-; A specific share profile can re-enable it
-unix extensions = no
+wins server = { $winsServerIp }
+remote announce = { $winsServerIp }
+remote browse sync = { $winsServerIp }
 
 ; Guest access (#1882). Shares must be guest-ok, to allow it.
 map to guest = Bad User
