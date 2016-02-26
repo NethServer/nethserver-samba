@@ -9,9 +9,6 @@ URL: %{url_prefix}/%{name}
 
 Requires: samba
 Requires: tdb-tools
-Requires: cyrus-sasl-gssapi
-Requires: krb5-workstation
-Requires: perl-Authen-Krb5
 
 BuildRequires: nethserver-devtools
 
