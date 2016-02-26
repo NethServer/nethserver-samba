@@ -41,12 +41,14 @@ rm -rf %{buildroot}
 (cd root   ; find . -depth -print | cpio -dump %{buildroot})
 %{genfilelist} %{buildroot} > %{name}-%{version}-filelist
 
+mkdir -p %{buildroot}/%{_nsstatedir}/print_driver
+
 %files -f %{name}-%{version}-filelist
 %doc COPYING
 %defattr(-,root,root)
 %config(noreplace) /var/lib/nethserver/netlogon/netlogon.bat
 %dir %{_nseventsdir}/%{name}-update
-
+%dir %attr(0755,root,root) %{_nsstatedir}/print_driver
 
 %changelog
 * Wed Dec 02 2015 Giacomo Sanchietti <giacomo.sanchietti@nethesis.it> - 1.5.4-1
