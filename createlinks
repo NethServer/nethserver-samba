@@ -90,3 +90,15 @@ event_actions('hostname-modify', qw(
       nethserver-samba-setsidfromdb 40
 ));
 
+#
+# ibay events
+#
+foreach (qw(ibay-create ibay-modify ibay-delete)) {
+    event_templates($_, qw(
+        /etc/samba/smb.conf
+    ));
+
+    event_services($_, qw(
+        smb reload
+    ));
+}
