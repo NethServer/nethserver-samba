@@ -1,7 +1,9 @@
 [global]
 
-# Disable logging, will add parameters to allow configuration of logging in the future
-log level = 0
+# log files split per-machine:
+log file = /var/log/samba/log.%m
+# maximum size of 50KB per log file, then rotate:
+max log size = 50
 
 # Only bind to allowed NIC's
 bind interfaces only = yes
