@@ -32,6 +32,9 @@ workgroup = { $workgroup }
 netbios aliases = { join(' ', @netbiosAliasList) }
 server string = NethServer Samba %v
 security = { $smb{ServerRole} eq 'ADS' ? 'ADS' : 'user' }
+# FIXME: the realm must be get from realmd DBUS interface
+{ $smb{ServerRole} eq 'ADS' ? '' : '# ' }realm = { $DomainName }
+{ $smb{ServerRole} eq 'ADS' ? '' : '# ' }kerberos method = secrets and keytab
 
 ; WINS setup {
   if(grep { $_->prop('ipaddr') eq ($smb{WinsServerIP} || '') } $ndb->green) {
