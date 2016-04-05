@@ -48,9 +48,11 @@ foreach my $dstIbay ($dstAccountsDb->get_all_by_prop('type' => 'ibay'), $dstAcco
 	next;
     }
 
+    my $recycle = $srcIbay->prop('RecycleBin') ||  'disabled';
+    $dstIbay->set_prop('SmbRecycleBinStatus', $recycle);
+
     $dstIbay->merge_props(
 	SmbStatus => 'enabled',
-	SmbRecycleBinStatus => 'disabled',
 	SmbProfileType => 'migration',
 	);
 
