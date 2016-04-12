@@ -23,130 +23,33 @@
 use esmith::Build::CreateLinks qw(:all);
 use File::Path;
 
-#
-# Many events expand smb.conf:
-#
-templates2events("/etc/samba/smb.conf", qw(
-    nethserver-samba-update
-    nethserver-samba-save
-    ibay-create
-    ibay-delete
-    ibay-modify
-));
 
 #
 # nethserver-samba-update event (smb.conf template expanded above)
 #
 event_templates('nethserver-samba-update', qw(
-    /etc/pam.d/system-auth-nh
-    /etc/pam.d/password-auth-nh
-    /etc/krb5.conf
-    /etc/nsswitch.conf
-    /etc/sudoers
+    /etc/samba/smb.conf
     /etc/hosts
 ));
 
 event_actions('nethserver-samba-update', qw(
 	      initialize-default-databases 00
 	      nethserver-samba-conf 20
-	      nethserver-samba-profile-create 25
-              nethserver-samba-netcacheflush 99
-              nethserver-httpd-admin-asyncreload 99
 ));
 
 event_services('nethserver-samba-update', qw(
    smb restart
    nmb restart
-   winbind restart
-));
-
-#
-# nethserver-samba-save event (smb.conf template expanded above)
-#
-event_templates('nethserver-samba-save', qw(
-    /etc/pam.d/system-auth-nh
-    /etc/pam.d/password-auth-nh
-    /etc/krb5.conf
-    /etc/nsswitch.conf
-    /etc/hosts
-));
-
-event_actions('nethserver-samba-save', qw(
-   nethserver-samba-clearsid 00
-   nethserver-samba-netcacheflush 99
-));
-
-event_services('nethserver-samba-save', qw(
-   smb restart
-   nmb restart
-   winbind restart
-));
-
-# actions for group-create event:
-event_actions('group-create', qw(
-	      nethserver-samba-group-sync 30
-));
-
-# actions for group-modify event:
-event_actions('group-modify', qw(
-	      nethserver-samba-group-sync 30
-));
-
-# All of these events require smbd to reload the smb.conf file:
-event_actions($_,
-	      "nethserver-samba-smbd-adjust" => '95'
-) foreach (qw(
-    group-create
-    group-delete
-    group-modify
-    ibay-create
-    ibay-delete
-    ibay-modify
-    printer-create
-    printer-delete
-));
-
-event_actions('user-create',
-	      "nethserver-samba-user-create" => '20',
-	      "nethserver-samba-profile-create" => '25',
-	      "nethserver-samba-user-modify" => '30',
-);
-
-event_actions('user-delete',
-	      'nethserver-samba-smbd-adjust' => '30',
-	      'nethserver-samba-profile-delete' => '40',
-);
-
-event_actions('user-modify',
-	      "nethserver-samba-user-modify" => '30',
-);
-
-event_actions('user-lock',
-	      "nethserver-samba-user-modify" => '30',
-	      "nethserver-samba-smbd-adjust" => '95',
-);
-
-event_actions('user-unlock',
-	      "nethserver-samba-user-modify" => '30',
-	      "nethserver-samba-smbd-adjust" => '95',
-);
-
-event_actions("nethserver-samba-machine-create",
-	      "nethserver-samba-machine-create" => '10',
-);
-
-event_actions('password-modify', qw(
-	      nethserver-samba-password-modify 40
-              nethserver-samba-user-modify     50
 ));
 
 
-	   
 #--------------------------------------------------
 # actions for trusted-networks-modify event
 #--------------------------------------------------
-event_templates('trusted-networks-modify',
-                '/etc/samba/smb.conf');
+event_templates('trusted-networks-modify', qw(
+    /etc/samba/smb.conf
+));
+
 event_services('trusted-networks-modify', qw(
    smb restart
    nmb restart
@@ -172,43 +75,12 @@ event_actions('pre-backup-config', qw(
 # migration-import event (refs #1657)
 #
 event_actions('migration-import', qw(
-    nethserver-samba-migrate-sam    30
-    nethserver-samba-migrate-data   40
     nethserver-samba-migrate-ibays  40
 ));
 
 event_services('migration-import', qw(
-    winbind restart
     smb restart
     nmb restart
-));
-
-
-#
-# nethserver-samba-adsjoin (refs #1746) This event must be signalled
-# after nethserver-samba-save: it is assumed that smb.conf is properly
-# configured
-#
-event_templates('nethserver-samba-adsjoin', qw(
-    /etc/hosts
-));
-
-event_actions('nethserver-samba-adsjoin', qw(
-    nethserver-samba-smbads 01
-));
-
-event_services('nethserver-samba-adsjoin', qw(
-    winbind restart
-));
-
-#
-# Initialize SAM DB
-#
-event_actions('runlevel-adjust', qw(
-      nethserver-samba-user-create 96
-      nethserver-samba-sam-conf 97
-      nethserver-samba-group-sync 98
-      nethserver-samba-netcacheflush 99
 ));
 
 #
@@ -218,3 +90,15 @@ event_actions('hostname-modify', qw(
       nethserver-samba-setsidfromdb 40
 ));
 
+#
+# ibay events
+#
+foreach (qw(ibay-create ibay-modify ibay-delete)) {
+    event_templates($_, qw(
+        /etc/samba/smb.conf
+    ));
+
+    event_services($_, qw(
+        smb reload
+    ));
+}

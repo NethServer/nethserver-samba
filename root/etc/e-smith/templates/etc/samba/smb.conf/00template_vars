@@ -4,14 +4,12 @@
     #
 
     use esmith::NetworksDB;
-    use NethServer::Directory;
     use NethServer::Samba;
 
     $samba = NethServer::Samba->new();
     $workgroup = $samba->get_workgroup_name();
     $ndb = esmith::NetworksDB->open_ro or warn("Could not open NetworksDB");
 
-    $LdapInternalDomainSuffix = NethServer::Directory::getInternalSuffix();
     $baseDir = '/var/lib/nethserver';
 
     @hostsAllow = $ndb->local_access_spec;

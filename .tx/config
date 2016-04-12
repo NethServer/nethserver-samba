@@ -1,12 +1,6 @@
 [main]
 host = https://www.transifex.com
 
-[nethserver.nethserver-sambapot]
-source_file = locale/nethserver-samba.pot
-source_lang = en
-type = PO
-
-
 [nethserver.User_Plugin_Samba]
 source_file = root/usr/share/nethesis/NethServer/Language/en/NethServer_Module_User_Plugin_Samba.php
 source_lang = en
