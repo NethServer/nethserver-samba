@@ -4,10 +4,6 @@
     #
 
     use esmith::NetworksDB;
-    use NethServer::Samba;
-
-    $samba = NethServer::Samba->new();
-    $workgroup = $samba->get_workgroup_name();
     $ndb = esmith::NetworksDB->open_ro or warn("Could not open NetworksDB");
 
     $baseDir = '/var/lib/nethserver';

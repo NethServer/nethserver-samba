@@ -84,13 +84,6 @@ event_services('migration-import', qw(
 ));
 
 #
-# Event hostname-modify
-#
-event_actions('hostname-modify', qw(
-      nethserver-samba-setsidfromdb 40
-));
-
-#
 # ibay events
 #
 foreach (qw(ibay-create ibay-modify ibay-delete)) {
