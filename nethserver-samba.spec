@@ -1,6 +1,6 @@
 Summary: Nethserver specific Samba configuration files and templates
 Name: nethserver-samba
-Version: 1.5.4
+Version: 1.5.5
 Release: 1%{?dist}
 License: GPL
 Source: %{name}-%{version}.tar.gz
@@ -41,6 +41,9 @@ mkdir -p %{buildroot}/%{_nsstatedir}/print_driver
 %dir %attr(0755,root,root) %{_nsstatedir}/print_driver
 
 %changelog
+* Wed Apr 27 2016 Giacomo Sanchietti <giacomo.sanchietti@nethesis.it> - 1.5.5-1
+- Samba recycle bin migration - Bug #3374 [NethServer]
+
 * Wed Dec 02 2015 Giacomo Sanchietti <giacomo.sanchietti@nethesis.it> - 1.5.4-1
 - Roaming profile doesn't  work with W8,W8.1,W10 - Bug #3277 [NethServer]
 - Hide samba share - Feature #3208 [NethServer]
