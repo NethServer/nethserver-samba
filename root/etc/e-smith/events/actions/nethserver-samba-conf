@@ -29,20 +29,11 @@
 use strict;
 
 use NethServer::Password;
-use NethServer::Samba;
 use esmith::event;
 use esmith::ConfigDB;
 
 my $errors = 0;
-
 my $confdb = esmith::ConfigDB->open() || die("Could not open ConfigDB");
-my $sambao = NethServer::Samba->new();
-
-# Initialize smb/Sid prop in config DB:
-if( ! $confdb->get_prop('smb', 'Sid')) {
-    $confdb->set_prop('smb', 'Sid', $sambao->get_local_sid());
-}
-
 
 # Enable acl and user_xattr on / filesystem
 my $fstab = $confdb->get('fstab') or return "";
