@@ -24,7 +24,6 @@ BuildRequires: nethserver-devtools
 %build
 %{makedocs}
 mkdir -p root%{perl_vendorlib}
-mv -v NethServer root%{perl_vendorlib}
 perl createlinks
 
 %install
