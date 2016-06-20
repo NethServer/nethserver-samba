@@ -33,7 +33,24 @@ class Modify extends \Nethgui\Controller\Table\Modify
 
     private $originalAclRead;
     private $originalAclWrite;
+    private $userProvider = null;
+    private $groupProvider = null;
 
+    private function getUserProvider()
+    {
+        if(!$this->userProvider) {
+            $this->userProvider = new \NethServer\Tool\UserProvider($this->getPlatform());
+        }
+        return $this->userProvider;
+    }
+
+    private function getGroupProvider()
+    {
+        if(!$this->groupProvider) {
+            $this->groupProvider = new \NethServer\Tool\GroupProvider($this->getPlatform());
+        }
+        return $this->groupProvider;
+    }
 
     public function initialize()
     {
@@ -73,9 +90,13 @@ class Modify extends \Nethgui\Controller\Table\Modify
         $this->setSchema($parameterSchema);
         $this
             ->setDefaultValue('SmbProfileType', 'default')
-            ->setDefaultValue('SmbGuestAccessType', 'none')
             ->setDefaultValue('SmbShareBrowseable', 'enabled')
         ;
+        if ($this->getGroupProvider()->isAD()) {
+           $this->setDefaultValue('SmbGuestAccessType', 'none');
+        } else {
+           $this->setDefaultValue('SmbGuestAccessType', 'rw');
+        }
 
         $profileNameValidator = $this->createValidator()->memberOf(array_merge($this->profiles, array('custom')));
 
@@ -117,19 +138,20 @@ class Modify extends \Nethgui\Controller\Table\Modify
         );
         $view->setTemplate($templates[$this->getIdentifier()]);
 
-        $owners = array(array('locals', $view->translate('locals_group_label')));
-        $subjects = array(array('locals', $view->translate('locals_group_label')));
+        $view['isAD'] = $this->getGroupProvider()->isAD();
+        $owners = array(array('Domain Users', $view->translate('domain_users_group_label')));
+        $subjects = array(array('Domain Users', $view->translate('domain_users_group_label')));
 
-        foreach ($this->getPlatform()->getDatabase('accounts')->getAll('group') as $keyName => $props) {
-            $entry = array($keyName, sprintf("%s (%s)", isset($props['Description']) ? $props['Description'] : $keyName, $keyName));
+        foreach ($this->getGroupProvider()->getGroups() as $keyName => $props) {
+            $entry = array($keyName, $keyName);
             $owners[] = $entry;
             $subjects[] = $entry;
         }
 
         $view['OwningGroupDatasource'] = $owners;
 
-        foreach ($this->getPlatform()->getDatabase('accounts')->getAll('user') as $keyName => $props) {
-            $entry = array($keyName, sprintf("%s (%s)", trim($props['FirstName'] . ' ' . $props['LastName']), $keyName));
+        foreach ($this->getUserProvider()->getUsers() as $keyName => $props) {
+            $entry = array($keyName, $keyName);
             $subjects[] = $entry;
         }
 
