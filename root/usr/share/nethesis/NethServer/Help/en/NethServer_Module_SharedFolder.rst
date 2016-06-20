@@ -3,14 +3,12 @@ Shared folders
 ==============
 
 A shared folder is a resource on the system which can be
-accessed according to services installed on the system and permissions set
-by this module.
+accessed using SMB/CIFS (Windows File and Printer Sharing) protocol. 
+
+Shared folders use Samba.
 
 Create new / edit
 -----------------
-
-Depending on the services installed on your system you will see
-several tabs.
 
 General
 ^^^^^^^
@@ -32,6 +30,30 @@ Allow writing to the group owner
 Allow read access to all
     Read access to anyone who connects to the system, as well as
     public networks.
+
+Guest Access
+     A *guest user* is a user whose identification is failed because
+     it did not provide credentials or has provided incorrect. For
+     users or devices that act in this mode, you can grant the
+     following permissions:
+
+     * None
+     * Read-only
+     * Read and write
+
+Network Recycle Bin
+     Collects files deleted by this shared folder, so similar to the
+     Windows Recycle Bin.
+
+Keep files of the same name
+     If two files of the same name, they remain distinct in trash. By
+     disabling this option, the last one overwrites the previous year.
+
+
+Browseable
+     Controls the visibility of the shared folder. When this flag is
+     set, the shared folder is listed publicly. This does not affect
+     the permission to use this resource.
 
 .. raw:: html
 
