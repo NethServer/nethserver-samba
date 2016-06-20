@@ -7,7 +7,6 @@ URL: %{url_prefix}/%{name}
 Source: %{name}-%{version}.tar.gz
 
 BuildArch: noarch
-Requires: nethserver-directory
 Requires: nethserver-base
 BuildRequires: perl, perl(File::Path), nethserver-devtools >= 1.1.0-4
 
