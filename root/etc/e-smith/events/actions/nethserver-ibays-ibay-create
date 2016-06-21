@@ -26,6 +26,7 @@ package esmith;
 use strict;
 use Errno;
 use esmith::AccountsDB;
+use esmith::ConfigDB;
 
 my $ibayBasePath = '/var/lib/nethserver/ibay/';
 
@@ -35,6 +36,7 @@ my $ibayName = shift;
 die "ibayName argument missing" unless defined ($ibayName);
 
 my $accountdb = esmith::AccountsDB->open();
+my $configdb = esmith::ConfigDB->open_ro();
 my $ibay = $accountdb->get($ibayName) or 
 	die "Couldn't find $ibayName record in accounts db\n";
 
@@ -48,3 +50,9 @@ if ( ! -d $ibayPath ) {
     mkdir $ibayPath;
 }
 
+my $sssd = $configdb->get('sssd');
+my $provider = $sssd->prop('Provider') || '';
+if ( $provider ne 'ad' ) {
+    my ($login,$pass,$uid,$gid) = getpwnam('nobody');
+    chown($uid, $gid, $ibayPath);
+}
