@@ -9,6 +9,7 @@ URL: %{url_prefix}/%{name}
 
 Requires: samba
 Requires: tdb-tools
+Requires: nethserver-ibays
 
 BuildRequires: nethserver-devtools
 
