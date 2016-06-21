@@ -22,15 +22,6 @@
 	    $ibayProfile = 'default';
 	}
 
-	if( ! defined $ibay->prop('SmbStatus') ) {
-	    warn sprintf("Ibay `%s` is not configured for samba: skipped\n", $ibay->key);
-	    next;
-	}
-
-	if($ibay->prop('SmbStatus') ne 'enabled') {
-	    next;
-	}
-
 	$ibaysOutput .= (esmith::templates::processTemplate ({
 	    MORE_DATA => { ibayRecord => $ibay, ibayProfile => $ibayProfile },
 	    TEMPLATE_PATH => $templatePath,
