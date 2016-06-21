@@ -11,12 +11,14 @@ if ($view->getModule()->getIdentifier() == 'update') {
     $template = 'Create_Header';
 }
 
-$guestAccess = $view->fieldset()->setAttribute('template', $T('SmbGuestAccess_label'));
 if ($view['isAD']) {
+    $guestAccess = $view->fieldset()->setAttribute('template', $T('SmbGuestAccess_label'));
     $guestAccess->insert($view->radioButton('SmbGuestAccessType', 'none'));
+    $guestAccess->insert($view->radioButton('SmbGuestAccessType', 'r'));
+    $guestAccess->insert($view->radioButton('SmbGuestAccessType', 'rw'));
+} else {
+    $guestAccess = $view->hidden('SmbGuestAccessType');
 }
-$guestAccess->insert($view->radioButton('SmbGuestAccessType', 'r'));
-$guestAccess->insert($view->radioButton('SmbGuestAccessType', 'rw'));
 
 $browseableState = $view->checkBox('SmbShareBrowseable', 'enabled')->setAttribute('uncheckedValue', 'disabled');
 
@@ -25,12 +27,12 @@ $vfsRecycle = $view->fieldsetSwitch('SmbRecycleBinStatus', 'enabled', $view::FIE
     ->insert($view->checkBox('SmbRecycleBinVersionsStatus', 'enabled')->setAttribute('uncheckedValue', 'disabled'))
 ;
 
-$advanced = $view->fieldset('', $view::FIELDSETSWITCH_EXPANDABLE)
-    ->setAttribute('template', $T('Advanced_label'))
-    ->insert($guestAccess)
-    ->insert($browseableState)
-    ->insert($vfsRecycle)
-;
+$advanced = $view->panel();
+$advanced->insert($guestAccess);
+
+
+$advanced->insert($browseableState);
+$advanced->insert($vfsRecycle);
 
 $permissions = $view->panel()
     ->insert($view->selector('OwningGroup', $view::SELECTOR_DROPDOWN))
