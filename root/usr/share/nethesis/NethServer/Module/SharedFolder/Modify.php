@@ -73,7 +73,7 @@ class Modify extends \Nethgui\Controller\Table\Modify
         $parameterSchema = array(
             array('ibay', $ibayNameValidator, Table::KEY),
             array('Description', Validate::ANYTHING, Table::FIELD),
-            array('OwningGroup', Validate::USERNAME, Table::FIELD),
+            array('OwningGroup', Validate::ANYTHING, Table::FIELD),
             array('OwnersDatasource', false, null),
             array('GroupAccess', '/^rw?$/', Table::FIELD),
             array('OtherAccess', '/^r?$/', Table::FIELD),

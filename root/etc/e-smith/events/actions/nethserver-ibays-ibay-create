@@ -51,8 +51,15 @@ if ( ! -d $ibayPath ) {
 }
 
 my $sssd = $configdb->get('sssd');
+my $domain = $configdb->get_value('DomainName');
 my $provider = $sssd->prop('Provider') || '';
-if ( $provider ne 'ad' ) {
+if ( $provider eq 'ad' ) {
+    my ($login,$pass,$uid,$gid) = getpwnam('administrator@'.$domain);
+    if (!$uid || !$gid) {
+        die "Couldn't set administrator@".$domain." as shared folder owner\n";
+    }
+    chown($uid, $gid, $ibayPath);
+} else {
     my ($login,$pass,$uid,$gid) = getpwnam('nobody');
     chown($uid, $gid, $ibayPath);
 }
