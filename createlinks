@@ -23,12 +23,6 @@
 use esmith::Build::CreateLinks qw(:all);
 use File::Path;
 
-# Group ownership is changed to admin group, 
-# if the ibay group owner is deleted:
-event_actions('group-delete', 
-	     "nethserver-ibays-reset-group" => "10"
-    );
-
 # create
 event_actions('ibay-create', qw(
 	     nethserver-ibays-ibay-create 15
