@@ -21,10 +21,6 @@
 # along with NethServer.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-#------------------------------------------------------------
-# Delete the Unix account and files for the ibay.
-#------------------------------------------------------------
-
 event=$1
 ibay=$2
 
