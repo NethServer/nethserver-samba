@@ -17,8 +17,6 @@ services provided by other packages, such as Samba, Sftp, Http
 %prep
 %setup
 
-%post
-
 %build
 %{makedocs}
 perl createlinks
@@ -26,17 +24,15 @@ perl createlinks
 %install
 rm -rf %{buildroot}
 (cd root   ; find . -depth -print | cpio -dump %{buildroot})
-%{genfilelist} %{buildroot} \
-    > %{name}-%{version}-%{release}-filelist
-echo "%doc COPYING"          >> %{name}-%{version}-%{release}-filelist
+%{genfilelist} %{buildroot} > %{name}-%{version}-%{release}-filelist
 
-%clean 
-rm -rf %{buildroot}
+mkdir -p %{buildroot}/%{_nsstatedir}/ibay
 
 %files -f %{name}-%{version}-%{release}-filelist
 %defattr(-,root,root)
 %dir %{_nseventsdir}/%{name}-update
-
+%doc COPYING
+%dir %attr(0775,root,root) %{_nsstatedir}/ibay
 
 %changelog
 * Tue Sep 29 2015 Davide Principi <davide.principi@nethesis.it> - 2.1.5-1
