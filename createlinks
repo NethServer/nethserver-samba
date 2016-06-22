@@ -42,6 +42,7 @@ event_actions('ibay-delete',
 # reset permissions
 event_actions('ibay-reset-permissions', qw(
 	     nethserver-ibays-set-permissions 20
+         nethserver-ibays-copy-permissions 30
 ));
 
 # package install/update
