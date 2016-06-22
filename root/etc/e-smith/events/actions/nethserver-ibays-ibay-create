@@ -21,45 +21,14 @@
 # along with NethServer.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-package esmith;
-
 use strict;
-use Errno;
-use esmith::AccountsDB;
-use esmith::ConfigDB;
-
-my $ibayBasePath = '/var/lib/nethserver/ibay/';
 
 my $event = shift;
 my $ibayName = shift;
 
-die "ibayName argument missing" unless defined ($ibayName);
+die "[ERROR] ibayName argument missing" unless defined ($ibayName);
 
-my $accountdb = esmith::AccountsDB->open();
-my $configdb = esmith::ConfigDB->open_ro();
-my $ibay = $accountdb->get($ibayName) or 
-	die "Couldn't find $ibayName record in accounts db\n";
-
-if ($ibay->prop('type') ne 'ibay') {
-    die "Account $ibayName is not an ibay account; create ibay event failed.\n"
-}
-
-my $ibayPath = $ibayBasePath . $ibayName;
-
+my $ibayPath = '/var/lib/nethserver/ibay/' . $ibayName;
 if ( ! -d $ibayPath ) {
     mkdir $ibayPath;
-}
-
-my $sssd = $configdb->get('sssd');
-my $domain = $configdb->get_value('DomainName');
-my $provider = $sssd->prop('Provider') || '';
-if ( $provider eq 'ad' ) {
-    my ($login,$pass,$uid,$gid) = getpwnam('administrator@'.$domain);
-    if (!$uid || !$gid) {
-        die "Couldn't set administrator@".$domain." as shared folder owner\n";
-    }
-    chown($uid, $gid, $ibayPath);
-} else {
-    my ($login,$pass,$uid,$gid) = getpwnam('nobody');
-    chown($uid, $gid, $ibayPath);
 }

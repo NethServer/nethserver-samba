@@ -4,373 +4,173 @@
 # Copyright (C) 2012 Nethesis S.r.l.
 # http://www.nethesis.it - support@nethesis.it
 # copyright (C) 1999-2005 Mitel Networks Corporation
-# 
+#
 # This script is part of NethServer.
-# 
+#
 # NethServer is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License,
 # or any later version.
-# 
+#
 # NethServer is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with NethServer.  If not, see <http://www.gnu.org/licenses/>.
 #
 
 use strict;
-use Errno;
-use File::Find;
-use File::stat;
 use User::pwent;
 use User::grent;
 use esmith::AccountsDB;
-use esmith::templates;
-use Getopt::Long;
-use Data::Dumper;
 
-my $origAclRead = undef;
-my $origAclWrite = undef;
-
-GetOptions('orig-acl-read=s' => \$origAclRead, 'orig-acl-write=s' => \$origAclWrite);
-
+my $errors = 0;
 my $event = shift;
 my $ibayName = shift;
+my $ibayPath = '/var/lib/nethserver/ibay/' . $ibayName;
 
 if( ! defined $event) {
     die "[ERROR] event argument is missing\n";
 }
 
 if( ! defined $ibayName) {
-    die "[ERROR] ibayName argument is missing\n";
+    die "[ERROR] ibay name argument is missing\n";
 }
 
-my $accountsDb = esmith::AccountsDB->open();
+if( ! -d $ibayPath) {
+    die "[ERROR] The ibay directory does not exist! $ibayPath\n";
+}
+
+my $configDb = esmith::ConfigDB->open_ro() || die("Could not open ConfigDB");
+my $accountsDb = esmith::AccountsDB->open_ro() || die("Could not open AccountsDB");
 
 #
 # Fetch the ibay record
 #
-my $ibay = $accountsDb->get($ibayName) or 
-    die "Couldn't find $ibayName record in accounts db\n";
+my $ibay = $accountsDb->get($ibayName) or
+    die "[ERROR] Couldn't find $ibayName record in accounts db\n";
 
 if ($ibay->prop('type') ne 'ibay') {
-    die "Account $ibayName is not an ibay account; modify ibay event failed.\n"
+    die "[ERROR] Account $ibayName is not an ibay account\n"
 }
 
-# This is a map of the account types (group/user), used to check if an
-# account exists and obtain its type. It is initialized with builtin
-# group "locals":
-my %accountTypes = ( 'locals' => 1 );
+my $perms = calcDirectoryPermissions();
+chown calcDirectoryOwners(), $ibayPath;
+chmod $perms, $ibayPath;
 
-# Fill the %accountTypes: is it a user=0 or group=1?
-$accountTypes{$_->key} = 0 foreach ($accountsDb->users); 
-$accountTypes{$_->key} = 1 foreach ($accountsDb->groups);
-
-#
-#
-#
-my %sets = (
-    'currRead' => [$ibay->prop('AclRead') ? split(',', $ibay->prop('AclRead')) : ()],
-    'currWrite' => [$ibay->prop('AclWrite') ? split(',', $ibay->prop('AclWrite')) : ()],
-    'origRead' => [$origAclRead ? split(',', $origAclRead) : ()],
-    'origWrite' => [$origAclWrite ? split(',', $origAclWrite) : ()]    
-    );
-
-if( ! process('/var/lib/nethserver/ibay/' . $ibayName)) {
-    exit(1);
+my $acl = calcAcls($perms);
+system("setfacl -b '$ibayPath'");
+if($acl) {
+    system("setfacl -m '$acl' '$ibayPath'");
+    if($? != 0) {
+        warn "[ERROR] setting shared folder ACLs \"$acl\"\n";
+        $errors++;
+    }
 }
 
-exit(0);
+exit($errors > 0 ? 1 : 0);
 
+#
+# Functions
+#
 
-# #####################################
-#  Subroutines
-# #####################################
-
-sub getOwners($)
+sub calcAcls
 {
-    my $ibayPath = shift;
-    my $statObj = stat($ibayPath);
+    my $unixBits = shift;
+    my @acls = ();
 
-    # Keep owner unchanged, if set.
-    if(defined $statObj && $statObj->uid > 0) {
-	return ($statObj->uid, $statObj->gid);
+    my %grants = ();
+
+    foreach (split(/,/, ($ibay->prop('AclRead') || ''))) {
+        $grants{$_} |= 0x2;
     }
 
-    # Change owner. Establish default value:
+    foreach (split(/,/, ($ibay->prop('AclWrite') || ''))) {
+        $grants{$_} |= 0x4;
+    }
 
-    my ($uid, $gid) = (0, 0); # default root
-    my $adminEnt = getpwnam('admin');
-    if($adminEnt) {
-        # default admin, if exists
-	($uid, $gid) = ($adminEnt->uid, $adminEnt->gid); 
+    foreach (keys %grants) {
+        my $accountType = getpwnam($_) ? 'u' : 'g';
+        push @acls, 
+            join(':',      $accountType, $_, int2acl($grants{$_})), 
+            join(':', 'd', $accountType, $_, int2acl($grants{$_}))
+        ;
+    }
+
+    return join(',', @acls);
+}
+
+sub int2acl
+{
+    my $val = shift;
+    if($val == 2) {
+        return 'r--';
+    } elsif($val == 4) {
+        return '-w-';
+    } elsif($val == 6) {
+        return 'rw-';
+    }
+
+    return '---';
+}
+
+sub calcDirectoryOwners
+{
+    my @uidGid = (0, 0);
+
+    my $ownerUser = 'nobody';
+    my $owningGroup = 'nobody';
+    if ( ($configDb->get_prop('sssd', 'Provider') || '') eq 'ad' ) {
+        $ownerUser = 'administrator@' . $configDb->get_value('DomainName');
+        $owningGroup = ($ibay->prop('OwningGroup') || 'root');
+    }
+
+    my $ownerEnt = getpwnam($ownerUser);
+    if ($ownerEnt) {
+        $uidGid[0] = $ownerEnt->uid;
     } else {
-	warn "[WARNING] admin account not found!";
+        $errors ++;
+        warn "[ERROR] Couldn't set \"$ownerUser\" as shared folder owner\n";
     }
 
-    return ($uid, $gid);
+    my $groupEnt = getgrnam($owningGroup);
+    if($groupEnt) {
+        $uidGid[1] = $groupEnt->gid;
+    } else {
+        $errors ++;
+        warn "[ERROR] Couldn't set owning group \"$owningGroup\" on shared folder\n";
+    }
+
+    return @uidGid;
 }
 
-sub process($)
+sub calcDirectoryPermissions
 {
-    
-    my $ibayPath = shift;
-
-    my $errors = 0;
-    my @argsFiles = ();
-    my @argsDirs = ();
-
-    my @modifyArgs = ();  # ACLs to -m (modify)
-    my @removeArgs = ();  # ACLs to -x (remove)
-
-    my ($ownUid, $ownGid) = getOwners($ibayPath);
-    if($ibay->prop('OwningGroup')) {
-	my $owningGroupEnt = getgrnam($ibay->prop('OwningGroup'));
-	if($owningGroupEnt) {
-	    $ownGid = $owningGroupEnt->gid;
-	}
-    }
-
-    # isReset? Do we want to reset ACLs or modify the existing ones?
-    # If the action is invoked with either --orig-acl-read or --orig-acl-write options
-    # we assume a "modify" action is required.
-    my $isReset = ! (defined $origAclRead || defined $origAclWrite);
-
     my $groupAccess = $ibay->prop('GroupAccess') ?  $ibay->prop('GroupAccess') : 'rw';
     my $otherAccess = $ibay->prop('OtherAccess') ?  $ibay->prop('OtherAccess') : '';
 
     my $basePerms = 0600;
 
     if($groupAccess =~ /r/) {
-	$basePerms |= 040;
+        $basePerms |= 040;
     }
 
     if($groupAccess =~ /w/) {
-	$basePerms |= 020;
+        $basePerms |= 020;
     }
 
     if($otherAccess =~ /r/) {
-	$basePerms |= 04;
+        $basePerms |= 04;
     }
 
     # Set execute and set-gid bits on directories:
-    my $dirPerms = $basePerms 
-	| 0100 # always executable bit for owner (admin)
-	| ($basePerms & 040 ? 02010 : 0) # is readable by group? => set-gid + group-exec
-	| ($basePerms & 004 ? 1 : 0) # is readable by others? => other-exec
-     ;
+    my $dirPerms = $basePerms
+        | 0100 # always executable bit for owner (admin)
+        | ($basePerms & 040 ? 02010 : 0) # is readable by group? => set-gid + group-exec
+        | ($basePerms & 004 ? 1 : 0) # is readable by others? => other-exec
+    ;
 
-    my @excludeList = $isReset ? () : getExcludeList();
-
-    push @modifyArgs, packAcls($sets{currRead}, $sets{currWrite}, \@excludeList);
-    push @modifyArgs, map { 'd:' . $_ } @modifyArgs;
-
-    push @removeArgs, map { 
-	if(! defined $accountTypes{$_}) {();}
-	elsif($accountTypes{$_} == 1) {'g:' . $_}
-	else {'u:' . $_;}
-    } @excludeList;
-    push @removeArgs, map { 'd:' . $_ } @removeArgs;
-
-    # Append output of ibays/system-acls template:
-    foreach ( getSystemAcls($ibay)) {
-	if( $_ =~ /^\+/) {	
-	    push @modifyArgs, substr($_, 1);
-	} elsif ( $_ =~ /^\-/) {
-	    push @removeArgs, substr($_, 1);
-	}
-    }
-
-    #
-    # Prepare setfacl arguments, distinctly for File and Dirs
-    #
-    if($isReset) {
-	# prepend basic owner acls. Required by --set       
-	@argsDirs = ('--set', join(',', getOwnerAcl($dirPerms), @modifyArgs));	
-	@argsFiles = ('--set', join(',', grep { $_ !~ /^d:/ } getOwnerAcl($basePerms), @modifyArgs));
-    } else {
-	@argsDirs = ('-m', join(',', getOwnerAcl($dirPerms), @modifyArgs));
-	@argsFiles = ('-m', join(',', grep { $_ !~ /^d:/ } getOwnerAcl($basePerms), @modifyArgs));
-
-	if(@removeArgs) {
-	    unshift @argsDirs, '-x', join(',', @removeArgs);
-	    unshift @argsFiles, '-x', join(',', grep { $_ !~ /^d:/ } @removeArgs);
-	}     
-    }
-
-    #print 'files: ' . join(' ', @argsFiles) . "\n";
-    #print 'dirs : ' . join(' ', @argsDirs) . "\n";
-
-    # Open a pipe to setfacl for file entries only. Old ACLs are
-    # removed, "default" ACLs are skipped:
-    open(my $psetfaclFiles, '|-', sprintf('/usr/bin/setfacl %s -', join(' ', @argsFiles))) || die('[ERROR] setfacl (files) error: ' . $!);
-    $psetfaclFiles->autoflush(1);
-
-    # Open a pipe to setfacl for dir entries only. Old ACLs are
-    # removed:
-    open(my $psetfaclDirs, '|-', sprintf('/usr/bin/setfacl %s -', join(' ', @argsDirs))) || die('[ERROR] setfacl (dirs) error: ' . $!);
-    $psetfaclDirs->autoflush(1);
-
-    my $findCallback = sub {
-	if (-l) {
-	    $File::Find::prune = 1;
-	    return;
-	}
-
-	chown $ownUid, $ownGid, $_;
-
-	my $perms = 0;
-	
-	if (-d) {
-	    $perms = $dirPerms;
-	} elsif (-f) {
-	    # Preserve execute permissions on files:
-	    $perms = $basePerms | ((stat($_))[2] & 0111);
-	} else {
-	    # Skip other file types..
-	    return;
-	}
-	
-	chmod($perms, $_) || warn (sprintf("[WARNING] chmod 0%o %s failed!\n", $perms, $_));
-
-	# send the file full path into the right pipe (dir/file):
-	print {-d $_ ? $psetfaclDirs : $psetfaclFiles} $File::Find::name . "\n";
-
-    };
-
-    chdir $ibayPath;
-    find($findCallback, $ibayPath);
-
-    close($psetfaclFiles) || $errors++;
-    close($psetfaclDirs) || $errors++;
-
-    return ($errors == 0 ? 1 : 0);
-}
-
-
-#
-# Translate unix bits into ACLs permissions string
-#
-sub getOwnerAcl($)
-{
-    my $bits = shift;
-
-    my $u = [qw(- - -)];
-    my $g = [qw(- - -)];
-    my $o = [qw(- - -)];
-
-    my %m = (
-	0004 => [0, 'r', $o],
-	0002 => [1, 'w', $o],
-	0001 => [2, 'x', $o],
-
-	0040 => [0, 'r', $g],
-	0020 => [1, 'w', $g],
-	0010 => [2, 'x', $g],
-
-	0400 => [0, 'r', $u],
-	0200 => [1, 'w', $u],
-	0100 => [2, 'x', $u],
-
-	    );
-
-    foreach (keys %m) {
-	if($bits & $_) {
-	    my ($i, $p, $s) = @{$m{$_}};
-	    $s->[$i] = $p;
-	}
-    }
-	   
-    return map { 
-	($_->[0] . '::' . join('', @{$_->[1]})), 
-	('d:' . $_->[0] . '::' . join('', @{$_->[1]}))
-    } ['u', $u], ['g', $g], ['o', $o];
-}
-
-#
-# Analyze %sets, calculating the list of accounts that have been
-# removed from the acl lists
-#
-sub getExcludeList
-{    
-    my @accountModifyList = ();
-    my @accountRemoveList = ();
-
-    my %h;
-
-    # Union of origRead and origWrite A
-    my %uA = map { $_ => 1 } @{$sets{origRead}}, @{$sets{origWrite}};
-
-    # Union of currRead and currWrite B
-    my %uB = map { $_ => 1 } @{$sets{currRead}}, @{$sets{currWrite}};
-
-    foreach (keys %uA) {
-	$h{$_} += 1;
-    }
-
-
-    foreach (keys %uB) {
-	$h{$_} += 2;
-    }
-
-    # %h{x} = 1, if x is member of A but not member of B
-    return grep { $h{$_} == 1 } keys %h;
-}
-
-
-#
-# Compute the list of ACLs for the given lists of accounts.  Accounts
-# with READ permission are in the first list, WRITE in the
-# second. Accounts to be skipped are listed in the third argument.
-#
-sub packAcls($$$)
-{
-    my @aclReadList = @{$_[0]};
-    my @aclWriteList = @{$_[1]};
-    my @excludeList = @{$_[2]};
-
-    my %p = ();
-    my %e = map { $_ => 1 } @excludeList;
-
-    # 2nd bit: has write access?
-    foreach my $_ (@aclWriteList) {
-	next if( ! defined $accountTypes{$_} || defined $e{$_} );
-	$p{$_} |= 2;
-    }
-
-    # 3rd bit: has read access?
-    foreach my $_ (@aclReadList) {
-	next if( ! defined $accountTypes{$_} || defined $e{$_} );
-	$p{$_} |= 4;
-    }
-
-    # Build account-specific ACL expression list:
-    return map { 
-	join(':', 
-	     ($accountTypes{$_} & 1) ? 'g' : 'u',     # is user or group
-	     $_, 
-	     (($p{$_} & 4) ? 'r' : '-') .   # has read access
-	     (($p{$_} & 2) ? 'w' : '-') .   # has write access
-	     'X' # conditional eXecute bit (see man setfacl)	     
-	    ) } grep { $p{$_} > 1 } sort keys %p;
-    
-}
-
-#
-# Expand ibays/system-acls template, parses its ouput and returns a list
-# of ACLs to modify or remove.  
-#
-sub getSystemAcls($)
-{ 
-    my $ibay = shift;
-    my $templateOutput = esmith::templates::processTemplate({
-	TEMPLATE_PATH=>'ibays/system-acls',
-	MORE_DATA => { 'ibayRecord' => $ibay } , 
-	OUTPUT_TYPE => 'string'}) || '';
-
-    # Filter out any entry not starting with +, -, =:
-    return grep { $_ =~ m/^(\+|\-).+/ } split(/\s+/, $templateOutput)
+    return $dirPerms;
 }
