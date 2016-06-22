@@ -31,8 +31,6 @@ use Nethgui\Controller\Table\Modify as Table;
 class Modify extends \Nethgui\Controller\Table\Modify
 {
 
-    private $originalAclRead;
-    private $originalAclWrite;
     private $userProvider = null;
     private $groupProvider = null;
 
@@ -77,8 +75,8 @@ class Modify extends \Nethgui\Controller\Table\Modify
             array('OwnersDatasource', false, null),
             array('GroupAccess', '/^rw?$/', Table::FIELD),
             array('OtherAccess', '/^r?$/', Table::FIELD),
-            array('AclRead', Validate::USERNAME_COLLECTION, Table::FIELD, 'AclRead', ','), // ACL
-            array('AclWrite', Validate::USERNAME_COLLECTION, Table::FIELD, 'AclWrite', ','), // ACL
+            array('AclRead', Validate::ANYTHING_COLLECTION, Table::FIELD, 'AclRead', ','), // ACL
+            array('AclWrite', Validate::ANYTHING_COLLECTION, Table::FIELD, 'AclWrite', ','), // ACL
             array('AclSubjects', FALSE, null),
             array('SmbProfileType', FALSE, Table::FIELD),
             array('SmbRecycleBinStatus', Validate::SERVICESTATUS, Table::FIELD),
@@ -106,26 +104,13 @@ class Modify extends \Nethgui\Controller\Table\Modify
         parent::initialize();
     }
 
-    public function bind(\Nethgui\Controller\RequestInterface $request)
-    {
-        parent::bind($request);
-        if($request->isMutation()) {
-            // save the old values for later usage:
-            $this->originalAclRead = $this->getPlatform()->getDatabase('accounts')->getProp($this->parameters['ibay'], 'AclRead');
-            $this->originalAclWrite = $this->getPlatform()->getDatabase('accounts')->getProp($this->parameters['ibay'], 'AclWrite');
-        }
-    }
-
     protected function onParametersSaved($changedParameters)
     {
         $action = $this->getIdentifier();
         if ($action == 'update') {
             $action = 'modify';
         }
-
-        $eventArgs = array($this->parameters['ibay'], '--orig-acl-read', $this->originalAclRead, '--orig-acl-write', $this->originalAclWrite);
-
-        $this->getPlatform()->signalEvent(sprintf('ibay-%s@post-process', $action), $eventArgs);
+        $this->getPlatform()->signalEvent(sprintf('ibay-%s &', $action), array($this->parameters['ibay']));
     }
 
     public function prepareView(\Nethgui\View\ViewInterface $view)
@@ -142,20 +127,26 @@ class Modify extends \Nethgui\Controller\Table\Modify
         $owners = array(array('Domain Users', $view->translate('domain_users_group_label')));
         $subjects = array(array('Domain Users', $view->translate('domain_users_group_label')));
 
-        foreach ($this->getGroupProvider()->getGroups() as $keyName => $props) {
-            $entry = array($keyName, $keyName);
-            $owners[] = $entry;
-            $subjects[] = $entry;
+        // The account providers can be slow. We're trying to execute them only
+        // when effectively needed.
+        if( $this->getIdentifier() !== 'delete'
+                && $this->getRequest()->isValidated()
+                && ! $this->getRequest()->isMutation()) {
+            foreach ($this->getGroupProvider()->getGroups() as $keyName => $props) {
+                $entry = array($keyName, $keyName);
+                $owners[] = $entry;
+                $subjects[] = $entry;
+            }
+
+            $view['OwningGroupDatasource'] = $owners;
+
+            foreach ($this->getUserProvider()->getUsers() as $keyName => $props) {
+                $entry = array($keyName, $keyName);
+                $subjects[] = $entry;
+            }
+
+            $view['AclSubjects'] = $subjects;
         }
-
-        $view['OwningGroupDatasource'] = $owners;
-
-        foreach ($this->getUserProvider()->getUsers() as $keyName => $props) {
-            $entry = array($keyName, $keyName);
-            $subjects[] = $entry;
-        }
-
-        $view['AclSubjects'] = $subjects;
 
         $view['reset-permissions'] = $view->getModuleUrl('../reset-permissions/' . $this->getAdapter()->getKeyValue());
 

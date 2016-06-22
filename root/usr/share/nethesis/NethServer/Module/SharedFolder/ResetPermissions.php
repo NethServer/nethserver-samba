@@ -58,7 +58,7 @@ class ResetPermissions extends \Nethgui\Controller\Table\AbstractAction
     public function process()
     {
         if ($this->getRequest()->isMutation()) {
-            $this->getPlatform()->signalEvent('ibay-reset-permissions@post-process', array($this->key));
+            $this->getPlatform()->signalEvent('ibay-reset-permissions &', array($this->key));
         }
     }
 
