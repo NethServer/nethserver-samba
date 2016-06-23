@@ -80,14 +80,6 @@ event_actions('post-restore-data', qw(
 
 
 #
-# FIXME: using runlevel-adjust event to initialize ibays from default DB
-# records:
-#
-event_actions('runlevel-adjust', qw(
-    create-default-ibays 96
-));
-
-#
 # pre-backup-data event
 #
 event_actions('pre-backup-data', qw(
