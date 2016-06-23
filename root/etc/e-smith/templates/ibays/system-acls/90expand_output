@@ -1,7 +1,0 @@
-{
-    #
-    # 90expand_output, prepending "+" to modify, "-" to remove
-    #
-
-    $OUT = join(' ', (map { '+' . $_ } @systemAclsModify), (map { '-' . $_ } @systemAclsRemove));
-}
