@@ -51,6 +51,9 @@ wins server = { $smb{ServerRole} eq 'PDC' ? '' : $winsServerIp }
 remote announce = { $smb{ServerRole} eq 'PDC' ? '' :  $winsServerIp }
 remote browse sync = { $smb{ServerRole} eq 'PDC' ? '' : $winsServerIp }
 
+; Enable NTLMv2 Authentication
+client ntlmv2 auth = yes
+
 ; LDAP database backend configuration
 passdb backend = ldapsam:ldap://127.0.0.1
 ldapsam:trusted = yes
