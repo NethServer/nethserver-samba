@@ -124,8 +124,9 @@ class Modify extends \Nethgui\Controller\Table\Modify
         $view->setTemplate($templates[$this->getIdentifier()]);
 
         $view['isAD'] = $this->getGroupProvider()->isAD();
-        $owners = array(array('Domain Users', $view->translate('domain_users_group_label')));
-        $subjects = array(array('Domain Users', $view->translate('domain_users_group_label')));
+        $DomainName = $this->getPlatform()->getDatabase('configuration')->getType('DomainName');
+        $owners = array(array('domain users'.'@'.$DomainName, $view->translate('domain_users_group_label')));
+        $subjects = array(array('domain users'.'@'.$DomainName, $view->translate('domain_users_group_label')));
 
         // The account providers can be slow. We're trying to execute them only
         // when effectively needed.
