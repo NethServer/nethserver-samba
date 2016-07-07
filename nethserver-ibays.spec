@@ -1,6 +1,6 @@
 Name: nethserver-ibays
 Summary: Shared directories configuration
-Version: 2.1.5
+Version: 3.0.0
 Release: 1%{?dist}
 License: GPL
 URL: %{url_prefix}/%{name} 
@@ -35,6 +35,9 @@ mkdir -p %{buildroot}/%{_nsstatedir}/ibay
 %dir %attr(0775,root,root) %{_nsstatedir}/ibay
 
 %changelog
+* Thu Jul 07 2016 Stefano Fancello <stefano.fancello@nethesis.it> - 3.0.0-1
+- First NS7 release
+
 * Tue Sep 29 2015 Davide Principi <davide.principi@nethesis.it> - 2.1.5-1
 - Make Italian language pack optional - Enhancement #3265 [NethServer]
 
