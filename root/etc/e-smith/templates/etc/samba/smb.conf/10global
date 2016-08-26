@@ -44,3 +44,6 @@ remote browse sync = { $winsServerIp }
 
 ; Guest access (#1882). Shares must be guest-ok, to allow it.
 map to guest = Bad User
+
+; create home dirs if missing (#5090)
+obey pam restrictions = yes
