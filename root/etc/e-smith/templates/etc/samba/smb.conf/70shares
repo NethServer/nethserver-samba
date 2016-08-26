@@ -9,7 +9,6 @@ create mode = 0660
 force create mode = 0660
 directory mode = 0770
 force directory mode = 0770
-path = {$baseDir}/home/%S
 
 ;
 ; Added to support printer drivers download
