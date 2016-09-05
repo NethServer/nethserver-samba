@@ -14,8 +14,8 @@
 	repository => "Recycle Bin",
 	keeptree => "True",
 	touch => "True",
-	exclude => "*.tmp|*.temp|*.o|*.obj|~\$*",
-	exclude_dir => "/tmp|/temp|/cache",
+	exclude => "*.tmp,*.temp,*.o,*.obj,~\$*",
+	exclude_dir => "/tmp,/temp,/cache",
 	directory_mode => "0770"
     };
     
