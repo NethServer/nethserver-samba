@@ -1,6 +1,6 @@
 Summary: Nethserver specific Samba configuration files and templates
 Name: nethserver-samba
-Version: 1.5.5
+Version: 1.5.6
 Release: 1%{?dist}
 License: GPL
 Source: %{name}-%{version}.tar.gz
@@ -46,6 +46,9 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) /var/lib/nethserver/netlogon/netlogon.bat
 
 %changelog
+* Tue Sep 06 2016 Giacomo Sanchietti <giacomo.sanchietti@nethesis.it> - 1.5.6-1
+- Shared folders: trash doesn't exclude tmp file - Bug #3422 [NethServer 6]
+
 * Wed Apr 27 2016 Giacomo Sanchietti <giacomo.sanchietti@nethesis.it> - 1.5.5-1
 - Samba recycle bin migration - Bug #3374 [NethServer]
 
