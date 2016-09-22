@@ -67,6 +67,8 @@ if($acl) {
     if($? != 0) {
         warn "[ERROR] setting shared folder ACLs \"$acl\"\n";
         $errors++;
+    } else {
+        warn "[NOTICE] set POSIX ACLs on $ibayPath: $acl\n";
     }
 }
 
@@ -106,11 +108,11 @@ sub int2acl
 {
     my $val = shift;
     if($val == 2) {
-        return 'r--';
+        return 'r-X';
     } elsif($val == 4) {
-        return '-w-';
+        return '-wX';
     } elsif($val == 6) {
-        return 'rw-';
+        return 'rwX';
     }
 
     return '---';
