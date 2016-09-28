@@ -1,6 +1,6 @@
 Name: nethserver-ibays
 Summary: Shared directories configuration
-Version: 3.0.0
+Version: 3.0.1
 Release: 1%{?dist}
 License: GPL
 URL: %{url_prefix}/%{name} 
@@ -35,6 +35,9 @@ mkdir -p %{buildroot}/%{_nsstatedir}/ibay
 %dir %attr(0775,root,root) %{_nsstatedir}/ibay
 
 %changelog
+* Wed Sep 28 2016 Giacomo Sanchietti <giacomo.sanchietti@nethesis.it> - 3.0.1-1
+- Shared folder listing denied with special ACL - Bug NethServer/dev#5111
+
 * Thu Jul 07 2016 Stefano Fancello <stefano.fancello@nethesis.it> - 3.0.0-1
 - First NS7 release
 
