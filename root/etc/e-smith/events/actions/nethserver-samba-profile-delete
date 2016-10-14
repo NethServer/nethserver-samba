@@ -43,7 +43,8 @@ my @dirs = (
     '/var/lib/nethserver/profile/' . $account. '.V2',
     '/var/lib/nethserver/profile/' . $account. '.V3',
     '/var/lib/nethserver/profile/' . $account. '.V4',
-    '/var/lib/nethserver/profile/' . $account. '.V5'
+    '/var/lib/nethserver/profile/' . $account. '.V5', # Windows 10
+    '/var/lib/nethserver/profile/' . $account. '.V6' # Windows 10 anniversary
 ); 
 
 foreach (@dirs) {
