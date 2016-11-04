@@ -10,6 +10,7 @@ URL: %{url_prefix}/%{name}
 Requires: samba
 Requires: tdb-tools
 Requires: nethserver-ibays
+Requires: sssd-libwbclient
 
 BuildRequires: nethserver-devtools
 
