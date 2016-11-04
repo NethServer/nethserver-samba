@@ -153,6 +153,10 @@ sub calcDirectoryPermissions
     my $groupAccess = $ibay->prop('GroupAccess') ?  $ibay->prop('GroupAccess') : 'rw';
     my $otherAccess = $ibay->prop('OtherAccess') ?  $ibay->prop('OtherAccess') : '';
 
+    if(($ibay->prop('SmbGuestAccessType') || 'none') =~ /[rw]+/) {
+        $otherAccess .= ($ibay->prop('SmbGuestAccessType') || '');
+    }
+
     my $basePerms = 0600;
 
     if($groupAccess =~ /r/) {
@@ -165,6 +169,10 @@ sub calcDirectoryPermissions
 
     if($otherAccess =~ /r/) {
         $basePerms |= 04;
+    }
+
+    if($otherAccess =~ /w/) {
+        $basePerms |= 022;
     }
 
     # Set execute and set-gid bits on directories:
