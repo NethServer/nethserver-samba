@@ -14,10 +14,9 @@ Requires: nethserver-ibays
 BuildRequires: nethserver-devtools
 
 %description
-* Integrate smb shares with ibays (shared folders)
+* Provides SMB shares as Shared folders (ibays)
 * CUPS support
-* WINS support
-* Active Directory GSSAPI authentication
+* Active Directory GSSAPI/Kerberos authentication
 
 %prep
 %setup
