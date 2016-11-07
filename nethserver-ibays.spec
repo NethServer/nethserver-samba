@@ -1,6 +1,6 @@
 Name: nethserver-ibays
 Summary: Shared directories configuration
-Version: 3.0.1
+Version: 3.0.2
 Release: 1%{?dist}
 License: GPL
 URL: %{url_prefix}/%{name} 
@@ -35,6 +35,9 @@ mkdir -p %{buildroot}/%{_nsstatedir}/ibay
 %dir %attr(0775,root,root) %{_nsstatedir}/ibay
 
 %changelog
+* Mon Nov 07 2016 Giacomo Sanchietti <giacomo.sanchietti@nethesis.it> - 3.0.2-1
+- Guest cannot write to shared folder - Bug NethServer/dev#5141
+
 * Wed Sep 28 2016 Giacomo Sanchietti <giacomo.sanchietti@nethesis.it> - 3.0.1-1
 - Shared folder listing denied with special ACL - Bug NethServer/dev#5111
 
