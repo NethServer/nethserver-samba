@@ -1,6 +1,6 @@
 Summary: Nethserver specific Samba configuration files and templates
 Name: nethserver-samba
-Version: 2.0.1
+Version: 2.0.2
 Release: 1%{?dist}
 License: GPL
 Source: %{name}-%{version}.tar.gz
@@ -41,6 +41,10 @@ mkdir -p %{buildroot}/%{_nsstatedir}/print_driver
 %dir %attr(0755,root,root) %{_nsstatedir}/print_driver
 
 %changelog
+* Mon Nov 07 2016 Giacomo Sanchietti <giacomo.sanchietti@nethesis.it> - 2.0.2-1
+- SMB filesystem ACLs are not applied - Bug NethServer/dev#5142
+- Shared folders: trash doesn't exclude tmp file - Bug #3422
+
 * Thu Sep 01 2016 Giacomo Sanchietti <giacomo.sanchietti@nethesis.it> - 2.0.1-1
 - Could not connect my Samba home share - Bug NethServer/dev#5090
 
