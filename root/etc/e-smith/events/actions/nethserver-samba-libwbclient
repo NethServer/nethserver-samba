@@ -1,0 +1,45 @@
+#!/bin/bash
+
+#
+# Copyright (C) 2016 Nethesis S.r.l.
+# http://www.nethesis.it - nethserver@nethesis.it
+#
+# This script is part of NethServer.
+#
+# NethServer is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License,
+# or any later version.
+#
+# NethServer is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with NethServer.  If not, see COPYING.
+#
+
+# Exit on errors
+set -e
+
+event=$1
+prop=$(config getprop smb Libwbclient)
+
+target=$(alternatives --list | grep -o -P '^libwbclient\.so\.[^\t]+')
+
+if [[ -z "${target}" ]]; then
+    echo "[ERROR] Could not find libwbclient alternatives!"
+    exit 1
+fi
+
+if [[ "${prop}" == "sssd" ]]; then
+    option_sssd=$(alternatives --display ${target} | grep '^/usr' | grep -F '/sssd/' | cut -f 1 -d ' ')
+    alternatives --set "${target}" "${option_sssd}"
+elif [[ "${prop}" == "samba" ]]; then
+    option_winbind=$(alternatives --display ${target} | grep '^/usr' | grep -F '/samba/' | cut -f 1 -d ' ')
+    alternatives --set "${target}" "${option_winbind}"
+else 
+    echo "[ERROR] The given smb/Libwbclient prop value is not supported: '${prop}'"
+    exit 1
+fi
