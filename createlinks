@@ -35,6 +35,7 @@ event_templates('nethserver-samba-update', qw(
 event_actions('nethserver-samba-update', qw(
 	      initialize-default-databases 00
 	      nethserver-samba-conf 20
+          nethserver-samba-libwbclient 30
 ));
 
 event_services('nethserver-samba-update', qw(
