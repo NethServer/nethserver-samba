@@ -24,7 +24,7 @@
 set -e
 
 event=$1
-prop=$(config getprop smb Libwbclient)
+prop=$(/sbin/e-smith/config getprop smb Libwbclient)
 
 target=$(alternatives --list | grep -o -P '^libwbclient\.so\.[^\t]+')
 
