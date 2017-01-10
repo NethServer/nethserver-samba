@@ -56,12 +56,14 @@ if ($ibay->prop('type') ne 'ibay') {
     die "[ERROR] Account $ibayName is not an ibay account\n"
 }
 
+# clear POSIX ACLs before chmod to get the right ACL mask value:
+system("setfacl -b '$ibayPath'");
+
 my $perms = calcDirectoryPermissions();
 chown calcDirectoryOwners(), $ibayPath;
 chmod $perms, $ibayPath;
 
 my $acl = calcAcls($perms);
-system("setfacl -b '$ibayPath'");
 if($acl) {
     system("setfacl -m '$acl' '$ibayPath'");
     if($? != 0) {
