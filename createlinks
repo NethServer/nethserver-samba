@@ -56,22 +56,6 @@ event_services('trusted-networks-modify', qw(
    nmb restart
 ));
 
-#--------------------------------------------------
-# actions for post-restore-config event
-#--------------------------------------------------
-
-event_actions('post-restore-config', qw(
-	      nethserver-samba-restore-tdb 40
-));
-
-#--------------------------------------------------
-# actions for pre-backup-config event
-#--------------------------------------------------
-
-event_actions('pre-backup-config', qw(
-	      nethserver-samba-backup-tdb 40
-));
-
 #
 # migration-import event (refs #1657)
 #

@@ -1,5 +1,0 @@
-#!/bin/bash
-
-if [ -f /var/lib/samba/private/secrets.tdb ]; then
-    /usr/bin/tdbdump /var/lib/samba/private/secrets.tdb > /var/lib/nethserver/backup/secrets_tdb.dump
-fi
