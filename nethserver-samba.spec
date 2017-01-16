@@ -1,6 +1,6 @@
 Summary: Nethserver specific Samba configuration files and templates
 Name: nethserver-samba
-Version: 2.0.3
+Version: 2.0.4
 Release: 1%{?dist}
 License: GPL
 Source: %{name}-%{version}.tar.gz
@@ -54,6 +54,10 @@ mkdir -p %{buildroot}/%{_nsstatedir}/print_driver
 %dir %attr(0755,root,root) %{_nsstatedir}/print_driver
 
 %changelog
+* Mon Jan 16 2017 Giacomo Sanchietti <giacomo.sanchietti@nethesis.it> - 2.0.4-1
+- Exhibit bad network configuration - NethServer/dev#5193
+- DC: restore configuration fails - NethServer/dev#5188
+
 * Fri Dec 09 2016 Davide Principi <davide.principi@nethesis.it> - 2.0.3-1
 - Revert Samba config to support NTLM auth by default - Bug NethServer/dev#5160
 
