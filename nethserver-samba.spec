@@ -11,8 +11,12 @@ Requires: samba
 Requires: tdb-tools
 Requires: nethserver-ibays
 Requires: sssd-libwbclient
+Requires(post): systemd
+Requires(preun): systemd
+Requires(postun): systemd
 
 BuildRequires: nethserver-devtools
+BuildRequires:  systemd
 
 %description
 * Provides SMB shares as Shared folders (ibays)
@@ -33,6 +37,15 @@ rm -rf %{buildroot}
 %{genfilelist} %{buildroot} > %{name}-%{version}-filelist
 
 mkdir -p %{buildroot}/%{_nsstatedir}/print_driver
+
+%post
+%systemd_post nmb.service
+
+%preun
+%systemd_preun nmb.service
+
+%postun
+%systemd_postun
 
 %files -f %{name}-%{version}-filelist
 %doc COPYING
