@@ -80,3 +80,10 @@ foreach (qw(ibay-create ibay-modify ibay-delete)) {
         smb reload
     ));
 }
+
+#
+# interface-update
+#
+event_services('interface-update', qw(
+    nmb start
+));
