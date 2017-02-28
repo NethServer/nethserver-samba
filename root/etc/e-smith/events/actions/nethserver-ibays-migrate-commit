@@ -71,14 +71,16 @@ foreach my $ibay ($dstAccountsDb->get_all_by_prop('type' => 'ibay-migrate')) {
 
 }
 
-# Restore ACLs
-chdir '/var/lib/nethserver/ibay/';
-system("/bin/sed 's/^group:shared:/group:locals:/' $sourceDir/home/e-smith/db/acls.dump | /usr/bin/setfacl --restore=/dev/stdin");
-if($? != 0) {
-    warn("[ERROR] failed to restore POSIX ACLs\n");
-    $errors++;
-}
 
+if(getgrnam('domain users')) {
+    # Restore ACLs, if "domain users" group exists
+    chdir '/var/lib/nethserver/ibay/';
+    system("/bin/sed 's/^group:shared:/group:domain users:/' $sourceDir/home/e-smith/db/acls.dump | /usr/bin/setfacl --restore=/dev/stdin");
+    if($? != 0) {
+        warn("[ERROR] failed to restore POSIX ACLs\n");
+        $errors++;
+    }
+}
 
 if($errors > 0) {
     warn "[WARNING] $errors error(s) occurred in $0 action\n";

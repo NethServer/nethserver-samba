@@ -23,11 +23,13 @@
 use strict;
 use esmith::AccountsDB;
 use esmith::event;
+use Sys::Hostname;
 
 my $event = shift;
 my $sourceDir = shift;
 my $esmithDbDir = '/home/e-smith/db';
 my $errors = 0;
+my ($systemName, $domainName) = split(/\./, Sys::Hostname::hostname(), 2);
 
 if( ! $event ) {
     die("Missing event argument!\n");
@@ -64,9 +66,14 @@ foreach my $srcIbay ($srcAccountsDb->ibays()) {
     my %access = %{defined $accessMap{$srcIbay->prop('UserAccess')} ? 
 		       $accessMap{$srcIbay->prop('UserAccess')} : $accessMap{default}};
 
+    my $defaultGroup = 'domain users@' . $domainName;
+    if( ! getgrnam($defaultGroup)) {
+        $defaultGroup = 'root';
+    }
+
     $dstIbay->merge_props(
 	Description => join(' ', $srcIbay->prop('Name'), '[migration]'),
-	OwningGroup => ($srcIbay->prop('Group') eq 'shared' ? 'locals' : $srcIbay->prop('Group')),
+	OwningGroup => ($srcIbay->prop('Group') eq 'shared' ? $defaultGroup : sprintf('%s@%s', $srcIbay->prop('Group'), $domainName)),
 	AclRead => '',
 	AclWrite => '',
 	%access);
