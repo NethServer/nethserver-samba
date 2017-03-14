@@ -36,3 +36,7 @@ $L['SmbGuestAccessType_rw_label'] = 'Read and write';
 $L['SmbShareBrowseable_label'] = 'Browseable';
 $L['Advanced_label'] = 'Advanced';
 $L['domain_users_group_label'] = 'Domain Users';
+$L['migrate-vhost_label'] = 'Migrate to virtual host';
+$L['migrate-vhost_Header'] = 'Migrate shared folder `${0}`';
+$L['migrate-vhost_Message'] = 'This shared folder will be deleted and all data will be moved inside the new virtual host. Migrate `${0}` shared folder to a new virtual host?';
+$L['Migrate_label'] = 'Migrate';
