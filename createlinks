@@ -56,6 +56,7 @@ event_actions('nethserver-ibays-update', qw(
 validator_actions('ibay-create', qw(
                   uniq-account 20
                   ibay-length 30
+                  ibay-name 20
 ));
 
 validator_actions('ibay-delete', qw(
