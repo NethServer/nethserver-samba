@@ -67,7 +67,7 @@ class SharedFolder extends \Nethgui\Controller\TableController
     public function prepareViewForColumnActions(\Nethgui\Controller\Table\Read $action, \Nethgui\View\ViewInterface $view, $key, $values, &$rowMetadata)
     {
         $cellView = $action->prepareViewForColumnActions($view, $key, $values, $rowMetadata);
-        if (!isset($values['HttpStatus']) || $values['HttpStatus'] == 'disabled' ||  $values['HttpVirtualHost'] == '__ANY__') {
+        if (!isset($values['HttpStatus']) || $values['HttpStatus'] == 'disabled') {
             unset($cellView['migrate-vhost']);
         }
         if (isset($values['Removable']) && $values['Removable'] === 'no') {

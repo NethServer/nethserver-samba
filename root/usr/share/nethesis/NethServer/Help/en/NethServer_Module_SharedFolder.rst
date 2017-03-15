@@ -87,3 +87,8 @@ Set the group owner and ACLs configured using this module
 on all files in the folder. The operation will be performed recursively on
 all files and subfolders in the shared folder.
 
+Migrate to virtual host
+-----------------------
+
+Use this button to migrate an old-format shared folder with HTTP access restored
+from a backup.

@@ -64,6 +64,7 @@ class MigrateVhost extends \Nethgui\Controller\Table\AbstractAction
     public function prepareView(\Nethgui\View\ViewInterface $view)
     {
         parent::prepareView($view);
+        $view['vhost'] = $view->translate($this->getPlatform()->getDatabase('accounts')->getProp($this->key,'HttpVirtualHost'));
         $view['ibay'] = $this->key;
     }
 
