@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 #
 # Copyright (C) 2017 Nethesis S.r.l.
-# http://www.nethesis.it - support@nethesis.it
+# http://www.nethesis.it - nethserver@nethesis.it
 #
 # This script is part of NethServer.
 #
@@ -16,12 +16,11 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with NethServer.  If not, see <http://www.gnu.org/licenses/>.
-
+# along with NethServer.  If not, see COPYING.
+#
 my $ibayName = shift || die("Missing ibay name argument");
 
-if ( $ibayName=~/[\\\/:*?"<>|]/ ){
-    print "The following characters are not allowed \\ / : * ? \" < > | \n";
+if ( $ibayName=~/[\\\/:*?"<>|\]\[]/ ){
     exit 3;
 } else {
     exit 0;
