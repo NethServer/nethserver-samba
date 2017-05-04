@@ -76,9 +76,16 @@ event_actions('migration-import', qw(
 # post-restore-data event
 #
 event_actions('post-restore-data', qw(
+    nethserver-ibays-remap-locals    55
     nethserver-ibays-restore         60
 ));
 
+#
+# nethserver-directory-ns6upgrade event
+#
+event_actions('nethserver-directory-ns6upgrade', qw(
+    nethserver-ibays-remap-locals    60
+));
 
 #
 # pre-backup-data event
