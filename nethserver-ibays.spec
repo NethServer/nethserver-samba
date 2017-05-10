@@ -1,6 +1,6 @@
 Name: nethserver-ibays
 Summary: Shared directories configuration
-Version: 3.1.0
+Version: 3.1.1
 Release: 1%{?dist}
 License: GPL
 URL: %{url_prefix}/%{name} 
@@ -35,6 +35,9 @@ mkdir -p %{buildroot}/%{_nsstatedir}/ibay
 %dir %attr(0775,root,root) %{_nsstatedir}/ibay
 
 %changelog
+* Wed May 10 2017 Giacomo Sanchietti <giacomo.sanchietti@nethesis.it> - 3.1.1-1
+- Upgrade from NS 6 via backup and restore - NethServer/dev#5234
+
 * Tue Apr 04 2017 Davide Principi <davide.principi@nethesis.it> - 3.1.0-1
 - Allow capital letters in shared folder name - NethServer/dev#5247
 - Upgrade from NS 6 via backup and restore - NethServer/dev#5234
