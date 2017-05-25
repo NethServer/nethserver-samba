@@ -60,6 +60,7 @@ event_services('trusted-networks-modify', qw(
 # migration-import event (refs #1657)
 #
 event_actions('migration-import', qw(
+    nethserver-samba-migrate-conf 20
     nethserver-samba-migrate-ibays  40
 ));
 
