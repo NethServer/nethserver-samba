@@ -1,6 +1,6 @@
 Summary: Nethserver specific Samba configuration files and templates
 Name: nethserver-samba
-Version: 2.0.6
+Version: 2.0.7
 Release: 1%{?dist}
 License: GPL
 Source: %{name}-%{version}.tar.gz
@@ -54,6 +54,9 @@ mkdir -p %{buildroot}/%{_nsstatedir}/print_driver
 %dir %attr(0755,root,root) %{_nsstatedir}/print_driver
 
 %changelog
+* Thu May 25 2017 Giacomo Sanchietti <giacomo.sanchietti@nethesis.it> - 2.0.7-1
+- Migrate LogonDrive prop - Bug NethServer/dev#5290
+
 * Thu Apr 20 2017 Davide Principi <davide.principi@nethesis.it> - 2.0.6-1
 - Accounts provider guided configuration - NethServer/dev#5253 
 - Upgrade from NS 6 via backup and restore - NethServer/dev#5234 
