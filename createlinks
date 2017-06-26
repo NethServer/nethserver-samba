@@ -44,18 +44,6 @@ event_services('nethserver-samba-update', qw(
 ));
 
 
-#--------------------------------------------------
-# actions for trusted-networks-modify event
-#--------------------------------------------------
-event_templates('trusted-networks-modify', qw(
-    /etc/samba/smb.conf
-));
-
-event_services('trusted-networks-modify', qw(
-   smb restart
-   nmb restart
-));
-
 #
 # migration-import event (refs #1657)
 #
@@ -81,10 +69,3 @@ foreach (qw(ibay-create ibay-modify ibay-delete)) {
         smb reload
     ));
 }
-
-#
-# interface-update
-#
-event_services('interface-update', qw(
-    nmb start
-));
