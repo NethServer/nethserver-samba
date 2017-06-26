@@ -8,7 +8,6 @@
 
     $baseDir = '/var/lib/nethserver';
 
-    @hostsAllow = $ndb->local_access_spec;
     @netbiosAliasList = split(',', $smb{NetbiosAliasList});
 
     '';
