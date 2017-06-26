@@ -5,21 +5,6 @@ log file = /var/log/samba/log.%m
 # maximum size of 50KB per log file, then rotate:
 max log size = 50
 
-# Only bind to allowed NIC's
-bind interfaces only = yes
-interfaces = 127.0.0.1 {
-    use esmith::NetworksDB;
-    use esmith::util;
-    $ndb = esmith::NetworksDB->open_ro() || return '';
-    my @nets;
-    foreach ($ndb->green()) {
-        my $LocalIP = $_->prop('ipaddr') || next;
-        my $LocalNetmask = $_->prop('netmask') || next;
-        push(@nets, esmith::util::computeLocalNetworkShortSpec($LocalIP, $LocalNetmask));
-    }
-
-    return join(' ',@nets);
-}
 hosts allow = { join(' ', @hostsAllow) }
 
 # Idle time before disconnecting the client
