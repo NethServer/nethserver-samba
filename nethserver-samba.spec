@@ -1,6 +1,6 @@
 Summary: Nethserver specific Samba configuration files and templates
 Name: nethserver-samba
-Version: 2.0.7
+Version: 2.0.8
 Release: 1%{?dist}
 License: GPL
 Source: %{name}-%{version}.tar.gz
@@ -41,6 +41,9 @@ mkdir -p %{buildroot}/%{_nsstatedir}/print_driver
 %dir %attr(0755,root,root) %{_nsstatedir}/print_driver
 
 %changelog
+* Thu Jul 06 2017 Giacomo Sanchietti <giacomo.sanchietti@nethesis.it> - 2.0.8-1
+- Smbd do not listen additional IP - Bug NethServer/dev#5319
+
 * Thu May 25 2017 Giacomo Sanchietti <giacomo.sanchietti@nethesis.it> - 2.0.7-1
 - Migrate LogonDrive prop - Bug NethServer/dev#5290
 
