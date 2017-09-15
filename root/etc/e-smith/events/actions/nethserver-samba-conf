@@ -39,6 +39,28 @@ my $confdb = esmith::ConfigDB->open() || die("Could not open ConfigDB");
 my $fstab = $confdb->get('fstab') or return "";
 
 my $prop = $fstab->prop('/') || 'defaults';
+
+# Skip XFS filesystems and fix existing ones
+my @filesystems=`lsblk -ln -o MOUNTPOINT,FSTYPE`;
+foreach (@filesystems) {
+    chomp;
+    my @tmp = split(/\s+/,$_);
+    if ($tmp[0] eq '/' && ($tmp[1] eq 'xfs' || $tmp[1] eq 'btrfs')) {
+        # Fix existing FS
+        my @options;
+        foreach my $opt (split(',',$prop)) {
+            if ($opt eq 'user_xattr' || $opt eq 'acl') {
+                next;
+            } else {
+                push(@options, $opt);
+            }
+        }
+        $fstab->set_prop('/',join(',',@options));
+
+        exit (! esmith::event::event_signal('fstab-update'));
+    }
+}
+
 $prop .= ",acl" unless ($prop =~ /acl/);
 $prop .= ",user_xattr" unless ($prop =~ /user_xattr/);
 $fstab->set_prop('/',$prop);
