@@ -1,6 +1,6 @@
 Summary: Nethserver specific Samba configuration files and templates
 Name: nethserver-samba
-Version: 2.0.8
+Version: 2.0.10
 Release: 1%{?dist}
 License: GPL
 Source: %{name}-%{version}.tar.gz
@@ -41,6 +41,9 @@ mkdir -p %{buildroot}/%{_nsstatedir}/print_driver
 %dir %attr(0755,root,root) %{_nsstatedir}/print_driver
 
 %changelog
+* Mon Sep 18 2017 Giacomo Sanchietti <giacomo.sanchietti@nethesis.it> - 2.0.10-1
+- Read-only filesystem with kernel 3.10.0-693 - Bug NethServer/dev#5349
+
 * Thu Jul 06 2017 Giacomo Sanchietti <giacomo.sanchietti@nethesis.it> - 2.0.8-1
 - Smbd do not listen additional IP - Bug NethServer/dev#5319
 
