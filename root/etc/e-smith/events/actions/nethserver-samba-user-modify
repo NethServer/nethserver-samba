@@ -35,7 +35,7 @@ my $net = '/usr/bin/net';
 
 my $prefix = NethServer::Samba->new()->get_sam_prefix();
 
-if(system($net . ' sam show "$prefix\\$user" &>/dev/null') != 0) {
+if(system($net . qq( sam show '$prefix\\$user' &>/dev/null)) != 0) {
     exit(0); # Ignore password modification if user does not exist in
 	     # SAM db.
 }
