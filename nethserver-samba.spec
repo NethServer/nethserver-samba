@@ -1,6 +1,6 @@
 Summary: Nethserver specific Samba configuration files and templates
 Name: nethserver-samba
-Version: 1.5.7
+Version: 1.5.8
 Release: 1%{?dist}
 License: GPL
 Source: %{name}-%{version}.tar.gz
@@ -46,6 +46,9 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) /var/lib/nethserver/netlogon/netlogon.bat
 
 %changelog
+* Wed Oct 18 2017 Giacomo Sanchietti <giacomo.sanchietti@nethesis.it> - 1.5.8-1
+- Samba disabled flag not updated - Refs #3440
+
 * Fri Dec 02 2016 Giacomo Sanchietti <giacomo.sanchietti@nethesis.it> - 1.5.7-1
 - Roaming profiles error with Windows 10 anniversary - Bug #3425
 
