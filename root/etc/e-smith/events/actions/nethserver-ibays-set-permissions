@@ -124,19 +124,9 @@ sub calcDirectoryOwners
 {
     my @uidGid = (0, 0);
 
-    my $ownerUser = 'nobody';
-    my $owningGroup = 'nobody';
+    my $owningGroup = 'root';
     if ( ($configDb->get_prop('sssd', 'Provider') || '') eq 'ad' ) {
-        $ownerUser = 'administrator@' . $configDb->get_value('DomainName');
         $owningGroup = ($ibay->prop('OwningGroup') || 'root');
-    }
-
-    my $ownerEnt = getpwnam($ownerUser);
-    if ($ownerEnt) {
-        $uidGid[0] = $ownerEnt->uid;
-    } else {
-        $errors ++;
-        warn "[ERROR] Couldn't set \"$ownerUser\" as shared folder owner\n";
     }
 
     my $groupEnt = getgrnam($owningGroup);
