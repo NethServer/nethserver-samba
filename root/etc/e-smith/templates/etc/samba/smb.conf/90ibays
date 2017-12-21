@@ -1,3 +1,9 @@
+
+
+;
+; 90ibays begin
+;
+
 {
     #
     # 90ibays process all information-bay directories
@@ -30,3 +36,8 @@
     }
     return $ibaysOutput;
 }
+
+;
+; 90ibays end -- return to global scope
+;
+[global]

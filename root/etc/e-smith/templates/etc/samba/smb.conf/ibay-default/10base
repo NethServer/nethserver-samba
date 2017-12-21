@@ -1,8 +1,8 @@
-#
-# 10base -- ibay {$key} definition. 
-#           Required profile is "{$ibay{SmbProfileType}}"
-#           Applied profile is "{$ibayProfile}"
-#
+;
+; 10base -- ibay {$key} definition.
+;           Required profile is "{$ibay{SmbProfileType}}"
+;           Applied profile is "{$ibayProfile}"
+;
 [{$key}]
 path = /var/lib/nethserver/ibay/{$key}
 comment = { $ibay{Description} || 'Samba share' }
