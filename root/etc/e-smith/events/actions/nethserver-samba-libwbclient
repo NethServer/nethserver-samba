@@ -20,26 +20,13 @@
 # along with NethServer.  If not, see COPYING.
 #
 
-# Exit on errors
-set -e
+#
+# Reset libwbclient to default implementation (#5404)
+# This action can be removed
+#
 
-event=$1
-prop=$(/sbin/e-smith/config getprop smb Libwbclient)
+alternatives --auto libwbclient.so.0.12-64
+alternatives --auto libwbclient.so.0.13-64 && echo "[NOTICE]" $(alternatives --display libwbclient.so.0.13-64)
 
-target=$(alternatives --list | grep -o -P '^libwbclient\.so\.[^\t]+')
-
-if [[ -z "${target}" ]]; then
-    echo "[ERROR] Could not find libwbclient alternatives!"
-    exit 1
-fi
-
-if [[ "${prop}" == "sssd" ]]; then
-    option_sssd=$(alternatives --display ${target} | grep '^/usr' | grep -F '/sssd/' | cut -f 1 -d ' ')
-    alternatives --set "${target}" "${option_sssd}"
-elif [[ "${prop}" == "samba" ]]; then
-    option_winbind=$(alternatives --display ${target} | grep '^/usr' | grep -F '/samba/' | cut -f 1 -d ' ')
-    alternatives --set "${target}" "${option_winbind}"
-else 
-    echo "[ERROR] The given smb/Libwbclient prop value is not supported: '${prop}'"
-    exit 1
-fi
+# Ignore errors
+exit 0
