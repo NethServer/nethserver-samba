@@ -1,0 +1,6 @@
+;
+; 20inherit_owner -- Global setting, may be overridden (see home$ share definition)
+;
+inherit owner = { $smb{InheritOwner} || 'yes' }
+
+

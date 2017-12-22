@@ -69,3 +69,14 @@ foreach (qw(ibay-create ibay-modify ibay-delete)) {
         smb reload
     ));
 }
+
+#
+# nethserver-samba-save event (#5404)
+#
+event_templates('nethserver-samba-save', qw(
+    /etc/samba/smb.conf
+));
+event_services('nethserver-samba-save', qw(
+    smb restart
+    nmb restart
+));

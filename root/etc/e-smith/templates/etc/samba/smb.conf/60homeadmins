@@ -1,0 +1,23 @@
+;
+; 60homeadmins -- Administrative home$ share, for privileged administrators only
+;
+{
+    $OUT = '; home$ administrative share is disabled';
+    if($smb{HomeAdmStatus} eq 'enabled') {
+        $OUT = <<'EOF';
+[home$]
+comment = Administrative access to home directories
+path = /var/lib/nethserver/home
+administrative share = yes
+inherit owner = yes
+browseable = no
+writable = yes
+create mode = 0660
+force create mode = 0660
+directory mode = 0770
+force directory mode = 0770
+admin users = "@domain admins"
+EOF
+    }
+}
+

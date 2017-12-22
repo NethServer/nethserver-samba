@@ -1,0 +1,11 @@
+{
+    #
+    # issue5404.ns7 remove Libwbclient prop
+    #
+    use esmith::ConfigDB;
+    my $configDb = esmith::ConfigDB->open() || return '';
+    if($configDb->get_prop('smb', 'Libwbclient')) {
+        $configDb->get_prop_and_delete('smb', 'Libwbclient');
+    }
+    '';
+}

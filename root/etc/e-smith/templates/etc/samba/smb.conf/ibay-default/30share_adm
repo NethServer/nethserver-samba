@@ -1,0 +1,9 @@
+;
+; 30share_adm
+;
+{
+    $OUT = '; administrative access is disabled';
+    if($smb{ShareAdmStatus} eq 'enabled') {
+        $OUT = 'admin users = "@domain admins"';
+    }
+}
