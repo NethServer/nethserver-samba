@@ -6,4 +6,7 @@ source_file = root/usr/share/nethesis/NethServer/Language/en/NethServer_Module_S
 source_lang = en
 type = PHP_ALT_ARRAY
 
-
+[nethserver.FileServer]
+source_file = root/usr/share/nethesis/NethServer/Language/en/NethServer_Module_FileServer.php
+source_lang = en
+type = PHP_ALT_ARRAY
