@@ -1,0 +1,178 @@
+#!/usr/bin/perl
+
+#
+# Copyright (C) 2012 Nethesis S.r.l.
+# http://www.nethesis.it - support@nethesis.it
+# copyright (C) 1999-2005 Mitel Networks Corporation
+#
+# This script is part of NethServer.
+#
+# NethServer is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License,
+# or any later version.
+#
+# NethServer is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with NethServer.  If not, see <http://www.gnu.org/licenses/>.
+#
+
+use strict;
+use User::pwent;
+use User::grent;
+use esmith::AccountsDB;
+
+my $errors = 0;
+my $event = shift;
+my $ibayName = shift;
+my $ibayPath = '/var/lib/nethserver/ibay/' . $ibayName;
+
+if( ! defined $event) {
+    die "[ERROR] event argument is missing\n";
+}
+
+if( ! defined $ibayName) {
+    die "[ERROR] ibay name argument is missing\n";
+}
+
+if( ! -d $ibayPath) {
+    die "[ERROR] The ibay directory does not exist! $ibayPath\n";
+}
+
+my $configDb = esmith::ConfigDB->open_ro() || die("Could not open ConfigDB");
+my $accountsDb = esmith::AccountsDB->open_ro() || die("Could not open AccountsDB");
+
+#
+# Fetch the ibay record
+#
+my $ibay = $accountsDb->get($ibayName) or
+    die "[ERROR] Couldn't find $ibayName record in accounts db\n";
+
+if ($ibay->prop('type') ne 'ibay') {
+    die "[ERROR] Account $ibayName is not an ibay account\n"
+}
+
+# clear POSIX ACLs before chmod to get the right ACL mask value:
+system("setfacl -b '$ibayPath'");
+
+my $perms = calcDirectoryPermissions();
+chown calcDirectoryOwners(), $ibayPath;
+chmod $perms, $ibayPath;
+
+my $acl = calcAcls($perms);
+if($acl) {
+    system("setfacl -m '$acl' '$ibayPath'");
+    if($? != 0) {
+        warn "[ERROR] setting shared folder ACLs \"$acl\"\n";
+        $errors++;
+    } else {
+        warn "[NOTICE] set POSIX ACLs on $ibayPath: $acl\n";
+    }
+}
+
+exit($errors > 0 ? 1 : 0);
+
+#
+# Functions
+#
+
+sub calcAcls
+{
+    my $unixBits = shift;
+    my @acls = ();
+
+    my %grants = ();
+
+    foreach (split(/,/, ($ibay->prop('AclRead') || ''))) {
+        $grants{$_} |= 0x2;
+    }
+
+    foreach (split(/,/, ($ibay->prop('AclWrite') || ''))) {
+        $grants{$_} |= 0x4;
+    }
+
+    foreach (keys %grants) {
+        my $accountType = getpwnam($_) ? 'u' : 'g';
+        push @acls, 
+            join(':',      $accountType, $_, int2acl($grants{$_})), 
+            join(':', 'd', $accountType, $_, int2acl($grants{$_}))
+        ;
+    }
+
+    return join(',', @acls);
+}
+
+sub int2acl
+{
+    my $val = shift;
+    if($val == 2) {
+        return 'r-X';
+    } elsif($val == 4) {
+        return '-wX';
+    } elsif($val == 6) {
+        return 'rwX';
+    }
+
+    return '---';
+}
+
+sub calcDirectoryOwners
+{
+    my @uidGid = (0, 0);
+
+    my $owningGroup = 'root';
+    if ( ($configDb->get_prop('sssd', 'Provider') || '') eq 'ad' ) {
+        $owningGroup = ($ibay->prop('OwningGroup') || 'root');
+    }
+
+    my $groupEnt = getgrnam($owningGroup);
+    if($groupEnt) {
+        $uidGid[1] = $groupEnt->gid;
+    } else {
+        $errors ++;
+        warn "[ERROR] Couldn't set owning group \"$owningGroup\" on shared folder\n";
+    }
+
+    return @uidGid;
+}
+
+sub calcDirectoryPermissions
+{
+    my $groupAccess = $ibay->prop('GroupAccess') ?  $ibay->prop('GroupAccess') : 'rw';
+    my $otherAccess = $ibay->prop('OtherAccess') ?  $ibay->prop('OtherAccess') : '';
+
+    if(($ibay->prop('SmbGuestAccessType') || 'none') =~ /[rw]+/) {
+        $otherAccess .= ($ibay->prop('SmbGuestAccessType') || '');
+    }
+
+    my $basePerms = 0600;
+
+    if($groupAccess =~ /r/) {
+        $basePerms |= 040;
+    }
+
+    if($groupAccess =~ /w/) {
+        $basePerms |= 020;
+    }
+
+    if($otherAccess =~ /r/) {
+        $basePerms |= 04;
+    }
+
+    if($otherAccess =~ /w/) {
+        $basePerms |= 022;
+    }
+
+    # Set execute and set-gid bits on directories:
+    my $dirPerms = $basePerms
+        | 0100 # always executable bit for owner (admin)
+        | ($basePerms & 040 ? 02010 : 0) # is readable by group? => set-gid + group-exec
+        | ($basePerms & 004 ? 1 : 0) # is readable by others? => other-exec
+    ;
+
+    return $dirPerms;
+}

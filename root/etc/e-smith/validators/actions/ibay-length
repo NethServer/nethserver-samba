@@ -1,0 +1,48 @@
+#!/usr/bin/perl -w
+
+#
+# Copyright (C) 2012 Nethesis S.r.l.
+# http://www.nethesis.it - support@nethesis.it
+# 
+# This script is part of NethServer.
+# 
+# NethServer is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License,
+# or any later version.
+# 
+# NethServer is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with NethServer.  If not, see <http://www.gnu.org/licenses/>.
+#
+
+use esmith::ConfigDB;
+
+=head2 validate_account_length ACCOUNTNAME
+
+returns 'OK' if the account name is shorter than the maximum account name length
+returns 'ACCOUNT_TOO_LONG' otherwise
+
+=cut
+
+my $ibayName = shift || '';
+my $db = esmith::ConfigDB->open_ro() or die("Could not open ConfigDB");
+
+if(length $ibayName == 0) {
+    exit 3;
+}
+
+my $maxIbayNameLength = ($db->get('maxIbayNameLength')
+   ? $db->get('maxIbayNameLength')->prop('type')
+   : "") || 32;
+
+if ( length $ibayName > $maxIbayNameLength ) {
+    print "Max ibay length is: $maxIbayNameLength\n";
+    exit 1;
+}
+
+exit 0;

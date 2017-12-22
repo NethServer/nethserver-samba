@@ -1,0 +1,91 @@
+#!/usr/bin/perl
+
+#
+# Copyright (C) 2013 Nethesis S.r.l.
+# http://www.nethesis.it - support@nethesis.it
+# 
+# This script is part of NethServer.
+# 
+# NethServer is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License,
+# or any later version.
+# 
+# NethServer is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with NethServer.  If not, see <http://www.gnu.org/licenses/>.
+#
+
+use strict;
+use esmith::AccountsDB;
+use NethServer::Migrate qw(migrateDir);
+use esmith::event;
+
+my $event = shift;
+my $sourceDir = shift;
+my $esmithDbDir = '/home/e-smith/db';
+my $errors = 0;
+
+if( ! $event ) {
+    die("Missing event argument!\n");
+}
+
+if( ! $sourceDir ) {
+    die("Missing sourceDir argument!\n");
+}
+
+my $srcAccountsDb = esmith::AccountsDB->open_ro(join('', $sourceDir, $esmithDbDir, '/accounts')) or die("Could not open source accounts database in $sourceDir \n");
+my $dstAccountsDb = esmith::AccountsDB->open('accounts') or die("Could not open destination accounts db\n");
+
+foreach my $ibay ($dstAccountsDb->get_all_by_prop('type' => 'ibay-migrate')) {
+    my $ibayName = $ibay->key;
+
+    $ibay->set_prop('type', 'ibay');
+    my $ibayPath = '/var/lib/nethserver/ibay/' . $ibayName;
+
+    # Migrate data BEFORE creating ibay, because DocumentRoot can be
+    # set to html/ subdirectory, and it must exist to avoid httpd
+    # startup problems.
+    if( ! -d $ibayPath) {
+	mkdir $ibayPath;
+    }
+
+    if( ! migrateDir(
+	      $sourceDir . '/home/e-smith/files/ibays/' . $ibayName, 
+	      $ibayPath
+	)) {
+	warn("[ERROR] failed to migrate $ibayName ibay directory.\n");
+	$errors++;
+	next;
+    }	
+
+    if( ! esmith::event::event_signal('ibay-create', $ibayName)) {
+	warn("[ERROR] ibay-create $ibayName event failed!\n");
+	$errors++;
+	next;
+    }
+
+}
+
+
+if(getgrnam('domain users')) {
+    # Restore ACLs, if "domain users" group exists
+    chdir '/var/lib/nethserver/ibay/';
+    system("/bin/sed 's/^group:shared:/group:domain users:/' $sourceDir/home/e-smith/db/acls.dump | /usr/bin/setfacl --restore=/dev/stdin");
+    if($? != 0) {
+        warn("[ERROR] failed to restore POSIX ACLs\n");
+        $errors++;
+    }
+}
+
+if($errors > 0) {
+    warn "[WARNING] $errors error(s) occurred in $0 action\n";
+    exit(1);
+}
+
+# action ends:
+exit(0);
