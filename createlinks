@@ -80,3 +80,79 @@ event_services('nethserver-samba-save', qw(
     smb restart
     nmb restart
 ));
+
+
+#
+# Shared folders events
+#
+
+# create
+event_actions('ibay-create', qw(
+	     nethserver-ibays-ibay-create 15
+	     nethserver-ibays-set-permissions 20
+));
+
+# modify
+event_actions('ibay-modify', qw(
+	     nethserver-ibays-set-permissions 20
+));
+
+# delete
+event_actions('ibay-delete', 
+	     'nethserver-ibays-ibay-delete' => '15'
+    );
+
+# reset permissions
+event_actions('ibay-reset-permissions', qw(
+	     nethserver-ibays-set-permissions 20
+         nethserver-ibays-copy-permissions 30
+));
+
+# package install/update
+event_actions('nethserver-ibays-update', qw(
+	     initialize-default-databases 00
+));
+
+#--------------------------------------------------
+# actions for ibay-name validator
+#--------------------------------------------------
+validator_actions('ibay-create', qw(
+                  uniq-account 20
+                  ibay-length 30
+                  ibay-name 20
+));
+
+validator_actions('ibay-delete', qw(
+                  account-removable 20
+));
+
+
+#
+# migration-import event (refs #1688)
+#
+event_actions('migration-import', qw(
+    nethserver-ibays-migrate-begin  30
+    nethserver-ibays-migrate-commit 60
+));
+
+#
+# post-restore-data event
+#
+event_actions('post-restore-data', qw(
+    nethserver-ibays-remap-locals    55
+    nethserver-ibays-restore         60
+));
+
+#
+# nethserver-directory-ns6upgrade event
+#
+event_actions('nethserver-directory-ns6upgrade', qw(
+    nethserver-ibays-remap-locals    60
+));
+
+#
+# pre-backup-data event
+#
+event_actions('pre-backup-data', qw(
+    nethserver-ibays-dump-acls         50
+));
