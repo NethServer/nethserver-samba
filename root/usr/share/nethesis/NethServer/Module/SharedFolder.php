@@ -25,12 +25,14 @@ namespace NethServer\Module;
  * 
  * @author Giacomo Sanchietti <giacomo@nethesis.it>
  */
-class SharedFolder extends \Nethgui\Controller\TableController
+class SharedFolder extends \Nethgui\Controller\TableController implements \Nethgui\Component\DependencyConsumer
 {
-
     protected function initializeAttributes(\Nethgui\Module\ModuleAttributesInterface $base)
     {
-        return \Nethgui\Module\SimpleModuleAttributesProvider::extendModuleAttributes($base, 'Management', 30);
+        return new \NethServer\Tool\CustomModuleAttributesProvider($base, array(
+            'languageCatalog' => array('NethServer_Module_SharedFolder', 'NethServer_Module_FileServer'),
+            'category' => 'Management'
+        ));
     }
 
     public function initialize()
@@ -74,6 +76,30 @@ class SharedFolder extends \Nethgui\Controller\TableController
             unset($cellView['delete']);
         }
         return $cellView;
+    }
+
+    public function prepareView(\Nethgui\View\ViewInterface $view)
+    {
+        parent::prepareView($view);
+        if($this->getPlatform()->getDatabase('configuration')->getProp('sssd', 'Provider') !== 'ad' &&
+            ! $this->getRequest()->isMutation() &&
+            $this->currentAction !== NULL &&
+            in_array($this->currentAction->getIdentifier(), array('create', 'update')) ) {
+            $this->notifications->warning($view->translate('LDAP_account_provider_warning_message1'));
+        }
+    }
+
+    public function setUserNotifications(\Nethgui\Model\UserNotifications $n)
+    {
+        $this->notifications = $n;
+        return $this;
+    }
+
+    public function getDependencySetters()
+    {
+        return array(
+            'UserNotifications' => array($this, 'setUserNotifications'),
+        );
     }
 
 }
