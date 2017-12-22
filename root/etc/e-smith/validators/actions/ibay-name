@@ -18,7 +18,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NethServer.  If not, see COPYING.
 #
-my $ibayName = shift || die("Missing ibay name argument");
+my $ibayName = shift || '';
 
 if ( $ibayName=~/[\\\/:*?"<>|\]\[]/ ){
     exit 3;

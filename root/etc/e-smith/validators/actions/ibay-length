@@ -29,18 +29,20 @@ returns 'ACCOUNT_TOO_LONG' otherwise
 
 =cut
 
-my $ibayName = shift || die("Missing ibay name argument");
+my $ibayName = shift || '';
 my $db = esmith::ConfigDB->open_ro() or die("Could not open ConfigDB");
-    
+
+if(length $ibayName == 0) {
+    exit 3;
+}
 
 my $maxIbayNameLength = ($db->get('maxIbayNameLength')
    ? $db->get('maxIbayNameLength')->prop('type')
    : "") || 32;
 
 if ( length $ibayName > $maxIbayNameLength ) {
-    print "Max ibay length is: $maxIbayNameLength\n"; 
-    exit 1 
+    print "Max ibay length is: $maxIbayNameLength\n";
+    exit 1;
 }
 
 exit 0;
-
