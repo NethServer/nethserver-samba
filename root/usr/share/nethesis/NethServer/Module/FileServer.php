@@ -55,6 +55,10 @@ class FileServer extends \Nethgui\Controller\AbstractController implements \Neth
         if($view['Provider'] !== 'ad') {
             $this->notifications->warning($view->translate('LDAP_account_provider_warning_message1'));
         }
+        // Set default workgroup
+        if($view['Workgroup'] == "") {
+            $view['Workgroup'] = "WORKGROUP";
+        }
     }
 
     public function setUserNotifications(\Nethgui\Model\UserNotifications $n)
