@@ -1,6 +1,6 @@
 Summary: Nethserver Samba file server
 Name: nethserver-samba
-Version: 3.1.1
+Version: 4.0.0
 Release: 1%{?dist}
 License: GPL
 Source: %{name}-%{version}.tar.gz
@@ -45,6 +45,10 @@ mkdir -p %{buildroot}/%{_nsstatedir}/ibay
 %dir %attr(0775,root,root) %{_nsstatedir}/ibay
 
 %changelog
+* Wed Jan 10 2018 Davide Principi <davide.principi@nethesis.it> - 4.0.0-1
+- Windows file server page - NethServer/dev#5404
+- Merged with nethserver-ibays-3.1.1
+
 * Mon Sep 18 2017 Giacomo Sanchietti <giacomo.sanchietti@nethesis.it> - 2.0.10-1
 - Read-only filesystem with kernel 3.10.0-693 - Bug NethServer/dev#5349
 
