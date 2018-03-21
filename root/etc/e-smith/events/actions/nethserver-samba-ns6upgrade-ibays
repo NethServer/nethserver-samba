@@ -49,4 +49,9 @@ foreach my $ibay ($adb->ibays) {
     $aclWrite = join(',',@acl_write);
     $ibay->set_prop('AclRead',$aclRead);
     $ibay->set_prop('AclWrite',$aclWrite);
+
+    my $OwningGroup = $ibay->prop('OwningGroup') || '';
+    if($OwningGroup !~ /@/) {
+        $ibay->prop('OwningGroup', $OwningGroup . '@'  . $domain);
+    }
 }

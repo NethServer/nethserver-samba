@@ -141,6 +141,7 @@ event_actions('migration-import', qw(
 event_actions('post-restore-data', qw(
     nethserver-ibays-remap-locals    55
     nethserver-ibays-restore         60
+    nethserver-samba-ns6upgrade-ibays 60
 ));
 
 #
