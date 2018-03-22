@@ -52,6 +52,6 @@ foreach my $ibay ($adb->ibays) {
 
     my $OwningGroup = $ibay->prop('OwningGroup') || '';
     if($OwningGroup && $OwningGroup !~ /@/) {
-        $ibay->prop('OwningGroup', $OwningGroup . '@'  . $domain);
+        $ibay->set_prop('OwningGroup', $OwningGroup . '@'  . $domain);
     }
 }
