@@ -1,6 +1,6 @@
 Summary: Nethserver Samba file server
 Name: nethserver-samba
-Version: 4.0.0
+Version: 4.0.1
 Release: 1%{?dist}
 License: GPL
 Source: %{name}-%{version}.tar.gz
@@ -45,6 +45,9 @@ mkdir -p %{buildroot}/%{_nsstatedir}/ibay
 %dir %attr(0775,root,root) %{_nsstatedir}/ibay
 
 %changelog
+* Thu Mar 29 2018 Davide Principi <davide.principi@nethesis.it> - 4.0.1-1
+- Bad shared folder DB props after ns6upgrade - Bug NethServer/dev#5439
+
 * Wed Jan 10 2018 Davide Principi <davide.principi@nethesis.it> - 4.0.0-1
 - Windows file server page - NethServer/dev#5404
 - Merged with nethserver-ibays-3.1.1
