@@ -21,12 +21,11 @@
 #
 
 #
-# Reset libwbclient to default implementation (#5404)
-# This action can be removed
+# Reset libwbclient to default Samba winbind library (#5647)
 #
 
-alternatives --auto libwbclient.so.0.12-64
-alternatives --auto libwbclient.so.0.13-64 && echo "[NOTICE]" $(alternatives --display libwbclient.so.0.13-64)
+alternatives --set libwbclient.so.0.14-64 /usr/lib64/samba/wbclient/libwbclient.so.0.14 || :
+echo "[NOTICE] $(alternatives --display libwbclient.so.0.14-64)"
 
 # Ignore errors
 exit 0
