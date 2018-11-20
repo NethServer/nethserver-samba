@@ -27,5 +27,13 @@
 alternatives --set libwbclient.so.0.14-64 /usr/lib64/samba/wbclient/libwbclient.so.0.14 || :
 echo "[NOTICE] $(alternatives --display libwbclient.so.0.14-64)"
 
-# Ignore errors
-exit 0
+# Fix duplicate SID for local machine and domain (required for ns6 upgraded systems)
+if [[ $(net getdomainsid | grep -o -E ': S-[0-9-]+' | uniq | wc -l) == "1" ]]; then
+    IFS=-
+    read -a sid_parts <<<"$(net getdomainsid | grep -o -E ': S-[0-9-]+' | uniq)"
+    sid_parts[0]="S"
+    sid_parts[5]=$(echo ${sid_parts[5]} | rev)
+    sid_parts[6]=$(echo ${sid_parts[6]} | rev)
+    echo "[NOTICE] Fixing the local SID with ${sid_parts[*]}"
+    net setlocalsid "${sid_parts[*]}"
+fi

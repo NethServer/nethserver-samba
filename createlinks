@@ -40,6 +40,7 @@ event_actions('nethserver-samba-update', qw(
 event_services('nethserver-samba-update', qw(
    smb restart
    nmb restart
+   winbind restart
 ));
 
 
