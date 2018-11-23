@@ -21,11 +21,14 @@
 #
 
 #
-# Reset libwbclient to default Samba winbind library (#5647)
+# Reset libwbclient and CIFS to default Samba winbind library (#5647)
 #
 
 alternatives --set libwbclient.so.0.14-64 /usr/lib64/samba/wbclient/libwbclient.so.0.14 || :
 echo "[NOTICE] $(alternatives --display libwbclient.so.0.14-64)"
+
+alternatives  --set cifs-idmap-plugin /usr/lib64/cifs-utils/idmapwb.so
+echo "[NOTICE] $(alternatives --display cifs-idmap-plugin)"
 
 # Fix duplicate SID for local machine and domain (required for ns6 upgraded systems)
 if [[ $(net getdomainsid | grep -o -E ': S-[0-9-]+' | uniq | wc -l) == "1" ]]; then
