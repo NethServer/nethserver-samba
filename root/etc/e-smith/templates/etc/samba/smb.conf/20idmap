@@ -1,0 +1,15 @@
+#
+# 20idmap
+#
+idmap config * : backend = tdb
+idmap config * : range = 10000-99999
+{
+    if($sssd{'Provider'} ne 'ad') {
+        return '';
+    }
+
+    $OUT = <<EOS;
+idmap config $sssd{'Workgroup'} : backend = nss
+idmap config $sssd{'Workgroup'} : range = 200000-2147483647
+EOS
+}
