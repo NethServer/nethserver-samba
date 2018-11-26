@@ -12,7 +12,7 @@ Obsoletes: nethserver-ibays
 Requires: samba
 Requires: tdb-tools
 Requires: nethserver-ibays
-Requires: sssd-libwbclient
+Requires: samba-winbind
 
 BuildRequires: nethserver-devtools
 
