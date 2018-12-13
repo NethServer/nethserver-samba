@@ -32,11 +32,8 @@ echo "[NOTICE] $(alternatives --display cifs-idmap-plugin)"
 
 # Fix duplicate SID for local machine and domain (required for ns6 upgraded systems)
 if [[ $(net getdomainsid | grep -o -E ': S-[0-9-]+' | uniq | wc -l) == "1" ]]; then
-    IFS=-
-    read -a sid_parts <<<"$(net getdomainsid | grep -o -E ': S-[0-9-]+' | uniq)"
-    sid_parts[0]="S"
-    sid_parts[5]=$(echo ${sid_parts[5]} | rev)
-    sid_parts[6]=$(echo ${sid_parts[6]} | rev)
-    echo "[NOTICE] Fixing the local SID with ${sid_parts[*]}"
-    net setlocalsid "${sid_parts[*]}"
+    netbiosName=$(testparm -s -v 2>/dev/null | grep 'netbios name' | cut -d '=' -f 2 | tr -d ' ')
+    tdbtool /var/lib/samba/private/secrets.tdb delete "SECRETS/SID/${netbiosName}"
+    echo "[NOTICE] generate new SID for ${netbiosName}"
+    net getlocalsid
 fi
