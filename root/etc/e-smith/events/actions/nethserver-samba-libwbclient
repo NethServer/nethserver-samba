@@ -32,8 +32,12 @@ echo "[NOTICE] $(alternatives --display cifs-idmap-plugin)"
 
 # Fix duplicate SID for local machine and domain (required for ns6 upgraded systems)
 if [[ $(net getdomainsid | grep -o -E ': S-[0-9-]+' | uniq | wc -l) == "1" ]]; then
-    netbiosName=$(testparm -s -v 2>/dev/null | grep 'netbios name' | cut -d '=' -f 2 | tr -d ' ')
-    tdbtool /var/lib/samba/private/secrets.tdb delete "SECRETS/SID/${netbiosName}"
-    echo "[NOTICE] generate new SID for ${netbiosName}"
-    net getlocalsid
+    netbiosName=$(testparm -s --parameter-name='netbios name' 2>/dev/null)
+    if [[ -n "${netbiosName}" ]]; then
+        tdbtool /var/lib/samba/private/secrets.tdb delete "SECRETS/SID/${netbiosName}"
+        echo "[NOTICE] generating a new SID for ${netbiosName}..."
+        net getlocalsid
+    else
+        echo "[WARNING] failed to retrieve the machine NetBIOS name. SID not fixed!"
+    fi
 fi
