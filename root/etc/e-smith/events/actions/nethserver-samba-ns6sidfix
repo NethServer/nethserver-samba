@@ -20,12 +20,22 @@
 # along with NethServer.  If not, see COPYING.
 #
 
-#
-# Reset libwbclient and CIFS to default Samba winbind library (#5647)
-#
+test_output=$(net getdomainsid 2>/dev/null)
+if [[ $? != 0 ]]; then
+    # not joined to a domain, exit now
+    exit 0
+fi
 
-alternatives --set libwbclient.so.0.14-64 /usr/lib64/samba/wbclient/libwbclient.so.0.14 || :
-echo "[NOTICE] $(alternatives --display libwbclient.so.0.14-64)"
-
-alternatives  --set cifs-idmap-plugin /usr/lib64/cifs-utils/idmapwb.so
-echo "[NOTICE] $(alternatives --display cifs-idmap-plugin)"
+# Fix duplicate SID for local machine and domain (required for ns6 upgraded systems)
+test_count=$(echo "$test_output" | grep -o -E ': S-[0-9-]+' | uniq | wc -l)
+if [[ "${test_count}" == "1" ]]; then
+    netbiosName=$(testparm -s --parameter-name='netbios name' 2>/dev/null)
+    if [[ -n "${netbiosName}" ]]; then
+        tdbtool /var/lib/samba/private/secrets.tdb delete "SECRETS/SID/${netbiosName}"
+        echo "[NOTICE] generating a new SID for ${netbiosName}..."
+        net getlocalsid
+    else
+        echo "[ERROR] failed to retrieve the machine NetBIOS name. SID not fixed!"
+        exit 1
+    fi
+fi
