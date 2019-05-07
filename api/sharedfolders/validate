@@ -1,0 +1,94 @@
+#!/usr/bin/php
+<?php
+/*
+ * Copyright (C) 2019 Nethesis S.r.l.
+ * http://www.nethesis.it - nethserver@nethesis.it
+ *
+ * This script is part of NethServer.
+ *
+ * NethServer is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License,
+ * or any later version.
+ *
+ * NethServer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with NethServer.  If not, see COPYING.
+*/
+
+
+require_once("/usr/libexec/nethserver/api/lib/Helpers.php");
+require_once("/usr/libexec/nethserver/api/lib/EsmithDatabase.php");
+
+$adb = new EsmithDatabase('accounts');
+
+$data = readInput();
+list($hostname, $domainname) = explode('.', gethostname(), 2);
+
+
+// Deletion: ensure the key exists
+if ($data['action'] == 'delete') {
+    if(! $adb->getKey($data['item']['name'])) {
+        error(array(
+            'type' => 'NotFound',
+            'message' => 'key_not_found',
+            'value' => $data['item']['name'],
+        ));
+    } else {
+        success();
+    }
+}
+
+// Create/Edit: check for key existence
+if($data['action'] == 'create') {
+    if($adb->getKey($data['item']['name'])) {
+        error(array(
+            'type' => 'KeyError',
+            'message' => 'key_already_exists',
+            'value' => $data['item']['name'],
+        ));
+    }
+} elseif($data['action'] == 'edit') {
+    if(! $adb->getKey($data['item']['name'])) {
+        error(array(
+            'type' => 'NotFound',
+            'message' => 'key_not_found',
+            'value' => $data['item']['name'],
+        ));
+    }
+}
+
+
+
+// Create/Edit: check field values
+$v = new LegacyValidator($data['item']);
+
+if ($data['action'] === 'delete') {
+    $ibayNameValidator = $v->createValidator()->platform('ibay-delete');
+} elseif ($data['action'] === 'create') {
+    $ibayNameValidator = $v->createValidator()->platform('ibay-create');
+} else {
+    $ibayNameValidator = FALSE;
+}
+
+$v->declareParameter('name', $ibayNameValidator);
+$v->declareParameter('Description', Validate::ANYTHING);
+$v->declareParameter('OwningGroup', Validate::ANYTHING);
+$v->declareParameter('GroupAccess', '/^rw?$/');
+$v->declareParameter('OtherAccess', '/^r?$/');
+$v->declareParameter('SmbRecycleBinStatus', Validate::SERVICESTATUS);
+$v->declareParameter('SmbRecycleBinVersionsStatus', Validate::SERVICESTATUS);
+$v->declareParameter('SmbGuestAccessType', '/^(none|rw|r)$/');
+$v->declareParameter('SmbShareBrowseable', Validate::SERVICESTATUS);
+
+
+// Validate the input
+if ($v->validate()) {
+    success();
+} else {
+    error($v);
+}

@@ -1,0 +1,66 @@
+#!/usr/bin/perl
+
+#
+# Copyright (C) 2019 Nethesis S.r.l.
+# http://www.nethesis.it - nethserver@nethesis.it
+#
+# This script is part of NethServer.
+#
+# NethServer is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License,
+# or any later version.
+#
+# NethServer is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with NethServer.  If not, see COPYING.
+#
+
+use strict;
+use JSON;
+use esmith::ConfigDB;
+use esmith::AccountsDB;
+
+require '/usr/libexec/nethserver/api/lib/helper_functions.pl';
+
+my $inputData = readInput();
+my $ret = undef;
+
+if($inputData->{'action'} eq 'list') {
+    $ret = mainList();
+} else {
+    exit(1);
+}
+
+print encode_json($ret);
+
+sub mainList
+{
+    my $adb = esmith::AccountsDB->open_ro();
+    my $cdb = esmith::ConfigDB->open_ro();
+    my @sfs = ();
+    foreach my $record ($adb->get_all_by_prop('type' => 'ibay')) {
+        my %props = $record->props();
+        delete $props{'type'};
+        my %acls = ();
+        $props{'name'} = $record->key();
+        foreach (split(',', $props{'AclRead'})) {
+            $acls{$_} .= 'r';
+        }
+        delete $props{'AclRead'};
+        foreach (split(',', $props{'AclWrite'})) {
+            $acls{$_} .= 'w';
+        }
+        delete $props{'AclWrite'};
+        $props{'acls'} = \%acls;
+        push @sfs, \%props;
+    };
+    return {
+        'accountsprovider' => $cdb->get_prop('sssd', 'Provider') || 'none',
+        'sharedfolders' => \@sfs,
+    }
+}
