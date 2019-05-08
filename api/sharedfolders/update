@@ -1,0 +1,107 @@
+#!/usr/bin/perl
+
+#
+# Copyright (C) 2019 Nethesis S.r.l.
+# http://www.nethesis.it - nethserver@nethesis.it
+#
+# This script is part of NethServer.
+#
+# NethServer is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License,
+# or any later version.
+#
+# NethServer is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with NethServer.  If not, see COPYING.
+#
+
+use strict;
+use JSON;
+use esmith::AccountsDB;
+use esmith::event;
+
+
+require '/usr/libexec/nethserver/api/lib/helper_functions.pl';
+
+my $ret = undef;
+my $db = esmith::AccountsDB->open() || die("Could not open AccountsDB");
+
+my $input = readInput();
+my $item = $input->{'item'};
+my $acls = $input->{'item'}->{'acls'};
+my $ibayName = $input->{'item'}->{'name'};
+
+my %props = (
+    'AclRead' => prepareAcl($acls, qr/r/),
+    'AclWrite' => prepareAcl($acls, qr/w/),
+    'Description' => $item->{'Description'},
+    'GroupAccess' => $acls->{'GOWNER'},
+    'OtherAccess' => $acls->{'EVERYONE'} =~ s/w//r,
+    'OwningGroup' => $item->{'OwningGroup'},
+    'SmbAuditStatus' => $item->{'SmbAuditStatus'},
+    'SmbGuestAccessType' => $acls->{'EVERYONE'} ? $acls->{'EVERYONE'} : 'none',
+    'SmbRecycleBinStatus' => $item->{'SmbRecycleBinStatus'},
+    'SmbRecycleBinVersionsStatus' => $item->{'SmbRecycleBinVersionsStatus'},
+    'SmbShareBrowseable' => $item->{'SmbShareBrowseable'},
+);
+
+my $eventName = undef;
+
+if($input->{'action'} eq 'create') {
+    $eventName = 'ibay-create';
+    $db->new_record($ibayName, {'type' => 'ibay', %props});
+} elsif($input->{'action'} eq 'delete') {
+    $eventName = 'ibay-delete';
+    $db->set_prop($ibayName, 'type', 'ibay-deleted');
+} elsif($input->{'action'} eq 'edit') {
+    $eventName = 'ibay-modify';
+    $db->get($ibayName)->merge_props(%props);
+} else {
+    error();
+}
+
+my @eventArgs = $ibayName;
+my $exitCode = 0;
+
+esmith::event::set_json_log(1);
+if(esmith::event::event_signal($eventName, @eventArgs)) {
+    $ret = {'state' => 'success'};
+    if($input->{'action'} eq 'delete') {
+        $db->reload();
+        $db->get($ibayName)->delete();
+    }
+} else {
+    $ret = {
+        'type' => 'Error',
+        'message' => 'sharedfolders.api_update_failed',
+        'attributes' => {
+            'event_name' => $eventName,
+            'event_args' => \@eventArgs,
+        }
+    };
+    $exitCode = 1;
+}
+
+print encode_json($ret);
+exit($exitCode);
+
+sub prepareAcl
+{
+    my $acls = shift;
+    my $re = shift;
+    my @alist = ();
+    foreach(keys %{$acls}) {
+        if($_ !~ m/^(GOWNER|EVERYONE)$/ && $acls->{$_} =~ $re) {
+            push @alist, $_;
+        }
+    }
+    sort(@alist);
+    return join(',', @alist);
+}
+
+
