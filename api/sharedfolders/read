@@ -32,11 +32,17 @@ my $ret = undef;
 
 if($inputData->{'action'} eq 'list') {
     $ret = mainList();
+} elsif($inputData->{'action'} eq 'list-users') {
+    exec("/usr/libexec/nethserver/list-users | jq -c '{users: keys}'");
 } else {
     exit(1);
 }
 
 print encode_json($ret);
+
+sub listGroups {
+    return [ keys %{ safe_decode_json(qx(/usr/libexec/nethserver/list-groups), {}) } ];
+}
 
 sub mainList
 {
@@ -46,21 +52,48 @@ sub mainList
     foreach my $record ($adb->get_all_by_prop('type' => 'ibay')) {
         my %props = $record->props();
         delete $props{'type'};
-        my %acls = ();
         $props{'name'} = $record->key();
+
+        my %acls = ();
+
         foreach (split(',', $props{'AclRead'})) {
             $acls{$_} .= 'r';
         }
         delete $props{'AclRead'};
+
         foreach (split(',', $props{'AclWrite'})) {
             $acls{$_} .= 'w';
         }
         delete $props{'AclWrite'};
+
+        if($props{'GroupAccess'}) {
+            $acls{'GOWNER'} = $props{'GroupAccess'};
+        }
+        delete $props{'GroupAccess'};
+
+        if($props{'OtherAccess'}) {
+            $acls{'EVERYONE'} = $props{'OtherAccess'};
+        } else {
+            $acls{'EVERYONE'} = '';
+        }
+        delete $props{'OtherAccess'};
+
+        if(($props{'SmbGuestAccessType'} || 'none') ne 'none') {
+            $props{'guestAccess'} = "enabled";
+            # Override of EVERYONE: see calcDirectoryPermissions() in action
+            # implementation:
+            $acls{'EVERYONE'} = $props{'SmbGuestAccessType'};
+        } else {
+            $props{'guestAccess'} = "disabled";
+        }
+        delete $props{'SmbGuestAccessType'};
+
         $props{'acls'} = \%acls;
         push @sfs, \%props;
     };
     return {
         'accountsprovider' => $cdb->get_prop('sssd', 'Provider') || 'none',
+        'groups' => listGroups(),
         'sharedfolders' => \@sfs,
     }
 }
