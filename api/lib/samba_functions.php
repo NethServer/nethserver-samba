@@ -92,6 +92,8 @@ function query ($action = "read", $username = "", $address = "", $share = "", $o
                     }
                 } else if ($result['op'] == 'rename') {
                     $result['arg'] = $tmp[0] . " -> ". $tmp[1];
+                } else if ($result['op'] == 'mkdir') {
+                    $result['arg'] = trim($tmp[0]);
                 }
 
                 $results[] = $result;
