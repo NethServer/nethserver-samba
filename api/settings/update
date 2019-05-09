@@ -1,7 +1,7 @@
-#!/usr/bin/perl
+#!/bin/bash
 
 #
-# Copyright (C) 2019 Nethesis S.r.l.
+# Copyright (C) 2018 Nethesis S.r.l.
 # http://www.nethesis.it - nethserver@nethesis.it
 #
 # This script is part of NethServer.
@@ -20,24 +20,26 @@
 # along with NethServer.  If not, see COPYING.
 #
 
-use warnings;
-use strict;
-use JSON;
-use esmith::ConfigDB;
+. /usr/libexec/nethserver/api/lib/helper_functions
 
-require '/usr/libexec/nethserver/api/lib/helper_functions.pl';
+data=$(cat /dev/stdin)
 
-my $ret;
-
-my $db = esmith::ConfigDB->open_ro();
-$ret->{'Workgroup'} = $db->get_prop('sssd', 'Workgroup') || 'WORKGROUP';
-foreach (qw(ShareAdmStatus HomeAdmStatus InheritOwner)) {
-    $ret->{$_} = $db->get_prop('smb', $_);
+function _get
+{
+    field=$1
+    echo $data | jq -r ".$field"
 }
-my $provider = $db->get_prop('sssd', 'Provider') || '';
-if ($provider eq 'ad') {
-    $ret->{'WorkgroupEditable'} = JSON::false;
-} else {
-    $ret->{'WorkgroupEditable'} = JSON::true;
-}
-print encode_json($ret);
+
+/sbin/e-smith/config setprop smb ShareAdmStatus "$(_get ShareAdmStatus)" HomeAdmStatus "$(_get HomeAdmStatus)" InheritOwner "$(_get InheritOwner)"
+
+provider=$(/sbin/e-smith/config getprop sssd Provider)
+if [ "$provider" != "ad" ]; then
+    /sbin/e-smith/config setprop sssd Workgroup  "$(_get Workgroup)"
+fi
+/sbin/e-smith/signal-event -j nethserver-samba-save
+
+if [ $? -gt 0 ]; then
+    error "EventFailed" "See /var/log/messages"
+else
+    success
+fi
