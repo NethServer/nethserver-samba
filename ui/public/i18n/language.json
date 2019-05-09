@@ -13,6 +13,9 @@
   "are_you_sure": "Are you sure",
   "cancel": "Cancel",
   "delete": "Delete",
+  "save": "Save",
+  "info": "Info",
+  "no_data_found": "No data found",
   "docs": {
     "sharedfolders": "Shared folders",
     "more_info_about": "More info about {docsLink}.",
@@ -20,7 +23,17 @@
   },
   "dashboard": {
     "title": "File server dashboard",
-    "menu_title": "File server"
+    "menu_title": "File server",
+    "ibays": "IBays",
+    "audit": "Audit",
+    "files": "Files",
+    "size": "Size",
+    "smb_status": "Samba status",
+    "encryption": "Encryption",
+    "service": "Service",
+    "protocol": "Protocol",
+    "machine": "Machine",
+    "path": "Path"
   },
   "sharedfolders": {
     "title": "Shared folders",

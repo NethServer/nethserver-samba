@@ -51,7 +51,7 @@
           v-bind:class="[getCurrentPath('audit') ? 'active' : '', 'list-group-item']"
         >
           <a href="#/audit">
-            <span class="fa fa-list"></span>
+            <span class="fa fa-bars"></span>
             <span class="list-group-item-value">{{$t('audit.menu_title')}}</span>
           </a>
         </li>
