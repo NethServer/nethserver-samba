@@ -80,12 +80,25 @@
     "menu_title": "Logs"
   },
   "settings": {
-    "menu_title": "Settings"
+    "menu_title": "Settings",
+    "title": "Settings",
+    "workgroup": "WORKGROUP",
+    "inherit_owner": "When directory is created in share folder",
+    "grant_home_dir": "Grant full control on home directories to Domain Admins group (home$ share)",
+    "grant_share_dir": "Grant full control on shared folders to Domain Admins group",
+    "yes_inherit": "Grant full control to the owner of the parent directory",
+    "no_inherit": "Grant full control to the creator",
+    "settings_ok": "Settings updated successfully!",
+    "settings_error": "Settings not updated."
   },
   "about": {
     "website": "Web site",
     "bug_tracker": "Bug tracker",
     "title": "About",
     "menu_title": "About"
+  },
+  "validation": {
+    "valid_hostname_simple_0_0": "Must be a simple hostname like 'WORKGROUP'",
+    "valid_maxLength_15": "Maximum length is 15 characters"
   }
 }
