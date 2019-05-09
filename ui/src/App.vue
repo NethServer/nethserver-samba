@@ -55,6 +55,7 @@
             <span class="list-group-item-value">{{$t('audit.menu_title')}}</span>
           </a>
         </li>
+        <li class="li-empty"></li>
         <li
           v-bind:class="[getCurrentPath('settings') ? 'active' : '', 'list-group-item']"
           class="list-group-item"
