@@ -22,6 +22,13 @@ import Vue from 'vue'
 import VueI18n from "vue-i18n"
 import Router from 'vue-router'
 
+import VueToggleButton from 'vue-js-toggle-button'
+Vue.use(VueToggleButton)
+
+import "v-suggestions/dist/v-suggestions.css"
+import VueSuggestions from 'v-suggestions'
+
+Vue.component('suggestions', VueSuggestions)
 import VueGoodTable from "vue-good-table";
 Vue.use(VueGoodTable);
 

@@ -66,21 +66,23 @@
           id="modalCreateSharedFolder"
           action="create"
           v-on:modal-close="read($event)"
-          v-bind:item="currentItem"
+          v-bind:initialItem="currentItem"
+          v-bind:groupsList="groups"
         ></shared-folder-edit-modal>
 
         <shared-folder-edit-modal
           id="modalEditSharedFolder"
           action="edit"
           v-on:modal-close="read"
-          v-bind:item="currentItem"
+          v-bind:initialItem="currentItem"
+          v-bind:groupsList="groups"
         ></shared-folder-edit-modal>
 
         <shared-folder-edit-modal
           id="modalDeleteSharedFolder"
           action="delete"
           v-on:modal-close="read"
-          v-bind:item="currentItem"
+          v-bind:initialItem="currentItem"
         ></shared-folder-edit-modal>
 
     </div>
@@ -111,29 +113,35 @@ export default {
         accountsprovider: "",
         sharedfolders: [],
         currentItem: {},
+        groups: [],
       };
     },
     methods: {
         createSharedFolder() {
             return {
-                name: "",
                 Description: "",
+                OwningGroup: "",
+                SmbRecycleBinStatus: "disabled",
+                SmbRecycleBinVersionsStatus: "disabled",
+                SmbShareBrowseable: "enabled",
+                acls: {EVERYONE:""},
+                name: "",
+                guestAccess: "disabled",
+                SmbAuditStatus: "disabled",
             }
         },
         openModal(id, item) {
-          this.currentItem = item;
+          this.currentItem = Object.assign(this.createSharedFolder(), item);
           window.jQuery("#" + id).modal();
         },
         read(eventData = {}) {
           this.vReadStatus = "running";
           execp("nethserver-samba/sharedfolders/read", {"action":"list"})
             .then(result => {
-              for (let k in result) {
-                if (result.hasOwnProperty(k)) {
-                  this[k] = result[k];
-                }
-              }
-              this.vReadStatus = "success";
+              this.sharedfolders = result.sharedfolders
+              this.accountsprovider = result.accountsprovider
+              this.groups = result.groups
+              this.vReadStatus = "success"
 
               this.$nextTick(function() {
                 $("[data-toggle=popover]")

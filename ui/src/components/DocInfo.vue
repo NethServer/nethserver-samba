@@ -16,7 +16,7 @@
 <template>
 
 <div :class="inline ? 'reset-padding' : ''">
-    <a :id="id" href="#" class="info-general" data-toggle="popover" data-html="true" :data-placement="placement" data-close="true" data-trigger="focus" data-container="body" :title="title | capitalize" :data-content="content" v-if="inline">
+    <a :id="id" href="#" class="info-general" data-toggle="popover" data-html="true" :data-placement="placement" data-close="true" data-trigger="focus" data-container="body" :title="title" :data-content="content" v-if="inline">
         <span class="pficon pficon-info"></span>
     </a>
     <span v-if="!inline">
