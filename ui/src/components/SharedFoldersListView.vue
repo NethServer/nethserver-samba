@@ -52,10 +52,7 @@
 
       <div class="list-view-pf-main-info small-list">
         <div class="list-view-pf-left">
-          <span
-            class="fa list-view-pf-icon-sm fa-folder-open"
-            v-bind:title="$t('sharedfolders.icon-tooltip-fa-folder-open')"
-          ></span>
+          <span class="fa list-view-pf-icon-sm fa-folder-open"></span>
         </div>
         <div class="list-view-pf-body">
           <div class="list-view-pf-description">

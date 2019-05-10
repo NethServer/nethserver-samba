@@ -19,7 +19,9 @@
   "docs": {
     "sharedfolders": "Shared folders",
     "more_info_about": "More info about {docsLink}.",
-    "audit": "Audit"
+    "audit": "Audit",
+    "guestAccess_info": "Access to the shared folder is granted even if invalid credentials are provided.",
+    "everyone_info": "A guest, or an authorized user that does not match any ACL."
   },
   "dashboard": {
     "title": "File server dashboard",
@@ -48,7 +50,29 @@
     "delete_warning_title": "Warning",
     "delete_warning_message": "All files in {name} will be deleted. This action cannot be reverted!",
     "delete_confirm_message": "Are you sure?",
-    "create_title": "Create a new shared folder"
+    "create_title": "Create a new shared folder",
+    "OwningGroup_label": "Owning group",
+    "owner_null_label": "Select a group...",
+    "SmbAuditStatus_label": "Enable auditing",
+    "guestAccess_label": "Guest access",
+    "SmbShareBrowseable_label": "Browseable",
+    "SmbRecycleBinStatus_label": "Network recycle bin",
+    "Acl_label": "ACL",
+    "acl_remove_message": "Remove ACL",
+    "acl_builtin_message": "Builtin ACL",
+    "acl_none_label": "No access",
+    "acl_read_label": "Read only",
+    "acl_readwrite_label": "Read and write",
+    "acl_null_label": "Select an item...",
+    "everyone_label": "Everyone",
+    "Acl_placeholder": "Search a user or group name...",
+    "SmbRecycleBinVersionsStatus_label": "Keep copies of files with the same name",
+    "item_edit_error": "Shared folder edit failed",
+    "item_create_error": "Shared folder creation failed",
+    "item_delete_error": "Shared folder deletion failed",
+    "item_edit_ok": "Shared folder edited correctly",
+    "item_create_error": "Shared folder created correctly",
+    "item_delete_error": "Shared folder deleted correctly"
   },
   "audit": {
     "menu_title": "Audit",
@@ -101,7 +125,12 @@
     "menu_title": "About"
   },
   "validation": {
+    "ibay-create,ibay-length,3": "Set the shared folder name",
+    "ibay-create,ibay-length,1": "Too long! Must be less than 30 chars long",
     "valid_hostname_simple_0_0": "Must be a simple hostname like 'WORKGROUP'",
-    "valid_maxLength_15": "Maximum length is 15 characters"
-  }
+    "group_not_found": "Choose the owning group",
+    "valid_maxLength_15": "Maximum length is 15 characters",
+    "malformed_acls": "The ACL value {value} cannot be applied"
+  },
+  "advanced_mode": "Advanced options"
 }
