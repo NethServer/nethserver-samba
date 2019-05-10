@@ -3,7 +3,7 @@
     "name": "File server",
     "summary": "Samba file server compatible with Windows clients",
     "description": "Share files with your working group",
-    "homepage": "https://github.com/NethServer/nethserver-mail",
+    "homepage": "https://github.com/NethServer/nethserver-samba",
     "url": "",
     "provides": ["nethserver-samba", "nethserver-samba-audit"],
     "release": {
