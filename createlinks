@@ -123,11 +123,6 @@ validator_actions('ibay-create', qw(
                   ibay-name 20
 ));
 
-validator_actions('ibay-delete', qw(
-                  account-removable 20
-));
-
-
 #
 # migration-import event (refs #1688)
 #
