@@ -118,7 +118,8 @@
     "yes_inherit": "Grant full control to the owner of the parent directory",
     "no_inherit": "Grant full control to the creator",
     "settings_ok": "Settings updated successfully!",
-    "settings_error": "Settings not updated."
+    "settings_error": "Settings not updated.",
+    "settings_updated_ok": "Settings saved correctly"
   },
   "about": {
     "website": "Web site",

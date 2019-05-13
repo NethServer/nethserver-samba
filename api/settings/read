@@ -26,8 +26,7 @@ use JSON;
 use esmith::ConfigDB;
 use NethServer::ApiTools;
 
-require '/usr/libexec/nethserver/api/lib/helper_functions.pl';
-
+my $input = NethServer::ApiTools::readInput();
 my $ret;
 
 my $db = esmith::ConfigDB->open_ro();
