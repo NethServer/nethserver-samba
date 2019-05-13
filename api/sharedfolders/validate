@@ -22,10 +22,10 @@
 
 use strict;
 use JSON;
-use esmith::ConfigDB;
-use esmith::AccountsDB;
 use NethServer::ApiTools;
+use NethServer::SSSD;
 
+my $isAd = NethServer::SSSD->new()->isAD();
 my $inputData = NethServer::ApiTools::readInput();
 my $item = $inputData->{'item'} || {};
 my $ret = undef;
@@ -63,7 +63,7 @@ if ($inputData->{'action'} eq 'create') {
     }
 }
 
-if(!getgrnam($item->{'OwningGroup'})) {
+if($isAd && !getgrnam($item->{'OwningGroup'})) {
     push @errors, {
         "parameter" => "OwningGroup",
         "value" => $item->{'OwningGroup'},

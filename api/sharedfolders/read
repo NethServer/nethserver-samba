@@ -24,10 +24,10 @@ use strict;
 use JSON;
 use esmith::ConfigDB;
 use esmith::AccountsDB;
+use NethServer::ApiTools;
+use NethServer::SSSD;
 
-require '/usr/libexec/nethserver/api/lib/helper_functions.pl';
-
-my $inputData = readInput();
+my $inputData = NethServer::ApiTools::readInput();
 my $ret = undef;
 
 if($inputData->{'action'} eq 'list') {
@@ -41,11 +41,12 @@ if($inputData->{'action'} eq 'list') {
 print encode_json($ret);
 
 sub listGroups {
-    return [ keys %{ safe_decode_json(qx(/usr/libexec/nethserver/list-groups), {}) } ];
+    return [ keys %{ NethServer::ApiTools::safe_decode_json(qx(/usr/libexec/nethserver/list-groups), {}) } ];
 }
 
 sub mainList
 {
+    my $isAd = NethServer::SSSD->new()->isAD();
     my $adb = esmith::AccountsDB->open_ro();
     my $cdb = esmith::ConfigDB->open_ro();
     my @sfs = ();
@@ -56,17 +57,21 @@ sub mainList
 
         my %acls = ();
 
-        foreach (split(',', $props{'AclRead'})) {
-            $acls{$_} .= 'r';
+        if($isAd) {
+            foreach (split(',', $props{'AclRead'})) {
+                $acls{$_} .= 'r';
+            }
         }
         delete $props{'AclRead'};
 
-        foreach (split(',', $props{'AclWrite'})) {
-            $acls{$_} .= 'w';
+        if($isAd) {
+            foreach (split(',', $props{'AclWrite'})) {
+                $acls{$_} .= 'w';
+            }
         }
         delete $props{'AclWrite'};
 
-        if($props{'GroupAccess'}) {
+        if(!$isAd && $props{'GroupAccess'}) {
             $acls{'GOWNER'} = $props{'GroupAccess'};
         }
         delete $props{'GroupAccess'};
@@ -92,7 +97,7 @@ sub mainList
         push @sfs, \%props;
     };
     return {
-        'accountsprovider' => $cdb->get_prop('sssd', 'Provider') || 'none',
+        'accountsProvider' => $cdb->get_prop('sssd', 'Provider') || 'none',
         'groups' => listGroups(),
         'sharedfolders' => \@sfs,
     }
