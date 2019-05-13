@@ -24,31 +24,45 @@ use strict;
 use JSON;
 use esmith::AccountsDB;
 use esmith::event;
+use NethServer::SSSD;
+use NethServer::ApiTools;
 
-
-require '/usr/libexec/nethserver/api/lib/helper_functions.pl';
-
+my $isAd = NethServer::SSSD->new()->isAD();
 my $ret = undef;
 my $db = esmith::AccountsDB->open() || die("Could not open AccountsDB");
 
-my $input = readInput();
+my $input = NethServer::ApiTools::readInput();
 my $item = $input->{'item'};
 my $acls = $input->{'item'}->{'acls'};
 my $ibayName = $input->{'item'}->{'name'};
 
 my %props = (
-    'AclRead' => prepareAcl($acls, qr/r/),
-    'AclWrite' => prepareAcl($acls, qr/w/),
     'Description' => $item->{'Description'},
-    'GroupAccess' => $acls->{'GOWNER'},
-    'OtherAccess' => $acls->{'EVERYONE'} =~ s/w//r,
-    'OwningGroup' => $item->{'OwningGroup'},
     'SmbAuditStatus' => $item->{'SmbAuditStatus'},
-    'SmbGuestAccessType' => $acls->{'EVERYONE'} ? $acls->{'EVERYONE'} : 'none',
     'SmbRecycleBinStatus' => $item->{'SmbRecycleBinStatus'},
     'SmbRecycleBinVersionsStatus' => $item->{'SmbRecycleBinVersionsStatus'},
     'SmbShareBrowseable' => $item->{'SmbShareBrowseable'},
 );
+
+if($isAd) {
+    %props = (%props,
+        'AclRead' => prepareAcl($acls, qr/r/),
+        'AclWrite' => prepareAcl($acls, qr/w/),
+        'GroupAccess' => $acls->{'GOWNER'},
+        'OtherAccess' => $acls->{'EVERYONE'} =~ s/w//r,
+        'OwningGroup' => $item->{'OwningGroup'},
+        'SmbGuestAccessType' => $acls->{'EVERYONE'} ? $acls->{'EVERYONE'} : 'none',
+    );
+} else {
+    %props = (%props,
+        'AclRead' => '',
+        'AclWrite' => '',
+        'GroupAccess' => '',
+        'OtherAccess' => '',
+        'OwningGroup' => '',
+        'SmbGuestAccessType' => $acls->{'EVERYONE'} ? $acls->{'EVERYONE'} : 'rw',
+    );
+}
 
 my $eventName = undef;
 
