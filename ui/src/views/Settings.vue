@@ -154,7 +154,7 @@ export default {
       context.view.isLoaded = false;
       nethserver.exec(
         ["nethserver-samba/settings/read"],
-        null,
+        {},
         null,
         function(success) {
           try {
