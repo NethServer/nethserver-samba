@@ -16,6 +16,7 @@
   "save": "Save",
   "info": "Info",
   "no_data_found": "No data found",
+  "rows_per_page": "Rows per page",
   "docs": {
     "sharedfolders": "Shared folders",
     "more_info_about": "More info about {docsLink}.",
@@ -71,8 +72,8 @@
     "item_create_error": "Shared folder creation failed",
     "item_delete_error": "Shared folder deletion failed",
     "item_edit_ok": "Shared folder edited correctly",
-    "item_create_error": "Shared folder created correctly",
-    "item_delete_error": "Shared folder deleted correctly",
+    "item_create_ok": "Shared folder created correctly",
+    "item_delete_ok": "Shared folder deleted correctly",
     "no_acls_support_title": "Access to shared folders is possible only as guest",
     "no_acls_support_message": "To enable Samba authentication and special access options configure an Active Directory accounts provider."
   },
@@ -111,7 +112,7 @@
   "settings": {
     "menu_title": "Settings",
     "title": "Settings",
-    "workgroup": "WORKGROUP",
+    "workgroup": "Workgroup/NetBIOS domain name",
     "inherit_owner": "When directory is created in share folder",
     "grant_home_dir": "Grant full control on home directories to Domain Admins group (home$ share)",
     "grant_share_dir": "Grant full control on shared folders to Domain Admins group",
