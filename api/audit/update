@@ -22,12 +22,11 @@
 
 use strict;
 use warnings;
-
-require '/usr/libexec/nethserver/api/lib/helper_functions.pl';
+use NethServer::ApiTools;
 
 my $out = `/usr/sbin/logrotate -f /etc/logrotate.d/smbaudit`;
 if ($? > 0) {
-    error();
+    NethServer::ApiTools::error();
 } else {
-    success();
+    NethServer::ApiTools::success();
 }
