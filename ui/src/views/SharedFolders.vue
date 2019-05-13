@@ -66,23 +66,25 @@
           id="modalCreateSharedFolder"
           action="create"
           v-on:modal-close="read($event)"
-          v-bind:initialItem="currentItem"
-          v-bind:groupsList="groups"
+          v-bind:initial-item="currentItem"
+          v-bind:groups-list="groups"
+          v-bind:accounts-provider="accountsProvider"
         ></shared-folder-edit-modal>
 
         <shared-folder-edit-modal
           id="modalEditSharedFolder"
           action="edit"
           v-on:modal-close="read"
-          v-bind:initialItem="currentItem"
-          v-bind:groupsList="groups"
+          v-bind:initial-item="currentItem"
+          v-bind:groups-list="groups"
+          v-bind:accounts-provider="accountsProvider"
         ></shared-folder-edit-modal>
 
         <shared-folder-edit-modal
           id="modalDeleteSharedFolder"
           action="delete"
           v-on:modal-close="read"
-          v-bind:initialItem="currentItem"
+          v-bind:initial-item="currentItem"
         ></shared-folder-edit-modal>
 
     </div>
@@ -110,7 +112,7 @@ export default {
       return {
         vReadStatus: "running",
         vReadError: "",
-        accountsprovider: "",
+        accountsProvider: "",
         sharedfolders: [],
         currentItem: {},
         groups: [],
@@ -124,7 +126,7 @@ export default {
                 SmbRecycleBinStatus: "disabled",
                 SmbRecycleBinVersionsStatus: "disabled",
                 SmbShareBrowseable: "enabled",
-                acls: {EVERYONE:""},
+                acls: {EVERYONE: this.accountsProvider == 'ad' ? "" : "rw"},
                 name: "",
                 guestAccess: "disabled",
                 SmbAuditStatus: "disabled",
@@ -139,7 +141,7 @@ export default {
           execp("nethserver-samba/sharedfolders/read", {"action":"list"})
             .then(result => {
               this.sharedfolders = result.sharedfolders
-              this.accountsprovider = result.accountsprovider
+              this.accountsProvider = result.accountsProvider
               this.groups = result.groups
               this.vReadStatus = "success"
 

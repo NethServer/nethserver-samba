@@ -72,7 +72,9 @@
     "item_delete_error": "Shared folder deletion failed",
     "item_edit_ok": "Shared folder edited correctly",
     "item_create_error": "Shared folder created correctly",
-    "item_delete_error": "Shared folder deleted correctly"
+    "item_delete_error": "Shared folder deleted correctly",
+    "no_acls_support_title": "Access to shared folders is possible only as guest",
+    "no_acls_support_message": "To enable Samba authentication and special access options configure an Active Directory accounts provider."
   },
   "audit": {
     "menu_title": "Audit",
