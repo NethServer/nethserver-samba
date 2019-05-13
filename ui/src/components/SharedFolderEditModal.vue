@@ -96,6 +96,12 @@ select {
                 </div>
 
                 <div v-else class="modal-body">
+                    <div v-if="!vIsAd" class="alert alert-info">
+                        <span class="pficon pficon-info"></span>
+                        <strong class="alert-title">{{$t('sharedfolders.no_acls_support_title', this.item)}}</strong>&#x20;
+                        <span>{{ $t('sharedfolders.no_acls_support_message') }}</span>
+                    </div>
+
                     <form class="form-horizontal">
                         <div v-bind:class="['form-group', vErrors.name ? 'has-error' : '']">
                             <label class="col-sm-3 control-label" v-bind:for="id + '-ni'">{{ $t('sharedfolders.name_label', this.item) }}</label>
@@ -110,7 +116,7 @@ select {
                                 <input type="text" v-model="item.Description" v-bind:id="id + '-di'" class="form-control">
                             </div>
                         </div>
-                        <div v-bind:class="['form-group', vErrors.OwningGroup ? 'has-error' : '']">
+                        <div v-if="vIsAd" v-bind:class="['form-group', vErrors.OwningGroup ? 'has-error' : '']">
                             <label class="col-sm-3 control-label" v-bind:for="id + '-og'">{{ $t('sharedfolders.OwningGroup_label') }}</label>
                             <div class="col-sm-9">
                                 <select 
@@ -136,7 +142,7 @@ select {
                                     {{$t('sharedfolders.Acl_label')}}
                             </label>
                             <div class="col-sm-9">
-                              <suggestions
+                              <suggestions v-if="vIsAd"
                                 v-model="vSearchText"
                                 v-bind:options="{debounce: 400, inputClass: 'form-control', placeholder: $t('sharedfolders.Acl_placeholder')}"
                                 v-bind:onInputChange="searchSubjects"
@@ -150,7 +156,7 @@ select {
                               </suggestions>
 
                               <ul class="list-inline compact">
-                                <li v-if="item.acls.GOWNER">
+                                <li v-if="vIsAd && item.acls.GOWNER">
                                     <span class="label label-info label-select label-acl">
                                         {{ $t('sharedfolders.OwningGroup_label') }}
                                         <span class="inline-select">
@@ -179,7 +185,7 @@ select {
                                                 <option value="r">{{$t('sharedfolders.acl_read_label')}}</option>
                                                 <option value="rw">{{$t('sharedfolders.acl_readwrite_label')}}</option>
                                                 <option
-                                                    v-bind:disabled="item.guestAccess == 'enabled'"
+                                                    v-bind:disabled="!vIsAd || item.guestAccess == 'enabled'"
                                                     value=""
                                                 >{{$t('sharedfolders.acl_none_label')}}</option>
                                             </select>
@@ -212,7 +218,7 @@ select {
                             </div>
                         </div>
 
-                        <div class="form-group">
+                        <div v-if="vIsAd" class="form-group">
                             <label
                                 class="col-sm-3 control-label"
                                 v-bind:for="id + '-ga'"
@@ -327,6 +333,7 @@ export default {
         'action': String,
         'initialItem': Object,
         'groupsList': Array,
+        'accountsProvider': String,
     },
     watch: {
         initialItem: function(newVal) {
@@ -348,6 +355,9 @@ export default {
                 this.item.SmbRecycleBinStatus = newValue ? 'enabled' : 'disabled'
             }
         },
+        vIsAd: function() {
+            return this.accountsProvider == 'ad'
+        }
     },
     data() {
         return {
