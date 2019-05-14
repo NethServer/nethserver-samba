@@ -60,7 +60,18 @@
             <div class="list-group-item-text">{{ item.Description }}</div>
           </div>
           <div class="list-view-pf-additional-info rules-info">
-              <!-- no additional info -->
+              <div class="list-view-pf-additional-info-item">
+                <strong>{{ $t('sharedfolders.list_view_audit_label') }}</strong>
+                <span v-bind:class="[item.SmbAuditStatus == 'enabled' ? 'fa fa-check green' : 'fa fa-times red']"></span>
+              </div>
+              <div class="list-view-pf-additional-info-item">
+                <strong>{{ item['files'] }}</strong>
+                {{$t('sharedfolders.list_view_files_label')}}
+              </div>
+              <div class="list-view-pf-additional-info-item">
+                <strong>{{ item['size'] | byteFormat }}</strong>
+                {{$t('sharedfolders.list_view_size_label')}}
+              </div>
           </div>
         </div>
       </div>
