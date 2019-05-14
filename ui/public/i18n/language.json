@@ -27,7 +27,7 @@
   "dashboard": {
     "title": "File server dashboard",
     "menu_title": "File server",
-    "ibays": "IBays",
+    "ibays": "Ibays",
     "audit": "Audit",
     "files": "Files",
     "size": "Size",
@@ -36,7 +36,12 @@
     "service": "Service",
     "protocol": "Protocol",
     "machine": "Machine",
-    "path": "Path"
+    "path": "Path",
+    "workgroup": "WORKGROUP",
+    "ibays_configured": "Ibays configured",
+    "files_count_for_ibays": "File count",
+    "files_du_for_ibays": "File disk usage",
+    "empty_piechart_label": "Statistics are not available"
   },
   "sharedfolders": {
     "title": "Shared folders",

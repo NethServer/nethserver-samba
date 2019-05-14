@@ -44,7 +44,7 @@
           </div>
         </div>
 
-        <div :class="['form-group', errors.InheritOwner.hasError ? 'has-error' : '']">
+        <div v-if="!settings.WorkgroupEditable" :class="['form-group', errors.InheritOwner.hasError ? 'has-error' : '']">
           <label
             class="col-sm-2 control-label"
             for="textInput-modal-markup"
@@ -61,7 +61,7 @@
           </div>
         </div>
 
-        <div :class="['form-group', errors.HomeAdmStatus.hasError ? 'has-error' : '']">
+        <div v-if="!settings.WorkgroupEditable" :class="['form-group', errors.HomeAdmStatus.hasError ? 'has-error' : '']">
           <label
             class="col-sm-2 control-label"
             for="textInput-modal-markup"
@@ -75,7 +75,7 @@
           </div>
         </div>
 
-        <div :class="['form-group', errors.ShareAdmStatus.hasError ? 'has-error' : '']">
+        <div v-if="!settings.WorkgroupEditable" :class="['form-group', errors.ShareAdmStatus.hasError ? 'has-error' : '']">
           <label
             class="col-sm-2 control-label"
             for="textInput-modal-markup"

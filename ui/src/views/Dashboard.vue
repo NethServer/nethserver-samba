@@ -27,7 +27,7 @@
     <div class="row">
       <div class="col-sm-12">
         <h3>
-          WORKGROUP:
+          {{$t('dashboard.workgroup')}}:
           <b>{{workgroup || '-'}}</b>
         </h3>
       </div>
@@ -35,40 +35,26 @@
         <h3>{{$t('dashboard.ibays')}}</h3>
         <div v-if="!view.isLoaded" class="spinner spinner-lg view-spinner"></div>
 
-        <div v-if="view.isLoaded && ibays.length == 0" class="alert alert-info alert-dismissable">
-          <span class="pficon pficon-info"></span>
-          <strong>{{$t('info')}}:</strong>
-          {{$t('no_data_found')}}.
-        </div>
-        <div
-          v-if="view.isLoaded"
-          class="list-group list-view-pf list-view-pf-view no-mg-top mg-top-10"
-        >
-          <div v-for="(m, mk) in ibays" v-bind:key="mk" class="list-group-item">
-            <div class="list-view-pf-main-info small-list">
-              <div class="list-view-pf-left">
-                <span :class="['fa', 'list-view-pf-icon-sm', 'fa-inbox']"></span>
-              </div>
-              <div class="list-view-pf-body">
-                <div class="list-view-pf-description">
-                  <div class="list-group-item-heading">{{m.name}}</div>
-                </div>
-                <div class="list-view-pf-additional-info rules-info">
-                  <div class="list-view-pf-additional-info-item">
-                    <strong>{{$t('dashboard.audit')}}</strong>
-                    <span :class="[m.audit == 'enabled' ? 'fa fa-check green' : 'fa fa-times red']"></span>
-                  </div>
-                  <div class="list-view-pf-additional-info-item">
-                    <strong>{{m.files}}</strong>
-                    {{$t('dashboard.files')}}
-                  </div>
-                  <div class="list-view-pf-additional-info-item">
-                    <strong>{{ m.size | byteFormat }}</strong>
-                    {{$t('dashboard.size')}}
-                  </div>
-                </div>
-              </div>
+        <div v-show="view.isLoaded">
+          <h4>
+            {{$t('dashboard.ibays_configured')}}:
+            <b>{{ibays}}</b>
+          </h4>
+          <div class="col-sm-6">
+            {{$t('dashboard.files_count_for_ibays')}}
+            <div v-show="Object.keys(statsFiles).length == 0" class="empty-piechart">
+              <span class="fa fa-pie-chart"></span>
+              <div>{{ $t('dashboard.empty_piechart_label') }}</div>
             </div>
+            <div v-show="Object.keys(statsFiles).length > 0" id="stats-file-pie-chart"></div>
+          </div>
+          <div class="col-sm-6">
+            {{$t('dashboard.files_du_for_ibays')}}
+            <div v-show="Object.keys(statsDu).length == 0" class="empty-piechart">
+              <span class="fa fa-pie-chart"></span>
+              <div>{{ $t('dashboard.empty_piechart_label') }}</div>
+            </div>
+            <div v-show="Object.keys(statsDu).length > 0" id="stats-du-pie-chart"></div>
           </div>
         </div>
       </div>
@@ -131,6 +117,8 @@
 </template>
 
 <script>
+import generatePieChart from "@/piechart";
+
 export default {
   name: "Queue",
   mounted() {
@@ -144,11 +132,73 @@ export default {
         isLoadedStatus: false
       },
       workgroup: "",
-      ibays: [],
-      status: []
+      ibays: 0,
+      status: [],
+      statsFiles: {},
+      statsDu: {}
     };
   },
   methods: {
+    initCharts() {
+      var context = this;
+      var $ = window.jQuery;
+      $('[data-toggle="tooltip"]').tooltip();
+      if (!this.statsFilePieChart) {
+        var names = {};
+        var columns = [];
+        for (var i in this.statsFiles) {
+          names[i] = i;
+          var col = [i, this.statsFiles[i]];
+          columns.push(col);
+        }
+        this.statsFilePieChart = generatePieChart(
+          "#stats-file-pie-chart",
+          {
+            names: names,
+            columns: columns
+          },
+          {
+            width: window.innerWidth / 2,
+            height: 175
+          },
+          {
+            format: {
+              value: function(value, ratio, id, index) {
+                return value;
+              }
+            }
+          }
+        );
+      }
+
+      if (!this.statsDuPieChart) {
+        var names = {};
+        var columns = [];
+        for (var i in this.statsDu) {
+          names[i] = i;
+          var col = [i, this.statsDu[i]];
+          columns.push(col);
+        }
+        this.statsDuPieChart = generatePieChart(
+          "#stats-du-pie-chart",
+          {
+            names: names,
+            columns: columns
+          },
+          {
+            width: window.innerWidth / 2,
+            height: 175
+          },
+          {
+            format: {
+              value: function(value, ratio, id, index) {
+                return context.$options.filters.byteFormat(value);
+              }
+            }
+          }
+        );
+      }
+    },
     getIbays() {
       var context = this;
 
@@ -165,8 +215,13 @@ export default {
           } catch (e) {
             console.error(e);
           }
-          context.ibays = success.ibays;
+          context.ibays = success.count;
           context.workgroup = success.workgroup;
+
+          context.statsFiles = success.files;
+          context.statsDu = success.du;
+
+          context.initCharts();
 
           context.view.isLoaded = true;
         },
@@ -204,6 +259,17 @@ export default {
 </script>
 
 <style>
+.empty-piechart {
+  margin-top: 2em;
+  text-align: center;
+  color: #9c9c9c;
+}
+
+.empty-piechart .fa {
+  font-size: 92px;
+  color: #bbbbbb;
+}
+
 .no-mg-top {
   margin-top: 0px !important;
 }
