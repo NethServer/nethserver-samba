@@ -24,7 +24,9 @@ use strict;
 use JSON;
 use NethServer::ApiTools;
 use NethServer::SSSD;
+use esmith::AccountsDB;
 
+my $adb = esmith::AccountsDB->open_ro() || die("Could not open AccountsDB");
 my $isAd = NethServer::SSSD->new()->isAD();
 my $inputData = NethServer::ApiTools::readInput();
 my $item = $inputData->{'item'} || {};
@@ -61,9 +63,15 @@ if ($inputData->{'action'} eq 'create') {
             "message" => $message,
         };
     }
+} elsif(! $adb->get($item->{'name'}) || $adb->get_prop($item->{'name'}, 'type') ne 'ibay') {
+    push @errors, {
+        "parameter" => "name",
+        "value" => $item->{'name'},
+        "message" => 'item_not_found',
+    };
 }
 
-if($isAd && !getgrnam($item->{'OwningGroup'})) {
+if(exists $item->{'OwningGroup'} && $isAd && !getgrnam($item->{'OwningGroup'})) {
     push @errors, {
         "parameter" => "OwningGroup",
         "value" => $item->{'OwningGroup'},
@@ -71,14 +79,17 @@ if($isAd && !getgrnam($item->{'OwningGroup'})) {
     }
 }
 
-my ($isValidAcl, $aclValue) = validate_acls($item->{'acls'});
-if(!$isValidAcl) {
-    push @errors, {
-        "parameter" => "acls",
-        "value" => $aclValue,
-        "message" => "malformed_acls",
+if(exists $item->{'acls'}) {
+    my ($isValidAcl, $aclValue) = validate_acls($item->{'acls'});
+    if(!$isValidAcl) {
+        push @errors, {
+            "parameter" => "acls",
+            "value" => $aclValue,
+            "message" => "malformed_acls",
+        }
     }
 }
+
 
 foreach(qw(
     SmbRecycleBinStatus
@@ -86,7 +97,7 @@ foreach(qw(
     SmbShareBrowseable
     SmbAuditStatus
 )) {
-    if($item->{$_} !~ /^(enabled|disabled)$/) {
+    if(exists $item->{$_} && $item->{$_} !~ /^(enabled|disabled)$/) {
         push @errors, {
             "parameter" => $_,
             "value" => $item->{$_},

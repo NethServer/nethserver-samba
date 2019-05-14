@@ -37,11 +37,11 @@ my $acls = $input->{'item'}->{'acls'};
 my $ibayName = $input->{'item'}->{'name'};
 
 my %props = (
-    'Description' => $item->{'Description'},
-    'SmbAuditStatus' => $item->{'SmbAuditStatus'},
-    'SmbRecycleBinStatus' => $item->{'SmbRecycleBinStatus'},
-    'SmbRecycleBinVersionsStatus' => $item->{'SmbRecycleBinVersionsStatus'},
-    'SmbShareBrowseable' => $item->{'SmbShareBrowseable'},
+    'Description' => $item->{'Description'} || '',
+    'SmbAuditStatus' => $item->{'SmbAuditStatus'} || 'disabled',
+    'SmbRecycleBinStatus' => $item->{'SmbRecycleBinStatus'} || 'disabled',
+    'SmbRecycleBinVersionsStatus' => $item->{'SmbRecycleBinVersionsStatus'} || 'disabled',
+    'SmbShareBrowseable' => $item->{'SmbShareBrowseable'} || 'disabled',
 );
 
 if($isAd) {
