@@ -59,6 +59,7 @@
             v-on:modal-close="read"
             v-on:item-edit="openModal('modalEditSharedFolder', $event)"
             v-on:item-delete="openModal('modalDeleteSharedFolder', $event)"
+            v-on:item-reset-permissions="openModal('modalResetPermissionsSharedFolder', $event)"
           ></shared-folders-list-view>
         </div>
 
@@ -83,6 +84,13 @@
         <shared-folder-edit-modal
           id="modalDeleteSharedFolder"
           action="delete"
+          v-on:modal-close="read"
+          v-bind:initial-item="currentItem"
+        ></shared-folder-edit-modal>
+
+        <shared-folder-edit-modal
+          id="modalResetPermissionsSharedFolder"
+          action="reset-permissions"
           v-on:modal-close="read"
           v-bind:initial-item="currentItem"
         ></shared-folder-edit-modal>

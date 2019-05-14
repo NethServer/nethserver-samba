@@ -41,6 +41,12 @@
           </button>
           <ul class="dropdown-menu dropdown-menu-right" v-bind:aria-labelledby="item.id + '-ddm'">
             <li>
+              <a href="#" v-on:click="$emit('item-reset-permissions', item)">
+                <span class="fa fa-eraser span-right-margin"></span>
+                {{ $t('sharedfolders.item_reset_permissions_button') }}
+              </a>
+            </li>
+            <li>
               <a href="#" v-on:click="$emit('item-delete', item)">
                 <span class="fa fa-times span-right-margin"></span>
                 {{ $t('sharedfolders.item_delete_button') }}
