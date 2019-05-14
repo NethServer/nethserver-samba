@@ -41,7 +41,7 @@
             <b>{{ibays}}</b>
           </h4>
           <div class="col-sm-6">
-            {{$t('dashboard.files_count_for_ibays')}}
+            {{$t('dashboard.files_count_for_ibays')}}: {{totalFiles}}
             <div v-show="Object.keys(statsFiles).length == 0" class="empty-piechart">
               <span class="fa fa-pie-chart"></span>
               <div>{{ $t('dashboard.empty_piechart_label') }}</div>
@@ -49,7 +49,7 @@
             <div v-show="Object.keys(statsFiles).length > 0" id="stats-file-pie-chart"></div>
           </div>
           <div class="col-sm-6">
-            {{$t('dashboard.files_du_for_ibays')}}
+            {{$t('dashboard.files_du_for_ibays')}}: {{totalDu | byteFormat}}
             <div v-show="Object.keys(statsDu).length == 0" class="empty-piechart">
               <span class="fa fa-pie-chart"></span>
               <div>{{ $t('dashboard.empty_piechart_label') }}</div>
@@ -135,7 +135,9 @@ export default {
       ibays: 0,
       status: [],
       statsFiles: {},
-      statsDu: {}
+      statsDu: {},
+      totalFiles: 0,
+      totalDu: 0
     };
   },
   methods: {
@@ -220,6 +222,9 @@ export default {
 
           context.statsFiles = success.files;
           context.statsDu = success.du;
+
+          context.totalFiles = success.total_files;
+          context.totalDu = success.total_du;
 
           context.initCharts();
 
