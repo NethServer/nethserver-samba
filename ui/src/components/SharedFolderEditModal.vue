@@ -80,6 +80,7 @@ select {
                     <h4 class="modal-title" v-bind:id="id + 'Label'">
                         <span v-if="action == 'delete'"      >{{ $t('sharedfolders.delete_title', this.item) }}</span>
                         <span v-else-if="action == 'reset-permissions'" >{{ $t('sharedfolders.reset_permissions_title', this.item) }}</span>
+                        <span v-else-if="action == 'migrate'" >{{ $t('sharedfolders.migrate_title', this.item) }}</span>
                         <span v-else-if="action == 'create'" >{{ $t('sharedfolders.create_title', this.item) }}</span>
                         <span v-else                         >{{ $t('sharedfolders.edit_title',   this.item) }}</span>
                     </h4>
@@ -105,6 +106,21 @@ select {
                     <div>
                         <i18n path="sharedfolders.reset_permissions_confirm_message" tag="span">
                             <b place="name">{{ this.item.name }}</b>
+                        </i18n>
+                    </div>
+                </div>
+
+                <div v-else-if="action == 'migrate'" class="modal-body">
+                    <div class="alert alert-warning">
+                        <span class="pficon pficon-warning-triangle-o"></span>
+                        <strong class="alert-title">{{$t('sharedfolders.migrate_warning_title', this.item)}}</strong>&#x20;
+                        <span>{{ $t('sharedfolders.migrate_warning_message') }}</span>
+                    </div>
+                    <div>
+                        <i18n path="sharedfolders.migrate_confirm_message" tag="span">
+                            <b place="vhost">{{
+                                item.migrateVhost == '__ANY__' ? $t('sharedfolders.vhost_default') : item.migrateVhost
+                            }}</b>
                         </i18n>
                     </div>
                 </div>
@@ -324,6 +340,7 @@ select {
                     <button type="button" class="btn btn-default" data-dismiss="modal">{{ $t('modal_cancel_button') }}</button>
                     <button v-if="action == 'delete'" v-on:click="$emit('modal-save')" type="button" class="btn btn-danger" >{{ $t('modal_delete_button') }}</button>
                     <button v-else-if="action == 'reset-permissions'" v-on:click="$emit('modal-save')" type="button" class="btn btn-danger" >{{ $t('modal_reset_permissions_button') }}</button>
+                    <button v-else-if="action == 'migrate'" v-on:click="$emit('modal-save')" type="button" class="btn btn-danger" >{{ $t('modal_migrate_button') }}</button>
                     <button v-else-if="action == 'create'" v-on:click="$emit('modal-save')" type="button" class="btn btn-primary">{{ $t('modal_create_button') }}</button>
                     <button v-else v-on:click="$emit('modal-save')" type="button" class="btn btn-primary">{{ $t('modal_edit_button') }}</button>
                 </div>

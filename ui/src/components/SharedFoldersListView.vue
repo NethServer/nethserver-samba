@@ -24,7 +24,11 @@
   <div class="list-group list-view-pf list-view-pf-view no-mg-top mg-top-10">
     <div v-for="item of items" v-bind:key="item.name" class="list-group-item">
       <div class="list-view-pf-actions">
-        <button class="btn btn-default" v-on:click="$emit('item-edit', item)">
+        <button v-if="item.migrateVhost !== null" class="btn btn-primary" v-on:click="$emit('item-migrate', item)">
+            <span class="fa fa-send-o"></span>
+            {{ $t('sharedfolders.item_migrate_button')}}
+        </button>
+        <button v-else class="btn btn-default" v-on:click="$emit('item-edit', item)">
           <span class="fa fa-pencil"></span>
           {{ $t('sharedfolders.item_edit_button')}}
         </button>
@@ -40,6 +44,18 @@
             <span class="fa fa-ellipsis-v"></span>
           </button>
           <ul class="dropdown-menu dropdown-menu-right" v-bind:aria-labelledby="item.id + '-ddm'">
+            <li>
+              <a href="#" v-on:click="$emit('item-edit', item)">
+                <span class="fa fa-pencil span-right-margin"></span>
+                {{ $t('sharedfolders.item_edit_button') }}
+              </a>
+            </li>
+            <li v-if="item.migrateVhost !== null">
+                <a href="#" v-on:click="$emit('item-migrate', item)">
+                  <span class="fa fa-send-o span-right-margin"></span>
+                  {{ $t('sharedfolders.item_migrate_button') }}
+                </a>
+            </li>
             <li>
               <a href="#" v-on:click="$emit('item-reset-permissions', item)">
                 <span class="fa fa-eraser span-right-margin"></span>
