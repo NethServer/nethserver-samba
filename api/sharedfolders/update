@@ -75,6 +75,10 @@ if($input->{'action'} eq 'create') {
 } elsif($input->{'action'} eq 'edit') {
     $eventName = 'ibay-modify';
     $db->get($ibayName)->merge_props(%props);
+} elsif($input->{'action'} eq 'reset-permissions') {
+    $eventName = 'ibay-reset-permissions';
+} elsif($input->{'action'} eq 'migrate') {
+    $eventName = 'vhost-migrate-ibay';
 } else {
     error();
 }

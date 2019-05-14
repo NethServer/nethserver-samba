@@ -51,6 +51,7 @@ sub mainList
     my $adb = esmith::AccountsDB->open_ro();
     my $cdb = esmith::ConfigDB->open_ro();
     my $du = disk_usage();
+    my $eventExists = (-d '/etc/e-smith/events/vhost-migrate-ibay');
     my @sfs = ();
     foreach my $record ($adb->get_all_by_prop('type' => 'ibay')) {
         my %props = $record->props();
@@ -95,8 +96,21 @@ sub mainList
         }
         delete $props{'SmbGuestAccessType'};
 
-        $props{'size'} = $du->{$record->key()}{'size'};
-        $props{'files'} = $du->{$record->key()}{'files'};
+        # data from duc index
+        if ($du->{$record->key()}) {
+            $props{'size'} = $du->{$record->key()}{'size'};
+            $props{'files'} = $du->{$record->key()}{'files'};
+        } else {
+            $props{'size'} = -1;
+            $props{'files'} = -1;
+        }
+
+        # check if this is an old ibay that can be migrated to a virtualhost
+        if ($eventExists and $props{'HttpStatus'}) {
+            $props{'CanMigrate'} = JSON::true;
+        } else {
+            $props{'CanMigrate'} = JSON::false;
+        }
         $props{'acls'} = \%acls;
         push @sfs, \%props;
     };
