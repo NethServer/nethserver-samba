@@ -87,11 +87,13 @@
                 <span v-bind:class="[item.SmbAuditStatus == 'enabled' ? 'fa fa-check green' : 'fa fa-times red']"></span>
               </div>
               <div class="list-view-pf-additional-info-item">
-                <strong>{{ item['files'] }}</strong>
+                <strong v-if="item['files'] >= 0">{{ item['files'] }}</strong>
+                <span v-else class="fa fa-hourglass-o"></span>
                 {{$t('sharedfolders.list_view_files_label')}}
               </div>
               <div class="list-view-pf-additional-info-item">
-                <strong>{{ item['size'] | byteFormat }}</strong>
+                <strong v-if="item['size'] >= 0">{{ item['size'] | byteFormat }}</strong>
+                <span v-else class="fa fa-hourglass-o"></span>
                 {{$t('sharedfolders.list_view_size_label')}}
               </div>
           </div>
