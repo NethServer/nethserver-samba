@@ -78,7 +78,7 @@
           <div v-for="(m, mk) in status" v-bind:key="mk" class="list-group-item">
             <div class="list-view-pf-main-info small-list">
               <div class="list-view-pf-left">
-                <span :class="['fa', 'list-view-pf-icon-sm', 'fa-inbox']"></span>
+                <span :class="['fa', 'list-view-pf-icon-sm', 'fa-exchange']"></span>
               </div>
               <div class="list-view-pf-body">
                 <div class="list-view-pf-description">
