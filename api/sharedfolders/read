@@ -27,6 +27,7 @@ use esmith::AccountsDB;
 use NethServer::ApiTools;
 use NethServer::SSSD;
 
+require '/usr/libexec/nethserver/api/nethserver-samba/lib/samba_functions.pl';
 my $inputData = NethServer::ApiTools::readInput();
 my $ret = undef;
 
@@ -49,6 +50,7 @@ sub mainList
     my $isAd = NethServer::SSSD->new()->isAD();
     my $adb = esmith::AccountsDB->open_ro();
     my $cdb = esmith::ConfigDB->open_ro();
+    my $du = disk_usage();
     my @sfs = ();
     foreach my $record ($adb->get_all_by_prop('type' => 'ibay')) {
         my %props = $record->props();
@@ -93,6 +95,8 @@ sub mainList
         }
         delete $props{'SmbGuestAccessType'};
 
+        $props{'size'} = $du->{$record->key()}{'size'};
+        $props{'files'} = $du->{$record->key()}{'files'};
         $props{'acls'} = \%acls;
         push @sfs, \%props;
     };

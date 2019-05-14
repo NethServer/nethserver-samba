@@ -27,6 +27,8 @@ use JSON;
 use XML::Parser;
 use NethServer::ApiTools;
 
+require '/usr/libexec/nethserver/api/nethserver-samba/lib/samba_functions.pl';
+
 my $input = NethServer::ApiTools::readInput();
 my $cmd = $input->{'action'};
 
@@ -34,47 +36,18 @@ if ($cmd eq 'ibays') {
     my $ret = {};
     my $db = esmith::ConfigDB->open_ro();
     my $adb = esmith::ConfigDB->open_ro('accounts');
-    my %ibays;
-    $ret->{'ibays'} = \%ibays;
-    foreach ($adb->get_all_by_prop(type => 'ibay')) {
-        my $audit = $_->prop('SmbAuditStatus') || 'disabled';
-        $ibays{$_->key} = { name => $_->key, audit => $audit, size => 0, files => 0};
+
+    my $du = disk_usage();
+    my (%disk_usage, %files);
+    foreach (keys %$du) {
+        $disk_usage{$_} = $du->{$_}{'size'};
     }
-
-    my $duc_output = `/usr/bin/duc xml -x -d /var/cache/duc/duc.db /var/lib/nethserver/ibay 2>/dev/null`;
-    if ($duc_output) {
-        my $parser = XML::Parser->new( Handlers => {
-                Start =>   \&handle_elem_start,
-                End =>   \&handle_elem_end
-            });
-        my $record;       # points to a hash of element contents
-        my $context = '';      # name of current element
-        
-        $parser->parse($duc_output);
-
-        # save element name and attributes
-        sub handle_elem_start {
-            my( $expat, $name, %atts ) = @_;
-            return if ($context eq 'ent'); # analize only first level
-            $context = $name;
-            return unless( $name eq 'ent' && $atts{'type'} eq 'dir');
-            $record = { name => $atts{'name'}, size => $atts{'size_actual'}, files => $atts{'count'}} if( $name eq 'ent' );
-        } 
-
-
-        # if this is an <ent>, collect all the data into a record
-        sub handle_elem_end {
-            my( $expat, $name ) = @_;
-            return unless( $name eq 'ent' );
-            if (scalar (keys %$record) > 0) {
-                $ibays{$record->{'name'}}{'size'} = $record->{'size'};
-                $ibays{$record->{'name'}}{'files'} = $record->{'files'};
-            }
-            $record = {};
-            $context = '';
-        }
+    foreach (keys %$du) {
+        $files{$_} = $du->{$_}{'files'};
     }
-
+    $ret->{'du'} = \%disk_usage;
+    $ret->{'files'} = \%files;
+    $ret->{'count'} = scalar $adb->get_all_by_prop('type' => 'ibay');
     $ret->{'workgroup'} = $db->get_prop('sssd', 'Workgroup');
     print encode_json($ret);
 } elsif ($cmd eq 'smbstatus') {
