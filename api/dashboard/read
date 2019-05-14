@@ -41,9 +41,11 @@ if ($cmd eq 'ibays') {
     my (%disk_usage, %files);
     foreach (keys %$du) {
         $disk_usage{$_} = $du->{$_}{'size'};
+        $ret->{'total_du'} += $du->{$_}{'size'}
     }
     foreach (keys %$du) {
         $files{$_} = $du->{$_}{'files'};
+        $ret->{'total_files'} += $du->{$_}{'files'}
     }
     $ret->{'du'} = \%disk_usage;
     $ret->{'files'} = \%files;
