@@ -26,9 +26,11 @@ use esmith::ConfigDB;
 use esmith::AccountsDB;
 use NethServer::ApiTools;
 use NethServer::SSSD;
+use Sys::Hostname;
 
 require '/usr/libexec/nethserver/api/nethserver-samba/lib/samba_functions.pl';
 my $inputData = NethServer::ApiTools::readInput();
+my ($systemName, $domainName) = split(/\./, hostname(), 2);
 my $ret = undef;
 
 if($inputData->{'action'} eq 'list') {
@@ -116,7 +118,7 @@ sub mainList
     };
     return {
         'accountsProvider' => $cdb->get_prop('sssd', 'Provider') || 'none',
-        'groups' => listGroups(),
+        'groups' => [ ($isAd && getgrnam("domain users\@$domainName") ? "domain users\@$domainName" : ()), @{listGroups()} ],
         'sharedfolders' => \@sfs,
     }
 }
