@@ -42,7 +42,7 @@
           v-bind:class="[getCurrentPath('sharedfolders') ? 'active' : '', 'list-group-item']"
         >
           <a href="#/sharedfolders">
-            <span class="fa fa-folder-o"></span>
+            <span class="fa fa-folder-open"></span>
             <span class="list-group-item-value">{{$t('sharedfolders.menu_title')}}</span>
           </a>
         </li>

@@ -28,7 +28,32 @@
 
 
 <template>
-    <div>
+  <div>
+    <div v-if="vReadStatus == 'success' && sharedfolders.length == 0" class="blank-slate-pf">
+      <div class="blank-slate-pf-icon">
+        <span class="pficon pficon pficon-add-circle-o"></span>
+      </div>
+      <h1>{{ $t('sharedfolders.title') }}</h1>
+      <p>{{ $t("sharedfolders.empty_state_message") }}</p>
+      <p>
+          <doc-info
+              place="docinfo"
+              :placement="'top'"
+              :title="$t('docs.sharedfolders')"
+              :chapter="'shared_folder'"
+              :section="'shared-folders'"
+              :inline="false"
+              :lang="'en'"
+          ></doc-info>
+      </p>
+      <div class="blank-slate-pf-main-action">
+        <button
+          class="btn btn-primary btn-lg"
+          v-on:click="openModal('modalCreateSharedFolder', createSharedFolder())"
+        >{{ $t('sharedfolders.empty_state_button') }}</button>
+      </div>
+    </div>
+    <div v-else>
         <h1>{{ $t('sharedfolders.title') }}</h1>
         <doc-info
           :placement="'top'"
@@ -62,6 +87,7 @@
             v-on:item-reset-permissions="openModal('modalResetPermissionsSharedFolder', $event)"
           ></shared-folders-list-view>
         </div>
+    </div>
 
         <shared-folder-edit-modal
           id="modalCreateSharedFolder"
@@ -94,8 +120,7 @@
           v-on:modal-close="read"
           v-bind:initial-item="currentItem"
         ></shared-folder-edit-modal>
-
-    </div>
+  </div>
 </template>
 
 <script>

@@ -46,6 +46,8 @@
   },
   "sharedfolders": {
     "title": "Shared folders",
+    "empty_state_message": "A shared folder is a place where files can be accessed by a group of people using Samba (SMB/CIFS).",
+    "empty_state_button": "Create a shared folder",
     "item_edit_button": "Edit",
     "item_reset_permissions_button": "Reset permissions",
     "item_delete_button": "Delete",
