@@ -106,10 +106,10 @@ sub mainList
         }
 
         # check if this is an old ibay that can be migrated to a virtualhost
-        if ($eventExists and $props{'HttpStatus'}) {
-            $props{'CanMigrate'} = JSON::true;
+        if ($eventExists && ($props{'HttpStatus'} || '') eq 'enabled') {
+            $props{'migrateVhost'} = $props{'HttpVirtualHost'} || '__ANY__';
         } else {
-            $props{'CanMigrate'} = JSON::false;
+            $props{'migrateVhost'} = JSON::null;
         }
         $props{'acls'} = \%acls;
         push @sfs, \%props;
