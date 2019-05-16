@@ -35,7 +35,7 @@
 
     <h3 v-if=" view.isLoaded">{{ $t('audit.filter') }}</h3>
     <form
-      v-if=" view.isLoaded"
+      v-show=" view.isLoaded"
       role="form"
       class="form-horizontal"
       v-on:submit.prevent="getAudits()"
@@ -67,7 +67,7 @@
       <div class="form-group">
         <label class="col-sm-2">{{$t('action')}}</label>
         <div class="col-sm-6">
-          <select class="form-control" v-model="filter.operation">
+          <select class="form-control selectpicker" v-model="filter.operation">
             <option value>{{$t('audit.all')}}</option>
             <option value="read-file">{{$t('audit.read_file')}}</option>
             <option value="delete-file">{{$t('audit.delete_file')}}</option>
@@ -210,6 +210,7 @@ var moment = require("moment");
 export default {
   name: "Mailboxes",
   mounted() {
+    window.jQuery(".selectpicker").selectpicker();
     this.getAudits();
   },
   data() {

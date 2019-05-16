@@ -23,7 +23,7 @@
   <div>
     <h1>{{ $t('settings.title') }}</h1>
     <div v-if="!view.isLoaded" class="spinner spinner-lg"></div>
-    <div v-if="view.isLoaded">
+    <div v-show="view.isLoaded">
       <form class="form-horizontal" v-on:submit.prevent="saveSettings()">
         <div :class="['form-group', errors.Workgroup.hasError ? 'has-error' : '']">
           <label
@@ -44,13 +44,13 @@
           </div>
         </div>
 
-        <div v-if="!settings.WorkgroupEditable" :class="['form-group', errors.InheritOwner.hasError ? 'has-error' : '']">
+        <div v-show="!settings.WorkgroupEditable" :class="['form-group', errors.InheritOwner.hasError ? 'has-error' : '']">
           <label
             class="col-sm-2 control-label"
             for="textInput-modal-markup"
           >{{$t('settings.inherit_owner')}}</label>
           <div class="col-sm-5">
-            <select v-model="settings.InheritOwner" class="form-control">
+            <select v-model="settings.InheritOwner" class="form-control selectpicker">
               <option value="yes">{{$t('settings.yes_inherit')}}</option>
               <option value="no">{{$t('settings.no_inherit')}}</option>
             </select>
@@ -109,6 +109,7 @@
 export default {
   name: "Settings",
   mounted() {
+    window.jQuery(".selectpicker").selectpicker();
     this.getSettings();
   },
   data() {
