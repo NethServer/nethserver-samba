@@ -1,0 +1,124 @@
+#!/usr/bin/perl
+
+#
+# Copyright (C) 2019 Nethesis S.r.l.
+# http://www.nethesis.it - nethserver@nethesis.it
+#
+# This script is part of NethServer.
+#
+# NethServer is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License,
+# or any later version.
+#
+# NethServer is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with NethServer.  If not, see COPYING.
+#
+
+use strict;
+use JSON;
+use esmith::ConfigDB;
+use esmith::AccountsDB;
+use NethServer::ApiTools;
+use NethServer::SSSD;
+use Sys::Hostname;
+
+require '/usr/libexec/nethserver/api/nethserver-samba/lib/samba_functions.pl';
+my $inputData = NethServer::ApiTools::readInput();
+my ($systemName, $domainName) = split(/\./, hostname(), 2);
+my $ret = undef;
+
+if($inputData->{'action'} eq 'list') {
+    $ret = mainList();
+} elsif($inputData->{'action'} eq 'list-users') {
+    exec("/usr/libexec/nethserver/list-users | jq -c '{users: keys}'");
+} else {
+    exit(1);
+}
+
+print encode_json($ret);
+
+sub listGroups {
+    return [ keys %{ NethServer::ApiTools::safe_decode_json(qx(/usr/libexec/nethserver/list-groups), {}) } ];
+}
+
+sub mainList
+{
+    my $isAd = NethServer::SSSD->new()->isAD();
+    my $adb = esmith::AccountsDB->open_ro();
+    my $cdb = esmith::ConfigDB->open_ro();
+    my $du = disk_usage();
+    my $eventExists = (-d '/etc/e-smith/events/vhost-migrate-ibay');
+    my @sfs = ();
+    foreach my $record ($adb->get_all_by_prop('type' => 'ibay')) {
+        my %props = $record->props();
+        delete $props{'type'};
+        $props{'name'} = $record->key();
+
+        my %acls = ();
+
+        if($isAd) {
+            foreach (split(',', $props{'AclRead'})) {
+                $acls{$_} .= 'r';
+            }
+        }
+        delete $props{'AclRead'};
+
+        if($isAd) {
+            foreach (split(',', $props{'AclWrite'})) {
+                $acls{$_} .= 'w';
+            }
+        }
+        delete $props{'AclWrite'};
+
+        if(!$isAd && $props{'GroupAccess'}) {
+            $acls{'GOWNER'} = $props{'GroupAccess'};
+        }
+        delete $props{'GroupAccess'};
+
+        if($props{'OtherAccess'}) {
+            $acls{'EVERYONE'} = $props{'OtherAccess'};
+        } else {
+            $acls{'EVERYONE'} = '';
+        }
+        delete $props{'OtherAccess'};
+
+        if(($props{'SmbGuestAccessType'} || 'none') ne 'none') {
+            $props{'guestAccess'} = "enabled";
+            # Override of EVERYONE: see calcDirectoryPermissions() in action
+            # implementation:
+            $acls{'EVERYONE'} = $props{'SmbGuestAccessType'};
+        } else {
+            $props{'guestAccess'} = "disabled";
+        }
+        delete $props{'SmbGuestAccessType'};
+
+        # data from duc index
+        if ($du->{$record->key()}) {
+            $props{'size'} = $du->{$record->key()}{'size'};
+            $props{'files'} = $du->{$record->key()}{'files'};
+        } else {
+            $props{'size'} = -1;
+            $props{'files'} = -1;
+        }
+
+        # check if this is an old ibay that can be migrated to a virtualhost
+        if ($eventExists && ($props{'HttpStatus'} || '') eq 'enabled') {
+            $props{'migrateVhost'} = $props{'HttpVirtualHost'} || '__ANY__';
+        } else {
+            $props{'migrateVhost'} = JSON::null;
+        }
+        $props{'acls'} = \%acls;
+        push @sfs, \%props;
+    };
+    return {
+        'accountsProvider' => $cdb->get_prop('sssd', 'Provider') || 'none',
+        'groups' => [ ($isAd && getgrnam("domain users\@$domainName") ? "domain users\@$domainName" : ()), @{listGroups()} ],
+        'sharedfolders' => \@sfs,
+    }
+}

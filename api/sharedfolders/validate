@@ -1,0 +1,121 @@
+#!/usr/bin/perl
+
+#
+# Copyright (C) 2019 Nethesis S.r.l.
+# http://www.nethesis.it - nethserver@nethesis.it
+#
+# This script is part of NethServer.
+#
+# NethServer is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License,
+# or any later version.
+#
+# NethServer is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with NethServer.  If not, see COPYING.
+#
+
+use strict;
+use JSON;
+use NethServer::ApiTools;
+use NethServer::SSSD;
+use esmith::AccountsDB;
+
+my $adb = esmith::AccountsDB->open_ro() || die("Could not open AccountsDB");
+my $isAd = NethServer::SSSD->new()->isAD();
+my $inputData = NethServer::ApiTools::readInput();
+my $item = $inputData->{'item'} || {};
+my $ret = undef;
+
+sub validate_acls
+{
+    my $acls = shift;
+    foreach(keys %$acls) {
+        my $validAcl = $acls->{$_} =~ m/^(r|rw|)$/;
+        if(! $validAcl) {
+            return (0, $acls->{$_});
+        }
+        my $validSubject = ($_ eq 'EVERYONE'
+            || $_ eq 'GOWNER'
+            || getgrnam($_)
+            || getpwnam($_)
+        );
+        if( ! $validSubject) {
+            return (0, $_);
+        }
+    }
+    return (1, '');
+}
+
+my @errors = ();
+
+if ($inputData->{'action'} eq 'create') {
+    my ($exitCode, $message) = NethServer::ApiTools::platform_validator("ibay-create", $item->{'name'});
+    if($exitCode) {
+        push @errors, {
+            "parameter" => "name",
+            "value" => $item->{'name'},
+            "message" => $message,
+        };
+    }
+} elsif(! $adb->get($item->{'name'}) || $adb->get_prop($item->{'name'}, 'type') ne 'ibay') {
+    push @errors, {
+        "parameter" => "name",
+        "value" => $item->{'name'},
+        "message" => 'item_not_found',
+    };
+}
+
+if(exists $item->{'OwningGroup'} && $isAd && !getgrnam($item->{'OwningGroup'})) {
+    push @errors, {
+        "parameter" => "OwningGroup",
+        "value" => $item->{'OwningGroup'},
+        "message" => "group_not_found",
+    }
+}
+
+if(exists $item->{'acls'}) {
+    my ($isValidAcl, $aclValue) = validate_acls($item->{'acls'});
+    if(!$isValidAcl) {
+        push @errors, {
+            "parameter" => "acls",
+            "value" => $aclValue,
+            "message" => "malformed_acls",
+        }
+    }
+}
+
+
+foreach(qw(
+    SmbRecycleBinStatus
+    SmbRecycleBinVersionsStatus
+    SmbShareBrowseable
+    SmbAuditStatus
+)) {
+    if(exists $item->{$_} && $item->{$_} !~ /^(enabled|disabled)$/) {
+        push @errors, {
+            "parameter" => $_,
+            "value" => $item->{$_},
+            "message" => "either_disabled_or_enabled",
+        }
+    }
+}
+
+if (@errors) {
+    print encode_json({
+        'type' => "NotValid",
+        'message' => "validation_failed",
+        'attributes' => \@errors
+    });
+    exit(1);
+} else {
+    print encode_json({
+        'type' => 'success',
+    });
+    exit(0);
+}

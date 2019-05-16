@@ -4,6 +4,8 @@ Version: 4.2.1
 Release: 1%{?dist}
 License: GPL
 Source: %{name}-%{version}.tar.gz
+# Build Source1 by executing prep-sources
+Source1: %{name}-ui.tar.gz
 BuildArch: noarch
 URL: %{url_prefix}/%{name} 
 Provides: nethserver-ibays
@@ -31,6 +33,13 @@ perl createlinks
 
 %install
 rm -rf %{buildroot}
+mkdir -p %{buildroot}/usr/share/cockpit/%{name}/
+mkdir -p %{buildroot}/usr/share/cockpit/nethserver/applications/
+mkdir -p %{buildroot}/usr/libexec/nethserver/api/%{name}/
+tar xf %{SOURCE1} -C %{buildroot}/usr/share/cockpit/%{name}/
+cp -a %{name}.json %{buildroot}/usr/share/cockpit/nethserver/applications/
+cp -a api/* %{buildroot}/usr/libexec/nethserver/api/%{name}/
+
 (cd root   ; find . -depth -print | cpio -dump %{buildroot})
 %{genfilelist} %{buildroot} > %{name}-%{version}-filelist
 
@@ -43,6 +52,7 @@ mkdir -p %{buildroot}/%{_nsstatedir}/ibay
 %dir %{_nseventsdir}/%{name}-update
 %dir %attr(0755,root,root) %{_nsstatedir}/print_driver
 %dir %attr(0775,root,root) %{_nsstatedir}/ibay
+/usr/libexec/nethserver/api/%{name}/
 
 %changelog
 * Mon Dec 17 2018 Giacomo Sanchietti <giacomo.sanchietti@nethesis.it> - 4.2.1-1

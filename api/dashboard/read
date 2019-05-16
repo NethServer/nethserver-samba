@@ -1,0 +1,142 @@
+#!/usr/bin/perl
+
+#
+# Copyright (C) 2019 Nethesis S.r.l.
+# http://www.nethesis.it - nethserver@nethesis.it
+#
+# This script is part of NethServer.
+#
+# NethServer is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License,
+# or any later version.
+#
+# NethServer is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with NethServer.  If not, see COPYING.
+#
+
+use strict;
+use warnings;
+use esmith::ConfigDB;
+use JSON;
+use XML::Parser;
+use NethServer::ApiTools;
+
+require '/usr/libexec/nethserver/api/nethserver-samba/lib/samba_functions.pl';
+
+my $input = NethServer::ApiTools::readInput();
+my $cmd = $input->{'action'};
+
+if ($cmd eq 'ibays') {
+    my $ret = {};
+    my $db = esmith::ConfigDB->open_ro();
+    my $adb = esmith::ConfigDB->open_ro('accounts');
+
+    my $du = disk_usage();
+    my (%disk_usage, %files);
+    foreach (keys %$du) {
+        $disk_usage{$_} = $du->{$_}{'size'};
+        $ret->{'total_du'} += $du->{$_}{'size'}
+    }
+    foreach (keys %$du) {
+        $files{$_} = $du->{$_}{'files'};
+        $ret->{'total_files'} += $du->{$_}{'files'}
+    }
+    $ret->{'du'} = \%disk_usage;
+    $ret->{'files'} = \%files;
+    $ret->{'count'} = scalar $adb->get_all_by_prop('type' => 'ibay');
+    $ret->{'workgroup'} = $db->get_prop('sssd', 'Workgroup');
+    print encode_json($ret);
+} elsif ($cmd eq 'smbstatus') {
+    my %status;
+
+    # processes
+    open(FH, "LANG=C smbstatus -n -p|");
+    my $parse = 0;
+    while (<FH>) {
+        next if /^\s*$/;    # skip blank lines
+        if (/^\-/) {
+            $parse = 1;
+            next;
+        }
+        if ($parse) {
+            my ($pid, $username, $group, $machine, $machine_ignore, $protocol, $version, $encryption, $signing, $cipher) = split;
+            $status{$pid} = {username => $username, group => $group, machine => $machine, protocol => $protocol, encryption => $encryption};
+        }
+    }
+    close(FH);
+
+    # shares
+    open(FH, "LANG=C smbstatus -n -S|");
+    $parse = 0;
+    while (<FH>) {
+        next if /^\s*$/;    # skip blank lines
+        if (/^\-/) {
+            $parse = 1;
+            next;
+        }
+        if ($parse) {
+            my ($service, $pid, $machine, $connected) = split(/\s+/,$_,4);
+            $connected =~ s/\-.*$//; # preserve only the date
+            $connected =~ s/\s*$//; # rtrim
+            $status{$pid}{'service'} = $service;
+            $status{$pid}{'connected'} = $connected;
+        }
+    }
+    close(FH);
+
+    ## locks
+    open(FH, "LANG=C smbstatus -n -L|");
+    $parse = 0;
+    while (<FH>) {
+        next if /^\s*$/;    # skip blank lines
+        if (/^\-/) {
+            $parse = 1;
+            next;
+        }
+        if ($parse) {
+            my ($pid, $uid, $denymdode, $access, $rw, $oplock, $path, $name, $time) = split(/\s+/,$_,9);
+            $time =~ s/\s*$//; # rtrim
+            $status{$pid}{'mode'} = $rw;
+            $status{$pid}{'oplock'} = $oplock;
+            $status{$pid}{'path'} = $path;
+        }
+    }
+    close(FH);
+
+    # resolve names and return a flat array
+    my @ret;
+    foreach (keys %status) {
+        my $record = $status{$_};
+        my ($uname,$upasswd,$uid,$ugid,$quota,$comment,$gecos,$dir,$shell,$expire) = getpwuid($status{$_}{'username'});
+        if ($uname) {
+            $status{$_}{'username'} = $uname;
+            $status{$_}{'name'} = $gecos;
+        } else {
+            $status{$_}{'name'} = '-';
+        }
+        my ($gname,$gpasswd,$gid,$members) = getgrgid($status{$_}{'group'});
+        if ($gname) {
+            $status{$_}{'group'} = $gname;
+        }
+
+        # complete empty fields
+        if (!$status{$_}{'path'}) {
+            $status{$_}{'mode'} = '-';
+            $status{$_}{'oplock'} = '-';
+            $status{$_}{'path'} = '-';
+        }
+
+        push(@ret, $status{$_});
+    }
+
+
+    print encode_json(\@ret);
+} else {
+    NethServer::ApiTools::error();
+}

@@ -57,12 +57,7 @@ class Modify extends \Nethgui\Controller\Table\Modify
             'default'
         );
 
-        /*
-         * Refs #941, #1536. Avoid deletion of Primary ibay
-         */
-        if ($this->getIdentifier() === 'delete') {
-            $ibayNameValidator = $this->createValidator()->platform('ibay-delete');
-        } elseif ($this->getIdentifier() === 'create') {
+        if ($this->getIdentifier() === 'create') {
             $ibayNameValidator = $this->createValidator()->platform('ibay-create');
         } else {
             $ibayNameValidator = FALSE;
