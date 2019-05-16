@@ -10,3 +10,9 @@ type = PHP_ALT_ARRAY
 source_file = root/usr/share/nethesis/NethServer/Language/en/NethServer_Module_FileServer.php
 source_lang = en
 type = PHP_ALT_ARRAY
+
+[nethserver.CockpitSamba]
+source_file = ui/public/i18n/language.json
+source_lang = en
+type = KEYVALUEJSON
+
