@@ -377,7 +377,7 @@ export default {
     },
     computed: {
         vOwners: function() {
-            return Array.concat([], this.$props.groupsList).sort()
+            return [].concat(this.$props.groupsList).sort()
         },
         vSmbRecycleBinStatus: {
             get: function() {
@@ -459,7 +459,7 @@ export default {
                     .then(response => {
                         this.vAclSpinner = false
                         subjectsStore.loaded = true
-                        subjectsStore.items = Array.concat([], response.users, this.$props.groupsList).sort()
+                        subjectsStore.items = [].concat(response.users, this.$props.groupsList).sort()
                         return subjectsStore.items.filter(subj => subj.toLowerCase().includes(query))
                     })
             }
