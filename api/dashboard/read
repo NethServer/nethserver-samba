@@ -49,6 +49,7 @@ if ($cmd eq 'ibays') {
     }
     $ret->{'du'} = \%disk_usage;
     $ret->{'files'} = \%files;
+    $ret->{'updated'} = (stat('/var/cache/duc/duc.db'))[9];
     $ret->{'count'} = scalar $adb->get_all_by_prop('type' => 'ibay');
     $ret->{'workgroup'} = $db->get_prop('sssd', 'Workgroup') || 'WORKGROUP';
     print encode_json($ret);
@@ -100,11 +101,16 @@ if ($cmd eq 'ibays') {
             next;
         }
         if ($parse) {
-            my ($pid, $uid, $denymdode, $access, $rw, $oplock, $path, $name, $time) = split(/\s+/,$_,9);
-            $time =~ s/\s*$//; # rtrim
+            my ($pid, $uid, $denymdode, $access, $rw, $oplock, $path, $end) = split(/\s+/,$_,8);
+            # parse timestamp and file name including spaces
+            $end =~ /(.*)\s+([a-z][a-z][a-z] [a-z][a-z][a-z] \d\d \d\d:\d\d:\d\d \d\d\d\d)/i;
+            my $name = $1;
+            $name =~ s/\s+$//;
+            if ($name ne '.') { # file has a value, substitute to path
+                $status{$pid}{'path'} = $name
+            }
             $status{$pid}{'mode'} = $rw;
             $status{$pid}{'oplock'} = $oplock;
-            $status{$pid}{'path'} = $path;
         }
     }
     close(FH);
@@ -112,7 +118,6 @@ if ($cmd eq 'ibays') {
     # resolve names and return a flat array
     my @ret;
     foreach (keys %status) {
-        my $record = $status{$_};
         my ($uname,$upasswd,$uid,$ugid,$quota,$comment,$gecos,$dir,$shell,$expire) = getpwuid($status{$_}{'username'});
         if ($uname) {
             $status{$_}{'username'} = $uname;
