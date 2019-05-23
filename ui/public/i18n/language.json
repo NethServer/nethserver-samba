@@ -19,6 +19,12 @@
   "info": "Info",
   "no_data_found": "No data found",
   "rows_per_page": "Rows per page",
+  "package_required": "Missing packages",
+  "package_required_desc": "To access this page install the required packages showed below",
+  "install_package": "Install package",
+  "install_packages": "Install packages",
+  "packages_installed_ok": "Packages installed successfully!",
+  "packages_installed_error": "Packages not installed.",
   "docs": {
     "sharedfolders": "Shared folders",
     "more_info_about": "More info about {docsLink}.",
@@ -35,15 +41,16 @@
     "size": "Size",
     "smb_status": "Samba status",
     "encryption": "Encryption",
-    "service": "Service",
+    "service": "Share",
     "protocol": "Protocol",
-    "machine": "Machine",
+    "machine": "Client IP",
     "path": "Path",
     "workgroup": "Workgroup/NetBIOS domain name",
     "ibays_configured": "Shared folders count",
     "files_count_for_ibays": "File count",
     "files_du_for_ibays": "File disk usage",
-    "empty_piechart_label": "Statistics are not available"
+    "empty_piechart_label": "Statistics are not available",
+    "last_updated": "Updated at {time}"
   },
   "sharedfolders": {
     "title": "Shared folders",

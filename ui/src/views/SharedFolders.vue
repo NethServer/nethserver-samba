@@ -31,7 +31,7 @@
   <div>
     <div v-if="vReadStatus == 'success' && sharedfolders.length == 0" class="blank-slate-pf">
       <div class="blank-slate-pf-icon">
-        <span class="pficon pficon pficon-add-circle-o"></span>
+        <span class="fa fa-folder-open"></span>
       </div>
       <h1>{{ $t('sharedfolders.title') }}</h1>
       <p>{{ $t("sharedfolders.empty_state_message") }}</p>

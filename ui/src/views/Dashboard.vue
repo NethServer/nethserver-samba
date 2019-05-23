@@ -36,6 +36,11 @@
         <div v-if="!view.isLoaded" class="spinner spinner-lg view-spinner"></div>
 
         <div v-show="view.isLoaded">
+          <span v-if="updated" class="gray min-size right">
+            <i18n path="dashboard.last_updated">
+              <span place="time">{{updated | dateFormat}}</span>
+            </i18n>
+          </span>
           <h4>
             {{$t('dashboard.ibays_configured')}}:
             <b>{{ibays}}</b>
@@ -94,12 +99,12 @@
                 </div>
                 <div class="list-view-pf-additional-info rules-info">
                   <div class="list-view-pf-additional-info-item">
-                    <span class="span-right-margin">{{$t('dashboard.path')}}:</span>
-                    <code>{{m.path}}</code>
-                  </div>
-                  <div class="list-view-pf-additional-info-item">
                     <span class="span-right-margin">{{$t('dashboard.service')}}:</span>
                     <strong>{{m.service}}</strong>
+                  </div>
+                  <div class="list-view-pf-additional-info-item">
+                    <span class="span-right-margin">{{$t('dashboard.path')}}:</span>
+                    <code>{{m.path}}</code>
                   </div>
                   <div class="list-view-pf-additional-info-item">
                     <span class="span-right-margin">{{$t('dashboard.protocol')}}:</span>
@@ -134,6 +139,7 @@ export default {
       workgroup: "",
       ibays: 0,
       status: [],
+      updated: null,
       statsFiles: {},
       statsDu: {},
       totalFiles: 0,
@@ -219,6 +225,7 @@ export default {
           }
           context.ibays = success.count;
           context.workgroup = success.workgroup;
+          context.updated = success.updated;
 
           context.statsFiles = success.files;
           context.statsDu = success.du;
@@ -293,6 +300,14 @@ export default {
 
 .gray {
   color: #72767b !important;
+}
+
+.min-size {
+  font-size: 14px;
+}
+
+.right {
+  float: right;
 }
 
 .semi-bold {

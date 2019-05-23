@@ -33,6 +33,25 @@
 
     <div v-if="!view.isLoaded" class="spinner spinner-lg view-spinner"></div>
 
+    <div v-show="!view.menu.installed && view.isLoaded">
+      <div class="blank-slate-pf">
+        <div class="blank-slate-pf-icon">
+          <span class="pficon pficon pficon-add-circle-o"></span>
+        </div>
+        <h1>{{$t('package_required')}}</h1>
+        <p>{{$t('package_required_desc')}}.</p>
+        <pre>{{view.menu.packages.join(' ')}}</pre>
+        <div class="blank-slate-pf-main-action">
+          <button
+            :disabled="view.isInstalling"
+            @click="installPackages()"
+            class="btn btn-primary btn-lg"
+          >{{view.menu.packages.length == 1 ? $t('install_package') : $t('install_packages')}}</button>
+          <div v-if="view.isInstalling" class="spinner spinner-sm"></div>
+        </div>
+      </div>
+    </div>
+
     <h3 v-if=" view.isLoaded">{{ $t('audit.filter') }}</h3>
     <form
       v-show=" view.isLoaded"
@@ -209,14 +228,42 @@ var moment = require("moment");
 
 export default {
   name: "Mailboxes",
-  mounted() {
-    window.jQuery(".selectpicker").selectpicker();
-    this.getAudits();
+  beforeRouteEnter(to, from, next) {
+    next(vm => {
+      vm.view.isLoaded = false;
+      nethserver.exec(
+        ["nethserver-squid/feature/read"],
+        {
+          name: vm.$route.path.substr(1)
+        },
+        null,
+        function(success) {
+          try {
+            success = JSON.parse(success);
+          } catch (e) {
+            console.error(e);
+          }
+
+          vm.view.menu = success;
+          window.jQuery(".selectpicker").selectpicker();
+          context.getAudits();
+        },
+        function(error) {
+          console.error(error);
+        },
+        false
+      );
+    });
   },
   data() {
     return {
       view: {
-        isLoaded: false
+        isLoaded: false,
+        isInstalling: false,
+        menu: {
+          installed: false,
+          packages: []
+        }
       },
       tableLangsTexts: this.tableLangs(),
       auditColumns: [
@@ -271,6 +318,29 @@ export default {
     };
   },
   methods: {
+    installPackages() {
+      this.view.isInstalling = true;
+      // notification
+      nethserver.notifications.success = this.$i18n.t("packages_installed_ok");
+      nethserver.notifications.error = this.$i18n.t("packages_installed_error");
+
+      nethserver.exec(
+        ["nethserver-squid/feature/update"],
+        {
+          name: this.$route.path.substr(1)
+        },
+        function(stream) {
+          console.info("install-package", stream);
+        },
+        function(success) {
+          // reload page
+          window.location.reload();
+        },
+        function(error) {
+          console.error(error);
+        }
+      );
+    },
     getAudits() {
       var context = this;
 

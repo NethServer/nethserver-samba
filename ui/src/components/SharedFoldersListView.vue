@@ -94,7 +94,6 @@
               <div class="list-view-pf-additional-info-item">
                 <strong v-if="item['size'] >= 0">{{ item['size'] | byteFormat }}</strong>
                 <span v-else class="fa fa-hourglass-o"></span>
-                {{$t('sharedfolders.list_view_size_label')}}
               </div>
           </div>
         </div>
