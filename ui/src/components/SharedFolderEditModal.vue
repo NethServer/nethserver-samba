@@ -201,6 +201,24 @@ select {
                                         </span>
                                     </span>
                                 </li>
+                                <li v-for="(acl, subject) in item.acls" v-bind:key="subject" class="mg-bottom-5" v-if="subject != 'GOWNER' && subject != 'EVERYONE'">
+                                  <span class="label label-info label-select label-acl">
+                                    {{ subject | shorten }}
+                                    <span class="inline-select">
+                                      <select
+                                        class="form-control"
+                                        v-model="item.acls[subject]"
+                                      >
+                                        <option disabled value="">{{$t('sharedfolders.acl_null_label')}}</option>
+                                        <option value="r">{{$t('sharedfolders.acl_read_label')}}</option>
+                                        <option value="rw">{{$t('sharedfolders.acl_readwrite_label')}}</option>
+                                      </select>
+                                    </span>
+                                    <a v-on:click="removeSubject(subject)" class="remove-item-inline remove-acl" href="#">
+                                      <span v-bind:aria-label="$t('sharedfolders.acl_remove_message')" class="fa fa-times"></span>
+                                    </a>
+                                  </span>
+                                </li>
                                 <li>
                                     <span class="label label-info label-select label-acl">
                                         {{ $t('sharedfolders.everyone_label') }}
@@ -224,24 +242,6 @@ select {
                                           <span v-bind:aria-label="$t('sharedfolders.acl_builtin_message')" class="fa fa-lock"></span>
                                         </span>
                                     </span>
-                                </li>
-                                <li v-for="(acl, subject) in item.acls" v-bind:key="subject" class="mg-bottom-5" v-if="subject != 'GOWNER' && subject != 'EVERYONE'">
-                                  <span class="label label-info label-select label-acl">
-                                    {{ subject | shorten }}
-                                    <span class="inline-select">
-                                      <select
-                                        class="form-control"
-                                        v-model="item.acls[subject]"
-                                      >
-                                        <option disabled value="">{{$t('sharedfolders.acl_null_label')}}</option>
-                                        <option value="r">{{$t('sharedfolders.acl_read_label')}}</option>
-                                        <option value="rw">{{$t('sharedfolders.acl_readwrite_label')}}</option>
-                                      </select>
-                                    </span>
-                                    <a v-on:click="removeSubject(subject)" class="remove-item-inline remove-acl" href="#">
-                                      <span v-bind:aria-label="$t('sharedfolders.acl_remove_message')" class="fa fa-times"></span>
-                                    </a>
-                                  </span>
                                 </li>
                               </ul>
                               <span v-if="vErrors.acls" class="help-block">{{ vErrors.acls }}</span>
