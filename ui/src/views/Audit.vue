@@ -52,9 +52,9 @@
       </div>
     </div>
 
-    <h3 v-if=" view.isLoaded">{{ $t('audit.filter') }}</h3>
+    <h3 v-if="view.menu.installed && view.isLoaded">{{ $t('audit.filter') }}</h3>
     <form
-      v-show=" view.isLoaded"
+      v-show="view.menu.installed &&  view.isLoaded"
       role="form"
       class="form-horizontal"
       v-on:submit.prevent="getAudits()"
@@ -136,8 +136,8 @@
       </div>
     </form>
 
-    <h3 v-if=" view.isLoaded">{{ $t('actions_title') }}</h3>
-    <form v-if=" view.isLoaded" role="form" class="search-pf has-button search">
+    <h3 v-if="view.menu.installed &&  view.isLoaded">{{ $t('actions_title') }}</h3>
+    <form v-if="view.menu.installed &&  view.isLoaded" role="form" class="search-pf has-button search">
       <div class="form-group">
         <button
           class="btn btn-primary btn-lg margin-left-md"
@@ -153,9 +153,9 @@
       </div>
     </form>
 
-    <h3 v-if=" view.isLoaded">{{ $t('list') }}</h3>
+    <h3 v-if="view.menu.installed &&  view.isLoaded">{{ $t('list') }}</h3>
     <vue-good-table
-      v-show="view.isLoaded"
+      v-show="view.menu.installed && view.isLoaded"
       :customRowsPerPageDropdown="[25,50,100]"
       :perPage="25"
       :columns="auditColumns"
@@ -245,8 +245,6 @@ export default {
           }
 
           vm.view.menu = success;
-          window.jQuery(".selectpicker").selectpicker();
-          context.getAudits();
         },
         function(error) {
           console.error(error);
@@ -254,6 +252,10 @@ export default {
         false
       );
     });
+  },
+  mounted() {
+    window.jQuery(".selectpicker").selectpicker();
+    this.getAudits();
   },
   data() {
     return {
@@ -370,6 +372,7 @@ export default {
         },
         function(error) {
           console.error(error);
+          context.view.isLoaded = true;
         }
       );
     },
