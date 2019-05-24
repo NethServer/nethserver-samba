@@ -232,7 +232,7 @@ export default {
     next(vm => {
       vm.view.isLoaded = false;
       nethserver.exec(
-        ["nethserver-squid/feature/read"],
+        ["nethserver-samba/feature/read"],
         {
           name: vm.$route.path.substr(1)
         },
@@ -327,7 +327,7 @@ export default {
       nethserver.notifications.error = this.$i18n.t("packages_installed_error");
 
       nethserver.exec(
-        ["nethserver-squid/feature/update"],
+        ["nethserver-samba/feature/update"],
         {
           name: this.$route.path.substr(1)
         },
@@ -336,7 +336,7 @@ export default {
         },
         function(success) {
           // reload page
-          window.location.reload();
+          window.parent.location.reload();
         },
         function(error) {
           console.error(error);
