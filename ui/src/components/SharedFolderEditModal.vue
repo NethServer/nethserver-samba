@@ -134,21 +134,21 @@ select {
 
                     <form class="form-horizontal">
                         <div v-bind:class="['form-group', vErrors.name ? 'has-error' : '']">
-                            <label class="col-sm-4 control-label" v-bind:for="id + '-ni'">{{ $t('sharedfolders.name_label', this.item) }}</label>
-                            <div class="col-sm-8">
+                            <label class="col-sm-3 control-label" v-bind:for="id + '-ni'">{{ $t('sharedfolders.name_label', this.item) }}</label>
+                            <div class="col-sm-9">
                                 <input v-bind:disabled="action != 'create'" type="text" v-model="item.name" v-bind:id="id + '-ni'" class="form-control">
                                 <span v-if="vErrors.name" class="help-block">{{ vErrors.name }}</span>
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="col-sm-4 control-label" v-bind:for="id + '-di'">{{ $t('sharedfolders.description_label') }}</label>
-                            <div class="col-sm-8">
+                            <label class="col-sm-3 control-label" v-bind:for="id + '-di'">{{ $t('sharedfolders.description_label') }}</label>
+                            <div class="col-sm-9">
                                 <input type="text" v-model="item.Description" v-bind:id="id + '-di'" class="form-control">
                             </div>
                         </div>
                         <div v-if="vIsAd" v-bind:class="['form-group', vErrors.OwningGroup ? 'has-error' : '']">
-                            <label class="col-sm-4 control-label" v-bind:for="id + '-og'">{{ $t('sharedfolders.OwningGroup_label') }}</label>
-                            <div class="col-sm-8">
+                            <label class="col-sm-3 control-label" v-bind:for="id + '-og'">{{ $t('sharedfolders.OwningGroup_label') }}</label>
+                            <div class="col-sm-9">
                                 <select 
                                     class="form-control" 
                                     v-bind:id="id + '-og'"
@@ -166,12 +166,12 @@ select {
                         </div>
                         <div v-bind:class="['form-group', vErrors.acls ? 'has-error' : '']">
                             <label
-                                class="col-sm-4 control-label"
+                                class="col-sm-3 control-label"
                                 >
                                     <span v-if="vAclSpinner" class="spinner spinner-xs spinner-inline form-spinner-vSpinner"></span>&#x20;
                                     {{$t('sharedfolders.Acl_label')}}
                             </label>
-                            <div class="col-sm-8">
+                            <div class="col-sm-9">
                               <suggestions v-if="vIsAd"
                                 v-model="vSearchText"
                                 v-bind:options="{debounce: 400, inputClass: 'form-control', placeholder: $t('sharedfolders.Acl_placeholder')}"
@@ -250,7 +250,7 @@ select {
 
                         <div v-if="vIsAd" class="form-group">
                             <label
-                                class="col-sm-4 control-label"
+                                class="col-sm-3 control-label"
                                 v-bind:for="id + '-ga'"
                                 >{{$t('sharedfolders.guestAccess_label')}}
                                 <doc-info
@@ -260,7 +260,7 @@ select {
                                   v-bind:inline="true"
                                 ></doc-info>
                             </label>
-                            <div class="col-sm-8">
+                            <div class="col-sm-9">
                                 <input
                                     type="checkbox"
                                     class="form-control"
@@ -286,31 +286,31 @@ select {
                       <div v-if="vAdvanced">
                         <div class="form-group">
                             <label
-                                class="col-sm-4 control-label"
+                                class="col-sm-3 control-label"
                                 v-bind:for="id + '-sa'"
                                 >{{ $t('sharedfolders.SmbAuditStatus_label') }}
                             </label>
-                            <div class="col-sm-8">
+                            <div class="col-sm-9">
                                 <input type="checkbox" v-model="item.SmbAuditStatus" v-bind:id="id + '-sa'" class="form-control" true-value="enabled" false-value="disabled">
                             </div>
                         </div>
                         <div class="form-group">
                             <label
-                                class="col-sm-4 control-label"
+                                class="col-sm-3 control-label"
                                 v-bind:for="id + '-sb'"
                                 >{{$t('sharedfolders.SmbShareBrowseable_label')}}
                             </label>
-                            <div class="col-sm-8">
+                            <div class="col-sm-9">
                                 <input type="checkbox" v-model="item.SmbShareBrowseable" v-bind:id="id + '-sb'" class="form-control" true-value="enabled" false-value="disabled">
                             </div>
                         </div>
                         <div class="form-group">
                             <label
-                                class="col-sm-4 control-label"
+                                class="col-sm-3 control-label"
                                 v-bind:for="id + '-rb'"
                                 >{{$t('sharedfolders.SmbRecycleBinStatus_label')}}
                             </label>
-                            <div class="col-sm-8">
+                            <div class="col-sm-9">
                               <toggle-button
                                 class="min-toggle"
                                 v-bind:width="40"
@@ -324,11 +324,11 @@ select {
                         </div>
                         <div v-if="vSmbRecycleBinStatus" class="form-group">
                             <label
-                                class="col-sm-4 control-label"
+                                class="col-sm-3 control-label"
                                 v-bind:for="id + '-rv'"
                                 >{{$t('sharedfolders.SmbRecycleBinVersionsStatus_label')}}
                             </label>
-                            <div class="col-sm-8">
+                            <div class="col-sm-9">
                                 <input type="checkbox" v-model="item.SmbRecycleBinVersionsStatus" v-bind:id="id + '-rv'" class="form-control" true-value="enabled" false-value="disabled">
                             </div>
                         </div>
