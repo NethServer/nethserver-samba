@@ -76,7 +76,7 @@ sub mainList
         }
         delete $props{'AclWrite'};
 
-        if(!$isAd && $props{'GroupAccess'}) {
+        if($isAd && $props{'GroupAccess'}) {
             $acls{'GOWNER'} = $props{'GroupAccess'};
         }
         delete $props{'GroupAccess'};
