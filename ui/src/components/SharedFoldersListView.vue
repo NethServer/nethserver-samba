@@ -88,12 +88,12 @@
               </div>
               <div class="list-view-pf-additional-info-item">
                 <strong v-if="item['files'] >= 0">{{ item['files'] }}</strong>
-                <span v-else class="fa fa-hourglass-o"></span>
+                <strong v-else>-</strong>
                 {{$t('sharedfolders.list_view_files_label')}}
               </div>
               <div class="list-view-pf-additional-info-item">
                 <strong v-if="item['size'] >= 0">{{ item['size'] | byteFormat }}</strong>
-                <span v-else class="fa fa-hourglass-o"></span>
+                <strong v-else>-</strong>
               </div>
           </div>
         </div>
