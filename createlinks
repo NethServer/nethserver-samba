@@ -144,6 +144,11 @@ event_actions('post-restore-data', qw(
 #
 event_actions('nethserver-directory-ns6upgrade', qw(
     nethserver-ibays-remap-locals    60
+    nethserver-samba-ns6sidfix 60
+));
+
+event_services('nethserver-directory-ns6upgrade', qw(
+    winbind restart
 ));
 
 #
