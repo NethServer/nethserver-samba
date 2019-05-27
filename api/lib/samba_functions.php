@@ -90,6 +90,8 @@ function query ($action = "read", $username = "", $address = "", $share = "", $o
                     } else if ($tmp[0] == 'w') {
                         $result['op'] = 'write';
                     }
+                } else if ($result['op'] == 'unlink') {
+                    $result['arg'] = $tmp[0];
                 } else if ($result['op'] == 'rename') {
                     $result['arg'] = $tmp[0] . " -> ". $tmp[1];
                 } else if ($result['op'] == 'mkdir') {
