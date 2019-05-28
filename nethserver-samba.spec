@@ -1,6 +1,6 @@
 Summary: Nethserver Samba file server
 Name: nethserver-samba
-Version: 4.2.1
+Version: 4.3.0
 Release: 1%{?dist}
 License: GPL
 Source: %{name}-%{version}.tar.gz
@@ -55,6 +55,10 @@ mkdir -p %{buildroot}/%{_nsstatedir}/ibay
 /usr/libexec/nethserver/api/%{name}/
 
 %changelog
+* Tue May 28 2019 Giacomo Sanchietti <giacomo.sanchietti@nethesis.it> - 4.3.0-1
+- File server Cockpit UI - NethServer/dev#5754
+- Cannot access shared folder after ns6 WS upgrade - Bug NethServer/dev#5767
+
 * Mon Dec 17 2018 Giacomo Sanchietti <giacomo.sanchietti@nethesis.it> - 4.2.1-1
 - Cannot access shared folders after ns6 config restore - Bug NethServer/dev#5673
 
