@@ -422,17 +422,6 @@ export default {
 
             this.vErrors = {}
             execp("nethserver-samba/sharedfolders/validate", inputData)
-            .catch((validationError) => {
-                this.vErrors = Object.fromEntries(validationError.attributes.map(err => [
-                    err.parameter,
-                    this.$t('validation.' + err.message.split("\n").pop(), {
-                        value: err.value,
-                        msg: err.message.split("\n").slice(0, -1)
-                    })
-                ]))
-                this.vSpinner = false
-                return Promise.reject(validationError) // still unresolved
-            })
             .then((validationResult) => {
                 this.vSpinner = false
                 window.jQuery(this.$el).modal('hide') // on successful resolution close the dialog
@@ -440,11 +429,25 @@ export default {
                 nethserver.notifications.error = this.$t("sharedfolders.item_" + this.action + "_error");
                 return execp("nethserver-samba/sharedfolders/" + verb, inputData, true) // start another async call
             })
-            .finally(() => {
-                this.vSpinner = false // always stop the spinner when async calls end
-            })
             .then(() => {
                 this.$emit('modal-close', eventData) // on save success, close the dialog
+            })
+            .catch((err) => {
+                if(err.hasOwnProperty('type')) {
+                    let validationError = err
+                    this.vErrors = Object.fromEntries(validationError.attributes.map(err => [
+                        err.parameter,
+                        this.$t('validation.' + err.message.split("\n").pop(), {
+                            value: err.value,
+                            msg: err.message.split("\n").slice(0, -1)
+                        })
+                    ]))
+                } else {
+                    return Promise.reject(err) // throw again unhandled exceptions
+                }
+            })
+            .finally(() => {
+                this.vSpinner = false // always stop the spinner when async calls end
             })
         })
     },
