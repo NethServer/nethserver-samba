@@ -409,9 +409,15 @@ export default {
     mounted: function() {
         this.$on('modal-save', (eventData) => {
             this.vSpinner = true
+            var verb = 'update'
             var inputData = {
                 action: this.$props['action'],
                 item: Object.assign({}, this.item),
+            }
+            if(this.$props['action'] == 'delete') {
+                verb = 'delete'
+            } else if (this.$props['action'] == 'create') {
+                verb = 'create'
             }
 
             this.vErrors = {}
@@ -432,7 +438,7 @@ export default {
                 window.jQuery(this.$el).modal('hide') // on successful resolution close the dialog
                 nethserver.notifications.success = this.$t("sharedfolders.item_" + this.action + "_ok");
                 nethserver.notifications.error = this.$t("sharedfolders.item_" + this.action + "_error");
-                return execp("nethserver-samba/sharedfolders/update", inputData, true) // start another async call
+                return execp("nethserver-samba/sharedfolders/" + verb, inputData, true) // start another async call
             })
             .finally(() => {
                 this.vSpinner = false // always stop the spinner when async calls end

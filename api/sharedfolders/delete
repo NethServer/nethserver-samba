@@ -26,27 +26,14 @@ use esmith::AccountsDB;
 use esmith::event;
 use NethServer::ApiTools;
 
-require '/usr/libexec/nethserver/api/nethserver-samba/lib/samba_functions.pl';
-
 my $ret = undef;
 my $db = esmith::AccountsDB->open() || die("Could not open AccountsDB");
 
 my $input = NethServer::ApiTools::readInput();
-my $item = $input->{'item'};
 my $ibayName = $input->{'item'}->{'name'} || NethServer::ApiTools::error();
 
-my $eventName = undef;
-
-if($input->{'action'} eq 'edit') {
-    $eventName = 'ibay-modify';
-    $db->get($ibayName)->merge_props(item2props($item));
-} elsif($input->{'action'} eq 'reset-permissions') {
-    $eventName = 'ibay-reset-permissions';
-} elsif($input->{'action'} eq 'migrate') {
-    $eventName = 'vhost-migrate-ibay';
-} else {
-    error();
-}
+my $eventName = 'ibay-delete';
+$db->set_prop($ibayName, 'type', 'ibay-deleted');
 
 my @eventArgs = $ibayName;
 my $exitCode = 0;
@@ -54,6 +41,8 @@ my $exitCode = 0;
 esmith::event::set_json_log(1);
 if(esmith::event::event_signal($eventName, @eventArgs)) {
     $ret = {'state' => 'success'};
+    $db->reload();
+    $db->get($ibayName)->delete();
 } else {
     $ret = {
         'type' => 'Error',
@@ -68,6 +57,7 @@ if(esmith::event::event_signal($eventName, @eventArgs)) {
 
 print encode_json($ret);
 exit($exitCode);
+
 
 
 

@@ -23,8 +23,8 @@
 use strict;
 use warnings;
 use XML::Parser;
-
-require '/usr/libexec/nethserver/api/lib/helper_functions.pl';
+use NethServer::ApiTools;
+use NethServer::SSSD;
 
 # HACK for variable visibility: make sure to not reuse such names!
 my %folders;
@@ -69,6 +69,58 @@ sub disk_usage
     }
 
     return \%folders;
+}
+
+sub _prepareAcl
+{
+    my $acls = shift;
+    my $re = shift;
+    my @alist = ();
+    foreach(keys %{$acls}) {
+        if($_ !~ m/^(GOWNER|EVERYONE)$/ && $acls->{$_} =~ $re) {
+            push @alist, $_;
+        }
+    }
+    @alist = sort(@alist);
+    return join(',', @alist);
+}
+
+sub item2props
+{
+    my $item = shift;
+
+    my $acls = $item->{'acls'};
+    my $isAd = NethServer::SSSD->new()->isAD();
+
+    my %props = (
+        'Description' => $item->{'Description'} || '',
+        'SmbAuditStatus' => $item->{'SmbAuditStatus'} || 'disabled',
+        'SmbRecycleBinStatus' => $item->{'SmbRecycleBinStatus'} || 'disabled',
+        'SmbRecycleBinVersionsStatus' => $item->{'SmbRecycleBinVersionsStatus'} || 'disabled',
+        'SmbShareBrowseable' => $item->{'SmbShareBrowseable'} || 'disabled',
+    );
+
+    if($isAd) {
+        %props = (%props,
+            'AclRead' => _prepareAcl($acls, qr/r/),
+            'AclWrite' => _prepareAcl($acls, qr/w/),
+            'GroupAccess' => $acls->{'GOWNER'},
+            'OtherAccess' => $acls->{'EVERYONE'} =~ s/w//r,
+            'OwningGroup' => $item->{'OwningGroup'},
+            'SmbGuestAccessType' => $acls->{'EVERYONE'} ? $acls->{'EVERYONE'} : 'none',
+        );
+    } else {
+        %props = (%props,
+            'AclRead' => '',
+            'AclWrite' => '',
+            'GroupAccess' => '',
+            'OtherAccess' => '',
+            'OwningGroup' => '',
+            'SmbGuestAccessType' => $acls->{'EVERYONE'} ? $acls->{'EVERYONE'} : 'rw',
+        );
+    }
+
+    return %props;
 }
 
 1;

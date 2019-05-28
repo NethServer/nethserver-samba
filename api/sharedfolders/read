@@ -29,6 +29,7 @@ use NethServer::SSSD;
 use Sys::Hostname;
 
 require '/usr/libexec/nethserver/api/nethserver-samba/lib/samba_functions.pl';
+
 my $inputData = NethServer::ApiTools::readInput();
 my ($systemName, $domainName) = split(/\./, hostname(), 2);
 my $ret = undef;
