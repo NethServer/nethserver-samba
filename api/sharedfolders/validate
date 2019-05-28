@@ -71,25 +71,26 @@ if ($inputData->{'action'} eq 'create') {
     };
 }
 
-if(exists $item->{'OwningGroup'} && $isAd && !getgrnam($item->{'OwningGroup'})) {
-    push @errors, {
-        "parameter" => "OwningGroup",
-        "value" => $item->{'OwningGroup'},
-        "message" => "group_not_found",
-    }
-}
-
-if(exists $item->{'acls'}) {
-    my ($isValidAcl, $aclValue) = validate_acls($item->{'acls'});
-    if(!$isValidAcl) {
+if ($inputData->{'action'} eq 'create' || $inputData->{'action'} eq 'edit') {
+    if(exists $item->{'OwningGroup'} && $isAd && !getgrnam($item->{'OwningGroup'})) {
         push @errors, {
-            "parameter" => "acls",
-            "value" => $aclValue,
-            "message" => "malformed_acls",
+            "parameter" => "OwningGroup",
+            "value" => $item->{'OwningGroup'},
+            "message" => "group_not_found",
+        }
+    }
+
+    if(exists $item->{'acls'}) {
+        my ($isValidAcl, $aclValue) = validate_acls($item->{'acls'});
+        if(!$isValidAcl) {
+            push @errors, {
+                "parameter" => "acls",
+                "value" => $aclValue,
+                "message" => "malformed_acls",
+            }
         }
     }
 }
-
 
 foreach(qw(
     SmbRecycleBinStatus
