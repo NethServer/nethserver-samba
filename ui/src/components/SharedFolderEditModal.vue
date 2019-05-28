@@ -363,6 +363,7 @@ export default {
     watch: {
         initialItem: function(newVal) {
             Object.assign(this.item, newVal);
+            this.$set(this.item, 'acls', Object.assign({EVERYONE:""}, newVal.acls))
             this.vErrors = {}
             this.vAdvanced = false
             this.vSearchText = ''
