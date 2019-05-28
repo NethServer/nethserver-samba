@@ -35,18 +35,8 @@ my $input = NethServer::ApiTools::readInput();
 my $item = $input->{'item'};
 my $ibayName = $input->{'item'}->{'name'} || NethServer::ApiTools::error();
 
-my $eventName = undef;
-
-if($input->{'action'} eq 'edit') {
-    $eventName = 'ibay-modify';
-    $db->get($ibayName)->merge_props(item2props($item));
-} elsif($input->{'action'} eq 'reset-permissions') {
-    $eventName = 'ibay-reset-permissions';
-} elsif($input->{'action'} eq 'migrate') {
-    $eventName = 'vhost-migrate-ibay';
-} else {
-    error();
-}
+my $eventName = 'ibay-create';
+$db->new_record($ibayName, {'type' => 'ibay', item2props($item)});
 
 my @eventArgs = $ibayName;
 my $exitCode = 0;
@@ -68,6 +58,7 @@ if(esmith::event::event_signal($eventName, @eventArgs)) {
 
 print encode_json($ret);
 exit($exitCode);
+
 
 
 
