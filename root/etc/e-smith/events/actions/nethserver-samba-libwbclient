@@ -21,10 +21,12 @@
 #
 
 #
-# Reset libwbclient and CIFS to default Samba winbind library (#5647)
+# Reset libwbclient and CIFS to default Samba winbind library (#5647, #5801)
 #
 
-alternatives --set libwbclient.so.0.14-64 /usr/lib64/samba/wbclient/libwbclient.so.0.14 || :
+alternatives --install /usr/lib64/libwbclient.so.0.14 libwbclient.so.0.14-64 /usr/lib64/samba/wbclient/libwbclient.so.0.14 10
+alternatives --auto libwbclient.so.0.14-64 # revert to auto (default)
+ldconfig # always run ldconfig after alternatives --install
 echo "[NOTICE] $(alternatives --display libwbclient.so.0.14-64)"
 
 if [[ -e /usr/lib64/cifs-utils/idmapwb.so ]]; then

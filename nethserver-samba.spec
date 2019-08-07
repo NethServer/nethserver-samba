@@ -10,6 +10,8 @@ BuildArch: noarch
 URL: %{url_prefix}/%{name} 
 Provides: nethserver-ibays
 Obsoletes: nethserver-ibays
+Obsoletes: sssd-libwbclient
+Conflicts: sssd-libwbclient
 
 Requires: samba
 Requires: tdb-tools
