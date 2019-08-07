@@ -27,5 +27,7 @@
 alternatives --set libwbclient.so.0.14-64 /usr/lib64/samba/wbclient/libwbclient.so.0.14 || :
 echo "[NOTICE] $(alternatives --display libwbclient.so.0.14-64)"
 
-alternatives  --set cifs-idmap-plugin /usr/lib64/cifs-utils/idmapwb.so
-echo "[NOTICE] $(alternatives --display cifs-idmap-plugin)"
+if [[ -e /usr/lib64/cifs-utils/idmapwb.so ]]; then
+    alternatives  --set cifs-idmap-plugin /usr/lib64/cifs-utils/idmapwb.so
+    echo "[NOTICE] $(alternatives --display cifs-idmap-plugin)"
+fi
