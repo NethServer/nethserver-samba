@@ -32,31 +32,26 @@ my $context = ''; # name of current element
 sub disk_usage
 {
     # file count
-    my $duc_count_output = `/usr/bin/duc ls --count -b -n -d /var/cache/duc/duc.db /var/lib/nethserver/ibay 2>/dev/null`;
-    if ($duc_count_output) {
-        my @lines = split "\n", $duc_count_output;
+    my @duc_count_output = `/usr/bin/duc ls --count -b -n -d /var/cache/duc/duc.db /var/lib/nethserver/ibay 2>/dev/null`;
+    if (scalar @duc_count_output > 0) {
         my $ibay_name = '';
         my $count = '';
         my $size ='';
 
-        for(@lines){
-            $_ =~ /[0-9]+/;
-            $count = substr($_, $-[0], $+[0] - $-[0]);
-            $_ =~ /[a-zA-Z].*$/;
-            $ibay_name = substr($_, $-[0], $+[0] - $-[0]);
+        for(@duc_count_output){
+            $_ =~ m/([0-9]+) (.*)$/;
+            $count = $1;
+            $ibay_name = $2;
             $folders{$ibay_name}{'files'} = $count + 0;
         }
 
         # ibay size
-        my $duc_size_output = `/usr/bin/duc ls -b -n -d /var/cache/duc/duc.db /var/lib/nethserver/ibay 2>/dev/null`;
-        if ($duc_size_output) {
-            @lines = split "\n", $duc_size_output;
-
-            for(@lines){
-                $_ =~ /[0-9]+/;
-                $size = substr($_, $-[0], $+[0] - $-[0]);
-                $_ =~ /[a-zA-Z].*$/;
-                $ibay_name = substr($_, $-[0], $+[0] - $-[0]);
+        my @duc_size_output = `/usr/bin/duc ls -b -n -d /var/cache/duc/duc.db /var/lib/nethserver/ibay 2>/dev/null`;
+        if (scalar @duc_size_output > 0) {
+            for(@duc_size_output){
+                $_ =~ m/([0-9]+) (.*)$/;
+                $size = $1;
+                $ibay_name = $2;
                 $folders{$ibay_name}{'size'} = $size + 0;
             }
             return \%folders;
