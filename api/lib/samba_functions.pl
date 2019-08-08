@@ -33,42 +33,37 @@ my $context = ''; # name of current element
 
 sub disk_usage
 {
-    my $duc_output = `/usr/bin/duc xml -x -d /var/cache/duc/duc.db /var/lib/nethserver/ibay 2>/dev/null`;
-    if ($duc_output) {
-        my $parser = XML::Parser->new( Handlers => {
-                Start =>   \&handle_elem_start,
-                End =>   \&handle_elem_end
-            });
+    # file count
+    my $duc_count_output = `/usr/bin/duc ls --count -b -n -d /var/cache/duc/duc.db /var/lib/nethserver/ibay 2>/dev/null`;
+    if ($duc_count_output) {
+        my @lines = split "\n", $duc_count_output;
+        my $ibay_name = '';
+        my $count = '';
+        my $size ='';
 
-        $parser->parse($duc_output);
-
-        # save element name and attributes
-        sub handle_elem_start {
-            my( $expat, $name, %atts ) = @_;
-            return if ($context eq 'ent'); # analize only first level
-            $context = $name;
-            return unless( $name eq 'ent' && $atts{'type'} eq 'dir');
-            $record = { name => $atts{'name'}, size => int($atts{'size_actual'}), files => int($atts{'count'})} if( $name eq 'ent' );
+        for(@lines){
+            $_ =~ /[0-9]+/;
+            $count = substr($_, $-[0], $+[0] - $-[0]);
+            $_ =~ /[a-zA-Z].*$/;
+            $ibay_name = substr($_, $-[0], $+[0] - $-[0]);
+            $folders{$ibay_name}{'files'} = $count + 0;
         }
 
+        # ibay size
+        my $duc_size_output = `/usr/bin/duc ls -b -n -d /var/cache/duc/duc.db /var/lib/nethserver/ibay 2>/dev/null`;
+        if ($duc_size_output) {
+            @lines = split "\n", $duc_size_output;
 
-        # if this is an <ent>, collect all the data into a record
-        sub handle_elem_end {
-            my( $expat, $name ) = @_;
-            return unless( $name eq 'ent' );
-            if (scalar (keys %$record) > 0) {
-                # skip non-existing ibays
-                if (-d "/var/lib/nethserver/ibay/".$record->{'name'}) {
-                    $folders{$record->{'name'}}{'size'} = $record->{'size'};
-                    $folders{$record->{'name'}}{'files'} = $record->{'files'};
-                }
+            for(@lines){
+                $_ =~ /[0-9]+/;
+                $size = substr($_, $-[0], $+[0] - $-[0]);
+                $_ =~ /[a-zA-Z].*$/;
+                $ibay_name = substr($_, $-[0], $+[0] - $-[0]);
+                $folders{$ibay_name}{'size'} = $size + 0;
             }
-            $record = {};
-            $context = '';
+            return \%folders;
         }
     }
-
-    return \%folders;
 }
 
 sub _prepareAcl
