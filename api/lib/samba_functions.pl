@@ -22,8 +22,6 @@
 
 use strict;
 use warnings;
-use XML::Parser;
-use NethServer::ApiTools;
 use NethServer::SSSD;
 
 # HACK for variable visibility: make sure to not reuse such names!
