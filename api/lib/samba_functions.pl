@@ -22,8 +22,6 @@
 
 use strict;
 use warnings;
-use XML::Parser;
-use NethServer::ApiTools;
 use NethServer::SSSD;
 
 # HACK for variable visibility: make sure to not reuse such names!
@@ -33,42 +31,32 @@ my $context = ''; # name of current element
 
 sub disk_usage
 {
-    my $duc_output = `/usr/bin/duc xml -x -d /var/cache/duc/duc.db /var/lib/nethserver/ibay 2>/dev/null`;
-    if ($duc_output) {
-        my $parser = XML::Parser->new( Handlers => {
-                Start =>   \&handle_elem_start,
-                End =>   \&handle_elem_end
-            });
+    # file count
+    my @duc_count_output = `/usr/bin/duc ls --count -b -n -d /var/cache/duc/duc.db /var/lib/nethserver/ibay 2>/dev/null`;
+    if (scalar @duc_count_output > 0) {
+        my $ibay_name = '';
+        my $count = '';
+        my $size ='';
 
-        $parser->parse($duc_output);
-
-        # save element name and attributes
-        sub handle_elem_start {
-            my( $expat, $name, %atts ) = @_;
-            return if ($context eq 'ent'); # analize only first level
-            $context = $name;
-            return unless( $name eq 'ent' && $atts{'type'} eq 'dir');
-            $record = { name => $atts{'name'}, size => int($atts{'size_actual'}), files => int($atts{'count'})} if( $name eq 'ent' );
+        for(@duc_count_output){
+            $_ =~ m/([0-9]+) (.*)$/;
+            $count = $1;
+            $ibay_name = $2;
+            $folders{$ibay_name}{'files'} = $count + 0;
         }
 
-
-        # if this is an <ent>, collect all the data into a record
-        sub handle_elem_end {
-            my( $expat, $name ) = @_;
-            return unless( $name eq 'ent' );
-            if (scalar (keys %$record) > 0) {
-                # skip non-existing ibays
-                if (-d "/var/lib/nethserver/ibay/".$record->{'name'}) {
-                    $folders{$record->{'name'}}{'size'} = $record->{'size'};
-                    $folders{$record->{'name'}}{'files'} = $record->{'files'};
-                }
+        # ibay size
+        my @duc_size_output = `/usr/bin/duc ls -b -n -d /var/cache/duc/duc.db /var/lib/nethserver/ibay 2>/dev/null`;
+        if (scalar @duc_size_output > 0) {
+            for(@duc_size_output){
+                $_ =~ m/([0-9]+) (.*)$/;
+                $size = $1;
+                $ibay_name = $2;
+                $folders{$ibay_name}{'size'} = $size + 0;
             }
-            $record = {};
-            $context = '';
+            return \%folders;
         }
     }
-
-    return \%folders;
 }
 
 sub _prepareAcl
