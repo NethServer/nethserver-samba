@@ -44,7 +44,7 @@ cp -a api/* %{buildroot}/usr/libexec/nethserver/api/%{name}/
 
 (cd root   ; find . -depth -print | cpio -dump %{buildroot})
 %{genfilelist} %{buildroot} | grep -v \
-    -e '^/etc/sudoers.d/10_nsapi_nethserver_samba' \
+    -e '^/etc/sudoers.d/50_nsapi_nethserver_samba' \
     > %{name}-%{version}-filelist
 
 mkdir -p %{buildroot}/%{_nsstatedir}/print_driver
@@ -57,7 +57,7 @@ mkdir -p %{buildroot}/%{_nsstatedir}/ibay
 %dir %attr(0755,root,root) %{_nsstatedir}/print_driver
 %dir %attr(0775,root,root) %{_nsstatedir}/ibay
 /usr/libexec/nethserver/api/%{name}/
-%attr(0440,root,root) /etc/sudoers.d/10_nsapi_nethserver_samba
+%attr(0440,root,root) /etc/sudoers.d/50_nsapi_nethserver_samba
 
 %changelog
 * Wed Aug 07 2019 Davide Principi <davide.principi@nethesis.it> - 4.3.2-1
