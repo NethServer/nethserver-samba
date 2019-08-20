@@ -1,0 +1,21 @@
+#
+# nsapi_nethserver_samba
+#
+
+Cmnd_Alias NSAPI_NETHSERVER_SAMBA = \
+    /usr/libexec/nethserver/api/nethserver-samba/audit/delete, \
+    /usr/libexec/nethserver/api/nethserver-samba/audit/read, \
+    /usr/libexec/nethserver/api/nethserver-samba/audit/update, \
+    /usr/libexec/nethserver/api/nethserver-samba/dashboard/read, \
+    /usr/libexec/nethserver/api/nethserver-samba/feature/read, \
+    /usr/libexec/nethserver/api/nethserver-samba/feature/update, \
+    /usr/libexec/nethserver/api/nethserver-samba/settings/read, \
+    /usr/libexec/nethserver/api/nethserver-samba/settings/update, \
+    /usr/libexec/nethserver/api/nethserver-samba/settings/validate, \
+    /usr/libexec/nethserver/api/nethserver-samba/sharedfolders/create, \
+    /usr/libexec/nethserver/api/nethserver-samba/sharedfolders/delete, \
+    /usr/libexec/nethserver/api/nethserver-samba/sharedfolders/read, \
+    /usr/libexec/nethserver/api/nethserver-samba/sharedfolders/update, \
+    /usr/libexec/nethserver/api/nethserver-samba/sharedfolders/validate
+
+Defaults!NSAPI_NETHSERVER_SAMBA !requiretty
