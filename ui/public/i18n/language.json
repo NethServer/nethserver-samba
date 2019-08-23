@@ -108,7 +108,9 @@
     "item_reset-permissions_ok": "Shared folder permissions reset correctly",
     "item_migrate_ok": "Shared folder migrated correctly",
     "no_acls_support_title": "Access to shared folders is possible only as guest.",
-    "no_acls_support_message": "To enable Samba authentication and special access options configure an Active Directory accounts provider."
+    "no_acls_support_message": "To enable Samba authentication and special access options configure an Active Directory accounts provider.",
+    "update_at": "File sizes updated at",
+    "not_available": "Not available"
   },
   "audit": {
     "menu_title": "Audit",

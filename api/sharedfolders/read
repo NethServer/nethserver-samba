@@ -117,9 +117,18 @@ sub mainList
         $props{'acls'} = \%acls;
         push @sfs, \%props;
     };
+
+    # check duc.db stat
+    my $date = 0;
+    my $ducFile = '/var/cache/duc/duc.db';
+    if (-e $ducFile) {
+        $date = (stat $ducFile)[9]
+    }
+
     return {
         'accountsProvider' => $cdb->get_prop('sssd', 'Provider') || 'none',
         'groups' => [ ($isAd && getgrnam("domain users\@$domainName") ? "domain users\@$domainName" : ()), @{listGroups()} ],
         'sharedfolders' => \@sfs,
+        'date' => $date
     }
 }

@@ -54,9 +54,10 @@ sub disk_usage
                 $ibay_name = $2;
                 $folders{$ibay_name}{'size'} = $size + 0;
             }
-            return \%folders;
         }
     }
+    return \%folders;
+
 }
 
 sub _prepareAcl
