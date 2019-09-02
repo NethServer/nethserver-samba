@@ -7,7 +7,7 @@ Source: %{name}-%{version}.tar.gz
 # Build Source1 by executing prep-sources
 Source1: %{name}-ui.tar.gz
 BuildArch: noarch
-URL: %{url_prefix}/%{name} 
+URL: %{url_prefix}/%{name}
 Provides: nethserver-ibays
 Obsoletes: nethserver-ibays
 Obsoletes: sssd-libwbclient
@@ -32,6 +32,7 @@ BuildRequires: nethserver-devtools
 %{makedocs}
 mkdir -p root%{perl_vendorlib}
 perl createlinks
+sed -i 's/_RELEASE_/%{version}/' %{name}.json
 
 %install
 rm -rf %{buildroot}
@@ -100,8 +101,8 @@ mkdir -p %{buildroot}/%{_nsstatedir}/ibay
 - sf: Upgrade from NS 6 via backup and restore - NethServer/dev#5234
 
 * Thu Apr 20 2017 Davide Principi <davide.principi@nethesis.it> - 2.0.6-1
-- Accounts provider guided configuration - NethServer/dev#5253 
-- Upgrade from NS 6 via backup and restore - NethServer/dev#5234 
+- Accounts provider guided configuration - NethServer/dev#5253
+- Upgrade from NS 6 via backup and restore - NethServer/dev#5234
 
 * Tue Apr 04 2017 Davide Principi <davide.principi@nethesis.it> - 3.1.0-1
 - sf: Allow capital letters in shared folder name - NethServer/dev#5247

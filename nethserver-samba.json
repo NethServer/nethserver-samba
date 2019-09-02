@@ -7,7 +7,7 @@
     "url": "",
     "provides": ["nethserver-samba", "nethserver-samba-audit"],
     "release": {
-        "version": "1.0.0"
+        "version": "_RELEASE_"
     },
     "tags": ["smb", "audit", "quota", "file"],
     "license": "GPL-3.0",
