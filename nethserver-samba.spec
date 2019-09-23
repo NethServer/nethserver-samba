@@ -43,8 +43,8 @@ cp -a %{name}.json %{buildroot}/usr/share/cockpit/nethserver/applications/
 cp -a api/* %{buildroot}/usr/libexec/nethserver/api/%{name}/
 
 (cd root   ; find . -depth -print | cpio -dump %{buildroot})
-%{genfilelist} %{buildroot} | grep -v \
-    -e '^/etc/sudoers.d/50_nsapi_nethserver_samba' \
+%{genfilelist} %{buildroot} \
+    --file /etc/sudoers.d/50_nsapi_nethserver_samba 'attr(0440,root,root)' \
     > %{name}-%{version}-filelist
 
 mkdir -p %{buildroot}/%{_nsstatedir}/print_driver
