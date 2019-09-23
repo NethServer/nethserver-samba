@@ -44,7 +44,9 @@ cp -a %{name}.json %{buildroot}/usr/share/cockpit/nethserver/applications/
 cp -a api/* %{buildroot}/usr/libexec/nethserver/api/%{name}/
 
 (cd root   ; find . -depth -print | cpio -dump %{buildroot})
-%{genfilelist} %{buildroot} > %{name}-%{version}-filelist
+%{genfilelist} %{buildroot} \
+    --file /etc/sudoers.d/50_nsapi_nethserver_samba 'attr(0440,root,root)' \
+    > %{name}-%{version}-filelist
 
 mkdir -p %{buildroot}/%{_nsstatedir}/print_driver
 mkdir -p %{buildroot}/%{_nsstatedir}/ibay
@@ -56,6 +58,7 @@ mkdir -p %{buildroot}/%{_nsstatedir}/ibay
 %dir %attr(0755,root,root) %{_nsstatedir}/print_driver
 %dir %attr(0775,root,root) %{_nsstatedir}/ibay
 /usr/libexec/nethserver/api/%{name}/
+%attr(0440,root,root) /etc/sudoers.d/50_nsapi_nethserver_samba
 
 %changelog
 * Tue Sep 03 2019 Giacomo Sanchietti <giacomo.sanchietti@nethesis.it> - 4.3.4-1
