@@ -216,8 +216,7 @@ export default {
             },
             function(error, data) {
               console.error(error, data);
-            },
-            false
+            }
           );
         },
         function(error, data) {
@@ -235,8 +234,7 @@ export default {
           } catch (e) {
             console.error(e);
           }
-        },
-        false
+        }
       );
     }
   }
