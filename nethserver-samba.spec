@@ -1,6 +1,6 @@
 Summary: Nethserver Samba file server
 Name: nethserver-samba
-Version: 4.3.4
+Version: 4.4.0
 Release: 1%{?dist}
 License: GPL
 Source: %{name}-%{version}.tar.gz
@@ -61,6 +61,9 @@ mkdir -p %{buildroot}/%{_nsstatedir}/ibay
 %attr(0440,root,root) /etc/sudoers.d/50_nsapi_nethserver_samba
 
 %changelog
+* Tue Oct 01 2019 Giacomo Sanchietti <giacomo.sanchietti@nethesis.it> - 4.4.0-1
+- Sudoers based authorizations for Cockpit UI - NethServer/dev#5805
+
 * Tue Sep 03 2019 Giacomo Sanchietti <giacomo.sanchietti@nethesis.it> - 4.3.4-1
 - Cockpit. List correct application version - Nethserver/dev#5819
 
