@@ -25,12 +25,13 @@
     <h2>{{$t('logs.title')}}</h2>
     <form class="form-horizontal">
       <div class="form-group">
-        <div class="col-xs-12 col-sm-3 col-md-2">
+        <div class="col-xs-12 col-sm-3 col-md-4">
           <select
             id="selectLogPath"
-            class="selectpicker form-control"
+            class="combobox form-control"
             v-model="view.path"
             v-on:change="handleLogs()"
+            :disabled="view.follow"
           >
             <option selected>/var/log/samba/log.smbd</option>
             <option>/var/log/samba/log.winbindd</option>
@@ -45,13 +46,12 @@
         </div>
       </div>
     </form>
-    <form role="form" class="search-pf has-button form-horizontal">
+    <form role="form" class="search-pf has-button form-horizontal" v-on:submit.prevent="">
       <div class="form-group has-clear">
         <div class="search-pf-input-group">
           <label for="search1" class="sr-only">Search</label>
           <input
-            v-model.lazy="view.filter"
-            v-on:change="handleLogs()"
+            v-model="view.filter"
             v-bind:placeholder="$t('logs.filter_label')"
             id="log-filter"
             class="filter form-control"
@@ -63,13 +63,16 @@
         </div>
       </div>
       <div class="form-group">
-        <button class="btn btn-primary" type="button">
+        <button class="btn btn-primary" type="submit" @click="handleLogs()">
           <span class="fa fa-search"></span>
         </button>
       </div>
     </form>
     <div v-if="!view.logsLoaded" id="loader" class="spinner spinner-lg view-spinner"></div>
-    <pre v-else id="logs-output" class="logs">{{view.logsContent}}</pre>
+    <div v-else>
+      <pre v-if="view.logsContent" id="logs-output" class="logs">{{view.logsContent}}</pre>
+      <pre v-else id="logs-output" class="logs">-- No entries --</pre>
+    </div>
   </div>
 </template>
 
@@ -78,7 +81,6 @@ export default {
   name: "Logs",
   mounted() {
     var context = this;
-    window.jQuery("#selectLogPath").selectpicker();
     (function($) {
       $(document).ready(function() {
         // Hide the clear button if the search input is empty
@@ -173,7 +175,7 @@ export default {
           context.view.logsLoaded = true;
           context.logsContent = error;
         },
-        false
+        true
       );
     }
   }
