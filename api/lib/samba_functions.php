@@ -74,7 +74,8 @@ function query ($action = "read", $username = "", $address = "", $share = "", $o
     }
 
     try {
-        $dbh = new PDO('mysql:host=localhost;dbname=smbaudit', 'smbd', 'smbpass');
+        $pass = trim(file_get_contents('/var/lib/nethserver/secrets/smbd'));
+        $dbh = new PDO('mysql:host=localhost;dbname=smbaudit', 'smbd', $pass);
 
         $stmt = $dbh->prepare($qtxt);
         $stmt->execute($params);
