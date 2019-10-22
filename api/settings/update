@@ -30,7 +30,7 @@ function _get
     echo $data | jq -r ".$field"
 }
 
-/sbin/e-smith/config setprop smb ShareAdmStatus "$(_get ShareAdmStatus)" HomeAdmStatus "$(_get HomeAdmStatus)" InheritOwner "$(_get InheritOwner)"
+/sbin/e-smith/config setprop smb ShareAdmStatus "$(_get ShareAdmStatus)" HomeAdmStatus "$(_get HomeAdmStatus)" InheritOwner "$(_get InheritOwner)" AuditLogRead "$(_get AuditLogRead)"
 
 provider=$(/sbin/e-smith/config getprop sssd Provider)
 if [ "$provider" != "ad" ]; then

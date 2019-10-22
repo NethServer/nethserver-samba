@@ -31,7 +31,7 @@ my $ret;
 
 my $db = esmith::ConfigDB->open_ro();
 $ret->{'Workgroup'} = $db->get_prop('sssd', 'Workgroup') || 'WORKGROUP';
-foreach (qw(ShareAdmStatus HomeAdmStatus InheritOwner)) {
+foreach (qw(ShareAdmStatus HomeAdmStatus InheritOwner AuditLogRead)) {
     $ret->{$_} = $db->get_prop('smb', $_);
 }
 my $provider = $db->get_prop('sssd', 'Provider') || '';
