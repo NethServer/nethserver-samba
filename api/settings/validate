@@ -30,6 +30,7 @@ $v->declareParameter('Workgroup', $workgroupValidator);
 $v->declareParameter('ShareAdmStatus', Validate::SERVICESTATUS);
 $v->declareParameter('HomeAdmStatus', Validate::SERVICESTATUS);
 $v->declareParameter('InheritOwner', Validate::YES_NO);
+$v->declareParameter('AuditLogRead', Validate::SERVICESTATUS);
 
 # Validate the input
 if ($v->validate()) {
