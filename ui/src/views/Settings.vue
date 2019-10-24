@@ -36,15 +36,32 @@
               type="text"
               v-model="settings.Workgroup"
               class="form-control"
-            >
+            />
             <span v-if="errors.Workgroup.hasError" class="help-block">
               {{$t('validation.validation_failed')}}:
               {{$t('validation.'+errors.Workgroup.message)}}
             </span>
           </div>
         </div>
+        <div class="form-group">
+          <label class="col-sm-2 control-label" for="textInput-modal-markup">
+            {{$t('settings.audit_log')}}
+            <doc-info
+              :placement="'bottom'"
+              :title="$t('settings.audit_log')"
+              :chapter="'audit_log'"
+              :inline="true"
+            ></doc-info>
+          </label>
+          <div class="col-sm-5">
+            <input type="checkbox" v-model="settings.AuditLogRead" class="form-control" />
+          </div>
+        </div>
 
-        <div v-show="!settings.WorkgroupEditable" :class="['form-group', errors.InheritOwner.hasError ? 'has-error' : '']">
+        <div
+          v-show="!settings.WorkgroupEditable"
+          :class="['form-group', errors.InheritOwner.hasError ? 'has-error' : '']"
+        >
           <label
             class="col-sm-2 control-label"
             for="textInput-modal-markup"
@@ -61,13 +78,16 @@
           </div>
         </div>
 
-        <div v-if="!settings.WorkgroupEditable" :class="['form-group', errors.HomeAdmStatus.hasError ? 'has-error' : '']">
+        <div
+          v-if="!settings.WorkgroupEditable"
+          :class="['form-group', errors.HomeAdmStatus.hasError ? 'has-error' : '']"
+        >
           <label
             class="col-sm-2 control-label"
             for="textInput-modal-markup"
           >{{$t('settings.grant_home_dir')}}</label>
           <div class="col-sm-5">
-            <input type="checkbox" v-model="settings.HomeAdmStatus" class="form-control">
+            <input type="checkbox" v-model="settings.HomeAdmStatus" class="form-control" />
             <span v-if="errors.HomeAdmStatus.hasError" class="help-block">
               {{$t('validation.validation_failed')}}:
               {{$t('validation.'+errors.HomeAdmStatus.message)}}
@@ -75,13 +95,16 @@
           </div>
         </div>
 
-        <div v-if="!settings.WorkgroupEditable" :class="['form-group', errors.ShareAdmStatus.hasError ? 'has-error' : '']">
+        <div
+          v-if="!settings.WorkgroupEditable"
+          :class="['form-group', errors.ShareAdmStatus.hasError ? 'has-error' : '']"
+        >
           <label
             class="col-sm-2 control-label"
             for="textInput-modal-markup"
           >{{$t('settings.grant_share_dir')}}</label>
           <div class="col-sm-5">
-            <input type="checkbox" v-model="settings.ShareAdmStatus" class="form-control">
+            <input type="checkbox" v-model="settings.ShareAdmStatus" class="form-control" />
             <span v-if="errors.ShareAdmStatus.hasError" class="help-block">
               {{$t('validation.validation_failed')}}:
               {{$t('validation.'+errors.ShareAdmStatus.message)}}
@@ -170,6 +193,8 @@ export default {
           context.settings.Workgroup = success.Workgroup;
           context.settings.WorkgroupEditable = success.WorkgroupEditable;
 
+          context.settings.AuditLogRead = success.AuditLogRead == "enabled";
+
           context.view.isLoaded = true;
         },
         function(error) {
@@ -184,7 +209,10 @@ export default {
         WorkgroupEditable: context.settings.WorkgroupEditable,
         Workgroup: context.settings.Workgroup,
         HomeAdmStatus: context.settings.HomeAdmStatus ? "enabled" : "disabled",
-        ShareAdmStatus: context.settings.ShareAdmStatus ? "enabled" : "disabled"
+        ShareAdmStatus: context.settings.ShareAdmStatus
+          ? "enabled"
+          : "disabled",
+        AuditLogRead: context.settings.AuditLogRead ? "enabled" : "disabled"
       };
 
       context.view.isSaving = true;
