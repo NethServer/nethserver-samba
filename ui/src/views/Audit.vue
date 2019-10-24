@@ -52,80 +52,32 @@
       </div>
     </div>
 
+    <h3 v-if="view.menu.installed &&  view.isLoaded">{{ $t('actions_title') }}</h3>
+    <form
+      v-if="view.menu.installed &&  view.isLoaded"
+      role="form"
+      class="search-pf has-button search"
+    >
+      <div class="form-group">
+        <button
+          class="btn btn-primary btn-lg margin-left-md"
+          type="button"
+          v-on:click="updateAudits()"
+        >{{$t('audit.update')}}</button>
+      </div>
+    </form>
+
     <h3 v-if="view.menu.installed && view.isLoaded">{{ $t('audit.filter') }}</h3>
     <form
       v-show="view.menu.installed &&  view.isLoaded"
       role="form"
       class="form-horizontal"
-      v-on:submit.prevent="getAudits()"
+      v-on:submit.prevent="getAudits(false)"
     >
-      <div class="form-group">
-        <label class="col-sm-2">{{$t('audit.user')}}</label>
-        <div class="col-sm-6">
-          <input type="text" v-model="filter.username" class="form-control">
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="col-sm-2">{{$t('audit.address')}}</label>
-        <div class="col-sm-6">
-          <input type="text" v-model="filter.address" class="form-control">
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="col-sm-2">{{$t('audit.share')}}</label>
-        <div class="col-sm-6">
-          <input type="text" v-model="filter.share" class="form-control">
-        </div>
-      </div>
       <div class="form-group">
         <label class="col-sm-2">{{$t('audit.message')}}</label>
         <div class="col-sm-6">
-          <input type="text" v-model="filter.message" class="form-control">
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="col-sm-2">{{$t('action')}}</label>
-        <div class="col-sm-6">
-          <select class="form-control selectpicker" v-model="filter.operation">
-            <option value>{{$t('audit.all')}}</option>
-            <option value="read-file">{{$t('audit.read_file')}}</option>
-            <option value="delete-file">{{$t('audit.delete_file')}}</option>
-            <option value="create-directory">{{$t('audit.create_directory')}}</option>
-            <option value="delete-directory">{{$t('audit.delete_directory')}}</option>
-            <option value="rename">{{$t('audit.rename')}}</option>
-          </select>
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="col-sm-2">{{$t('audit.from')}}</label>
-        <div class="col-sm-6">
-          <div id="date-picker" class="input-group date">
-            <input
-              v-model="filter.from"
-              type="text"
-              placeholder="YYYY-MM-DD"
-              class="form-control bootstrap-datepicker"
-            >
-            <span class="input-group-addon">
-              <span class="fa fa-calendar"></span>
-            </span>
-          </div>
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="col-sm-2">{{$t('audit.to')}}</label>
-        <div class="col-sm-6">
-          <div id="date-picker" class="input-group date">
-            <input
-              v-model="filter.to"
-              type="text"
-              placeholder="YYYY-MM-DD"
-              class="form-control bootstrap-datepicker"
-            >
-            <span class="input-group-addon">
-              <span class="fa fa-calendar"></span>
-            </span>
-          </div>
+          <input type="text" v-model="filter.message" class="form-control" />
         </div>
       </div>
       <div class="form-group">
@@ -136,23 +88,10 @@
       </div>
     </form>
 
-    <h3 v-if="view.menu.installed &&  view.isLoaded">{{ $t('actions_title') }}</h3>
-    <form v-if="view.menu.installed &&  view.isLoaded" role="form" class="search-pf has-button search">
-      <div class="form-group">
-        <button
-          class="btn btn-primary btn-lg margin-left-md"
-          type="button"
-          v-on:click="updateAudits()"
-        >{{$t('audit.update')}}</button>
-        <button
-          class="btn btn-danger btn-lg margin-left-md"
-          type="button"
-          data-toggle="modal"
-          data-target="#deleteAllAuditModal"
-        >{{$t('audit.delete')}}</button>
-      </div>
-    </form>
-
+    <h4 class="right gray">
+      {{$t('audit.update_at')}}
+      <b>{{view.updatedAt | dateFormat}}</b>
+    </h4>
     <h3 v-if="view.menu.installed &&  view.isLoaded">{{ $t('list') }}</h3>
     <vue-good-table
       v-show="view.menu.installed && view.isLoaded"
@@ -161,7 +100,7 @@
       :columns="auditColumns"
       :rows="auditRows"
       :lineNumbers="false"
-      :defaultSortBy="{field: 'when', type: 'asc'}"
+      :defaultSortBy="{field: 'when', type: 'desc'}"
       :globalSearch="true"
       :paginate="true"
       styleClass="table"
@@ -181,10 +120,6 @@
           {{props.row.user}}
         </td>
         <td class="fancy">
-          <span class="pficon pficon-screen span-right-icon"></span>
-          {{props.row.ip}}
-        </td>
-        <td class="fancy">
           <span class="fa fa-share span-right-icon"></span>
           {{props.row.share}}
         </td>
@@ -192,31 +127,114 @@
           <span class="fa fa-cog span-right-icon"></span>
           <b>{{props.row.op | uppercase}}</b>
           :
-          <code>{{props.row.arg}}</code>
+          <code :title="props.row.arg">{{props.row.arg | ellipsis}}</code>
+        </td>
+        <td class="fancy">
+          <a @click="openDetails(props.row)">{{$t('audit.details')}}</a>
         </td>
       </template>
     </vue-good-table>
 
-    <div class="modal" id="deleteAllAuditModal" tabindex="-1" role="dialog" data-backdrop="static">
+    <div class="modal" id="auditDetailsModal" tabindex="-1" role="dialog" data-backdrop="static">
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
-            <h4 class="modal-title">{{$t('audit.delete_all_audits')}}</h4>
+            <h4 class="modal-title">{{$t('audit.show_audit_details')}}</h4>
           </div>
-          <form class="form-horizontal" v-on:submit.prevent="deleteAudits()">
-            <div class="modal-body">
+          <div class="modal-body">
+            <form class="form-horizontal" v-on:submit.prevent="getAudits(true, currentDetails)">
               <div class="form-group">
-                <label
-                  class="col-sm-3 control-label"
-                  for="textInput-modal-markup"
-                >{{$t('are_you_sure')}}?</label>
+                <label class="col-sm-3">{{$t('audit.user')}}</label>
+                <div class="col-sm-10">
+                  <span>{{currentDetails.user}}</span>
+                </div>
               </div>
-            </div>
-            <div class="modal-footer">
-              <button class="btn btn-default" type="button" data-dismiss="modal">{{$t('cancel')}}</button>
-              <button class="btn btn-danger" type="submit">{{$t('delete')}}</button>
-            </div>
-          </form>
+              <div class="form-group">
+                <label class="col-sm-3">{{$t('audit.share')}}</label>
+                <div class="col-sm-10">
+                  <code>{{currentDetails.share}}</code>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-3">{{$t('audit.message')}}</label>
+                <div class="col-sm-10">
+                  <code>{{currentDetails.arg}}</code>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-3">{{$t('audit.from')}}</label>
+                <div class="col-sm-6">
+                  <div id="date-picker" class="input-group date">
+                    <input
+                      v-model="currentDetails.from"
+                      type="text"
+                      placeholder="YYYY-MM-DD HH:mm:ss"
+                      class="form-control bootstrap-datepicker"
+                      :disabled="!view.isLoadedDetails"
+                    />
+                    <span class="input-group-addon">
+                      <span class="fa fa-calendar"></span>
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-3">{{$t('audit.to')}}</label>
+                <div class="col-sm-6">
+                  <div id="date-picker" class="input-group date">
+                    <input
+                      v-model="currentDetails.to"
+                      type="text"
+                      placeholder="YYYY-MM-DD HH:mm:ss"
+                      class="form-control bootstrap-datepicker"
+                      :disabled="!view.isLoadedDetails"
+                    />
+                    <span class="input-group-addon">
+                      <span class="fa fa-calendar"></span>
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2"></label>
+                <div class="col-sm-6">
+                  <button class="btn btn-primary">{{$t('audit.filter')}}</button>
+                </div>
+              </div>
+              <div v-if="!view.isLoadedDetails" class="spinner spinner-lg"></div>
+              <vue-good-table
+                v-show="view.isLoadedDetails"
+                :customRowsPerPageDropdown="[5,10,25,50,100]"
+                :perPage="5"
+                :columns="auditColumnsDetails"
+                :rows="auditRowsDetails"
+                :lineNumbers="false"
+                :defaultSortBy="{field: 'when', type: 'desc'}"
+                :globalSearch="true"
+                :paginate="true"
+                styleClass="table"
+                :nextText="tableLangsTexts.nextText"
+                :prevText="tableLangsTexts.prevText"
+                :rowsPerPageText="tableLangsTexts.rowsPerPageText"
+                :globalSearchPlaceholder="tableLangsTexts.globalSearchPlaceholder"
+                :ofText="tableLangsTexts.ofText"
+              >
+                <template slot="table-row" slot-scope="props">
+                  <td class="fancy">
+                    <span class="fa fa-clock-o span-right-icon"></span>
+                    {{props.row.when}}
+                  </td>
+                  <td>
+                    <span class="fa fa-cog span-right-icon"></span>
+                    <b>{{currentDetails.op | uppercase}}</b>
+                  </td>
+                </template>
+              </vue-good-table>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-default" type="button" data-dismiss="modal">{{$t('cancel')}}</button>
+          </div>
         </div>
       </div>
     </div>
@@ -227,7 +245,7 @@
 var moment = require("moment");
 
 export default {
-  name: "Mailboxes",
+  name: "Audit",
   beforeRouteEnter(to, from, next) {
     next(vm => {
       vm.view.isLoaded = false;
@@ -255,17 +273,19 @@ export default {
   },
   mounted() {
     window.jQuery(".selectpicker").selectpicker();
-    this.getAudits();
+    this.getAudits(false);
   },
   data() {
     return {
       view: {
         isLoaded: false,
+        isLoadedDetails: false,
         isInstalling: false,
         menu: {
           installed: false,
           packages: []
-        }
+        },
+        updatedAt: ""
       },
       tableLangsTexts: this.tableLangs(),
       auditColumns: [
@@ -280,19 +300,6 @@ export default {
           filterable: true
         },
         {
-          label: this.$i18n.t("audit.address"),
-          field: "ip",
-          filterable: true,
-          sortFn: function(a, b, col, rowX, rowY) {
-            a = a.split(".");
-            b = b.split(".");
-            for (var i = 0; i < a.length; i++) {
-              if ((a[i] = parseInt(a[i])) < (b[i] = parseInt(b[i]))) return -1;
-              else if (a[i] > b[i]) return 1;
-            }
-          }
-        },
-        {
           label: this.$i18n.t("audit.share"),
           field: "share",
           filterable: true
@@ -301,11 +308,29 @@ export default {
           label: this.$i18n.t("action"),
           field: "arg",
           filterable: true
+        },
+        {
+          label: this.$i18n.t("details"),
+          field: "",
+          filterable: false
         }
       ],
       auditRows: [],
+      auditColumnsDetails: [
+        {
+          label: this.$i18n.t("audit.date"),
+          field: "when",
+          filterable: true
+        },
+        {
+          label: this.$i18n.t("action"),
+          field: "arg",
+          filterable: true
+        }
+      ],
+      auditRowsDetails: [],
       filter: {
-        username: "",
+        user: "",
         address: "",
         share: "",
         operation: "",
@@ -316,7 +341,8 @@ export default {
         to: moment()
           .endOf("day")
           .format("YYYY-MM-DD HH:mm")
-      }
+      },
+      currentDetails: {}
     };
   },
   methods: {
@@ -343,21 +369,23 @@ export default {
         }
       );
     },
-    getAudits() {
+    getAudits(details, obj) {
       var context = this;
 
-      context.view.isLoaded = false;
+      if (!details) {
+        context.view.isLoaded = false;
+      } else {
+        context.view.isLoadedDetails = false;
+      }
       nethserver.exec(
         ["nethserver-samba/audit/read"],
         {
-          action: "query",
-          username: context.filter.username,
-          address: context.filter.address,
-          share: context.filter.share,
-          operation: context.filter.operation,
-          message: context.filter.message,
-          from: moment(context.filter.from).unix(),
-          to: moment(context.filter.to).unix()
+          action: details ? "file-access-details" : "file-access",
+          username: details ? obj.user : "",
+          share: details ? obj.share : "",
+          message: details ? obj.arg : context.filter.message,
+          from: details ? moment(obj.from).unix() : "",
+          to: details ? moment(obj.to).unix() : ""
         },
         null,
         function(success) {
@@ -366,9 +394,14 @@ export default {
           } catch (e) {
             console.error(e);
           }
-          context.auditRows = success;
-
-          context.view.isLoaded = true;
+          if (!details) {
+            context.auditRows = success.list;
+            context.view.updatedAt = parseInt(success.updated);
+            context.view.isLoaded = true;
+          } else {
+            context.auditRowsDetails = success;
+            context.view.isLoadedDetails = true;
+          }
         },
         function(error) {
           console.error(error);
@@ -389,42 +422,25 @@ export default {
           console.info("updated", stream);
         },
         function(success) {
-          context.getAudits();
+          context.getAudits(false);
         },
         function(error) {
           console.error(error);
         }
       );
     },
-    deleteAudits() {
-      var context = this;
-      // notification
-      nethserver.notifications.success = this.$i18n.t("audit.deleted_ok");
-      nethserver.notifications.error = this.$i18n.t("audit.deleted_error");
+    openDetails(obj) {
+      this.currentDetails = obj;
+      this.currentDetails.from = moment(obj.when)
+        .startOf("day")
+        .format("YYYY-MM-DD HH:mm");
+      this.currentDetails.to = moment(obj.when)
+        .endOf("day")
+        .format("YYYY-MM-DD HH:mm");
+      this.auditRowsDetails = [];
+      this.getAudits(true, obj);
 
-      nethserver.exec(
-        ["nethserver-samba/audit/delete"],
-        {
-          action: "delete",
-          username: context.filter.username,
-          address: context.filter.address,
-          share: context.filter.share,
-          operation: context.filter.operation,
-          message: context.filter.message,
-          from: moment(context.filter.from).unix(),
-          to: moment(context.filter.to).unix()
-        },
-        function(stream) {
-          console.info("deleted", stream);
-        },
-        function(success) {
-          context.getAudits();
-          $("#deleteAllAuditModal").modal("hide");
-        },
-        function(error) {
-          console.error(error);
-        }
-      );
+      $("#auditDetailsModal").modal("show");
     }
   }
 };

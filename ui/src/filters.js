@@ -128,6 +128,12 @@ var Filters = {
       return "-";
     }
     return value.length > 0 ? value.split(",").join("\n") : "-";
+  },
+  ellipsis: function(value) {
+    if (value == "-" || !value) {
+      return "-";
+    }
+    return value.length > 20 ? value.substring(0, 20) + "..." : value;
   }
 };
 

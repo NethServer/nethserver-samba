@@ -44,6 +44,7 @@ import Logs from './views/Logs.vue'
 import About from './views/About.vue'
 
 import "./filters";
+import "./util";
 
 import UtilService from "./services/util"
 Vue.mixin(UtilService)
