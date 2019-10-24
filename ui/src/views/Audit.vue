@@ -383,7 +383,7 @@ export default {
           action: details ? "file-access-details" : "file-access",
           username: details ? obj.user : "",
           share: details ? obj.share : "",
-          message: details ? obj.arg : context.filter.message,
+          message: details ? obj.raw_arg : context.filter.message,
           from: details ? moment(obj.from).unix() : "",
           to: details ? moment(obj.to).unix() : ""
         },
