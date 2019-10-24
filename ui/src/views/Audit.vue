@@ -84,6 +84,12 @@
         <label class="col-sm-2"></label>
         <div class="col-sm-6">
           <button class="btn btn-primary">{{$t('audit.filter')}}</button>
+          <a
+            class="btn btn-default margin-left-md"
+            type="button"
+            :href="view.advancedSearchLink"
+            target="_blank"
+          >{{$t('audit.advanced_search')}}</a>
         </div>
       </div>
     </form>
@@ -281,6 +287,7 @@ export default {
         isLoaded: false,
         isLoadedDetails: false,
         isInstalling: false,
+        advancedSearchLink: "",
         menu: {
           installed: false,
           packages: []
@@ -385,7 +392,8 @@ export default {
           share: details ? obj.share : "",
           message: details ? obj.raw_arg : context.filter.message,
           from: details ? moment(obj.from).unix() : "",
-          to: details ? moment(obj.to).unix() : ""
+          to: details ? moment(obj.to).unix() : "",
+          hostname: window.location.hostname
         },
         null,
         function(success) {
@@ -397,6 +405,7 @@ export default {
           if (!details) {
             context.auditRows = success.list;
             context.view.updatedAt = parseInt(success.updated);
+            context.view.advancedSearchLink = success.alias;
             context.view.isLoaded = true;
           } else {
             context.auditRowsDetails = success;
