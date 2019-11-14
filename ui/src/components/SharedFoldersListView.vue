@@ -84,7 +84,7 @@
           <div class="list-view-pf-additional-info rules-info">
               <div class="list-view-pf-additional-info-item">
                 <strong>{{ $t('sharedfolders.list_view_audit_label') }}</strong>
-                <span v-bind:class="[item.SmbAuditStatus == 'enabled' ? 'fa fa-check green' : 'fa fa-times red']"></span>
+                <span v-bind:class="[item.SmbAuditStatus == 'enabled' ? 'fa fa-check green' : 'fa fa-times gray']"></span>
               </div>
               <div class="list-view-pf-additional-info-item">
                 <strong v-if="item['files'] >= 0">{{ item['files'] }}</strong>
