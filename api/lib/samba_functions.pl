@@ -96,7 +96,7 @@ sub item2props
             'GroupAccess' => $acls->{'GOWNER'},
             'OtherAccess' => $acls->{'EVERYONE'} =~ s/w//r,
             'OwningGroup' => $item->{'OwningGroup'},
-            'SmbGuestAccessType' => $acls->{'EVERYONE'} ? $acls->{'EVERYONE'} : 'none',
+            'SmbGuestAccessType' => ($item->{'guestAccess'} eq 'enabled' && $acls->{'EVERYONE'}) ? $acls->{'EVERYONE'} : 'none',
         );
     } else {
         %props = (%props,
