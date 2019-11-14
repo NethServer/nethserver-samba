@@ -67,7 +67,7 @@
             for="textInput-modal-markup"
           >{{$t('settings.inherit_owner')}}</label>
           <div class="col-sm-5">
-            <select v-model="settings.InheritOwner" class="form-control selectpicker">
+            <select v-model="settings.InheritOwner" class="form-control">
               <option value="yes">{{$t('settings.yes_inherit')}}</option>
               <option value="no">{{$t('settings.no_inherit')}}</option>
             </select>
