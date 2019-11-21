@@ -32,7 +32,7 @@
           <span class="fa fa-pencil"></span>
           {{ $t('sharedfolders.item_edit_button')}}
         </button>
-        <div class="dropdown pull-right dropdown-kebab-pf">
+        <div class="dropup pull-right dropdown-kebab-pf">
           <button
             class="btn btn-link dropdown-toggle"
             type="button"
