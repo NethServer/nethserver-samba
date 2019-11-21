@@ -1,6 +1,6 @@
 Summary: Nethserver Samba file server
 Name: nethserver-samba
-Version: 4.5.1
+Version: 4.5.2
 Release: 1%{?dist}
 License: GPL
 Source: %{name}-%{version}.tar.gz
@@ -61,6 +61,9 @@ mkdir -p %{buildroot}/%{_nsstatedir}/ibay
 %attr(0440,root,root) /etc/sudoers.d/50_nsapi_nethserver_samba
 
 %changelog
+* Thu Nov 21 2019 Giacomo Sanchietti <giacomo.sanchietti@nethesis.it> - 4.5.2-1
+- Email: domain menu not correctly shown - Bug Nethserver/dev#5942
+
 * Fri Nov 15 2019 Giacomo Sanchietti <giacomo.sanchietti@nethesis.it> - 4.5.1-1
 - Cockpit file server: InheritOwner option value is ignored - Bug Nethserver/dev#5910
 
