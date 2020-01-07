@@ -33,7 +33,7 @@
       <div class="blank-slate-pf-icon">
         <span class="fa fa-folder-open"></span>
       </div>
-      <h1>{{ $t('sharedfolders.title') }}</h1>
+      <h2>{{ $t('sharedfolders.title') }}</h2>
       <p>{{ $t("sharedfolders.empty_state_message") }}</p>
       <p>
         <doc-info

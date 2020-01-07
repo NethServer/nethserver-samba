@@ -22,7 +22,7 @@
 
 <template>
   <div>
-    <h1>{{$t('dashboard.title')}}</h1>
+    <h2>{{$t('dashboard.title')}}</h2>
 
     <div class="row">
       <div class="col-sm-12">
