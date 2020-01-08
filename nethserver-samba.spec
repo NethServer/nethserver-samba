@@ -1,6 +1,6 @@
 Summary: Nethserver Samba file server
 Name: nethserver-samba
-Version: 4.5.2
+Version: 4.5.3
 Release: 1%{?dist}
 License: GPL
 Source: %{name}-%{version}.tar.gz
@@ -61,6 +61,9 @@ mkdir -p %{buildroot}/%{_nsstatedir}/ibay
 %attr(0440,root,root) /etc/sudoers.d/50_nsapi_nethserver_samba
 
 %changelog
+* Wed Jan 08 2020 Giacomo Sanchietti <giacomo.sanchietti@nethesis.it> - 4.5.3-1
+- Cockpit: change package Dashboard page title - NethServer/dev#6004
+
 * Thu Nov 21 2019 Giacomo Sanchietti <giacomo.sanchietti@nethesis.it> - 4.5.2-1
 - Email: domain menu not correctly shown - Bug Nethserver/dev#5942
 
