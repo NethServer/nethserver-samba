@@ -42,7 +42,7 @@ if($inputData->{'action'} eq 'list') {
     exit(1);
 }
 
-print encode_json($ret);
+NethServer::ApiTools::printJson($ret);
 
 sub listGroups {
     return [ keys %{ NethServer::ApiTools::safe_decode_json(qx(/usr/libexec/nethserver/list-groups), {}) } ];
