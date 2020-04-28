@@ -184,7 +184,8 @@
     "valid_hostname_simple_0_0": "Must be a simple hostname like 'WORKGROUP'",
     "group_not_found": "Choose the owning group",
     "valid_maxLength_15": "Maximum length is 15 characters",
-    "malformed_acls": "The ACL value {value} cannot be applied"
+    "malformed_acls": "The ACL value {value} cannot be applied",
+    "must_be_ascii": "Must contain only ASCII characters: special characters, like accented letters, are not valid"
   },
   "advanced_mode": "Advanced options"
 }

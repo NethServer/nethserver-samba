@@ -52,6 +52,12 @@ sub validate_acls
     return (1, '');
 }
 
+sub is_ascii
+{
+    my $str = shift;
+    return $str !~ /[^\x00-\x7F]/;
+}
+
 my @errors = ();
 
 if ($inputData->{'action'} eq 'create') {
@@ -90,6 +96,23 @@ if ($inputData->{'action'} eq 'create' || $inputData->{'action'} eq 'edit') {
             }
         }
     }
+
+    if (!is_ascii($item->{'name'})) {
+        push @errors, {
+            "parameter" => "name",
+            "value" => $item->{'name'},
+            "message" => 'must_be_ascii',
+        };
+    }
+
+    if (!is_ascii($item->{'Description'})) {
+        push @errors, {
+            "parameter" => "Description",
+            "value" => $item->{'Description'},
+            "message" => 'must_be_ascii',
+        };
+    }
+
 }
 
 foreach(qw(
