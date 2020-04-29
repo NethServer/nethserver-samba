@@ -133,11 +133,11 @@ select {
                                 <span v-if="vErrors.name" class="help-block">{{ vErrors.name }}</span>
                             </div>
                         </div>
-                        <div v-bind:class="['form-group', vErrors.name ? 'has-error' : '']">
+                        <div v-bind:class="['form-group', vErrors.Description ? 'has-error' : '']">
                             <label class="col-sm-3 control-label" v-bind:for="id + '-di'">{{ $t('sharedfolders.description_label') }}</label>
                             <div class="col-sm-9">
                                 <input type="text" v-model="item.Description" v-bind:id="id + '-di'" class="form-control">
-                                <span v-if="vErrors.name" class="help-block">{{ vErrors.Description }}</span>
+                                <span v-if="vErrors.Description" class="help-block">{{ vErrors.Description }}</span>
                             </div>
                         </div>
                         <div v-if="vIsAd" v-bind:class="['form-group', vErrors.OwningGroup ? 'has-error' : '']">
