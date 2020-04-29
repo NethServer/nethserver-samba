@@ -1,6 +1,6 @@
 Summary: Nethserver Samba file server
 Name: nethserver-samba
-Version: 4.5.3
+Version: 4.5.4
 Release: 1%{?dist}
 License: GPL
 Source: %{name}-%{version}.tar.gz
@@ -61,6 +61,9 @@ mkdir -p %{buildroot}/%{_nsstatedir}/ibay
 %attr(0440,root,root) /etc/sudoers.d/50_nsapi_nethserver_samba
 
 %changelog
+* Wed Apr 29 2020 Giacomo Sanchietti <giacomo.sanchietti@nethesis.it> - 4.5.4-1
+- Cannot list Samba shares with accented character - Bug NethServer/dev#6128
+
 * Wed Jan 08 2020 Giacomo Sanchietti <giacomo.sanchietti@nethesis.it> - 4.5.3-1
 - Cockpit: change package Dashboard page title - NethServer/dev#6004
 
