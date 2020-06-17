@@ -43,10 +43,10 @@
           </span>
           <h4>
             {{$t('dashboard.ibays_configured')}}:
-            <b>{{ibays}}</b>
+            <b :title="ibays">{{ibays | humanFormat}}</b>
           </h4>
           <div class="col-sm-6">
-            {{$t('dashboard.files_count_for_ibays')}}: {{totalFiles}}
+            {{$t('dashboard.files_count_for_ibays')}}: <span :title="totalFiles">{{totalFiles || '-' | humanFormat}}</span>
             <div v-show="Object.keys(statsFiles).length == 0" class="empty-piechart">
               <span class="fa fa-pie-chart"></span>
               <div>{{ $t('dashboard.empty_piechart_label') }}</div>
