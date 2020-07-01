@@ -166,7 +166,7 @@ export default {
             columns: columns
           },
           {
-            width: window.innerWidth / 2,
+            width: window.innerWidth * 0.4,
             height: 175
           },
           {
@@ -194,7 +194,7 @@ export default {
             columns: columns
           },
           {
-            width: window.innerWidth / 2,
+            width: window.innerWidth * 0.4,
             height: 175
           },
           {
