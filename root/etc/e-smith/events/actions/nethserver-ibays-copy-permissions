@@ -29,7 +29,7 @@ if [[ ! -d "${ibayPath}" ]]; then
     exit 1
 fi
 
-getfacl "${ibayPath}" | sed '/^[^#]/ s/x$/X/' | setfacl  -R --set-file=- "${ibayPath}"
+getfacl "${ibayPath}" | sed '/^[^#]/ s/x$/X/' | setfacl  -R --remove-default --set-file=- "${ibayPath}"
 if [[ $? != 0 ]]; then
     errors=1
 fi
