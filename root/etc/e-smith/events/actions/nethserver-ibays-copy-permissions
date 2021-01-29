@@ -39,4 +39,4 @@ if [[ $? != 0 ]]; then
     errors=1
 fi
 
-exit  ${errors}
+exit ${errors}
