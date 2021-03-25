@@ -44,6 +44,14 @@ if($input->{'action'} eq 'edit') {
     $eventName = 'ibay-reset-permissions';
 } elsif($input->{'action'} eq 'migrate') {
     $eventName = 'vhost-migrate-ibay';
+} elsif ($input->{'action'} eq 'toggle-lock') {
+    $eventName = 'ibay-modify';
+    my $status = $db->get_prop($ibayName, 'status') || 'enabled';
+    if ($status eq 'enabled') {
+        $db->set_prop($ibayName,'status','disabled');
+    } else {
+        $db->set_prop($ibayName,'status','enabled');
+    }
 } else {
     error();
 }

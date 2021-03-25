@@ -120,6 +120,7 @@ foreach(qw(
     SmbRecycleBinVersionsStatus
     SmbShareBrowseable
     SmbAuditStatus
+    status
 )) {
     if(exists $item->{$_} && $item->{$_} !~ /^(enabled|disabled)$/) {
         push @errors, {

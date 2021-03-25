@@ -114,6 +114,13 @@ sub mainList
         } else {
             $props{'migrateVhost'} = JSON::null;
         }
+
+        # Check status the prop could not exist
+        if (!$props{'status'}) {
+            # Default value for status
+            $props{'status'} = "enabled";
+        }
+
         $props{'acls'} = \%acls;
         push @sfs, \%props;
     };
