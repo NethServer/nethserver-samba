@@ -87,6 +87,7 @@ sub item2props
         'SmbRecycleBinStatus' => $item->{'SmbRecycleBinStatus'} || 'disabled',
         'SmbRecycleBinVersionsStatus' => $item->{'SmbRecycleBinVersionsStatus'} || 'disabled',
         'SmbShareBrowseable' => $item->{'SmbShareBrowseable'} || 'disabled',
+        'status' => $item->{'status'} || 'enabled',
     );
 
     if($isAd) {

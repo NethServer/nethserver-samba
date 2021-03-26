@@ -28,9 +28,13 @@
             <span class="fa fa-send-o"></span>
             {{ $t('sharedfolders.item_migrate_button')}}
         </button>
-        <button v-else class="btn btn-default" v-on:click="$emit('item-edit', item)">
+        <button v-if="item.migrateVhost === null && item.status === 'enabled'" class="btn btn-default" v-on:click="$emit('item-edit', item)">
           <span class="fa fa-pencil"></span>
           {{ $t('sharedfolders.item_edit_button')}}
+        </button>
+        <button v-if="item.migrateVhost === null && item.status === 'disabled'" class="btn btn-primary" v-on:click="toggleLock(item)">
+          <span class="fa fa-check"></span>
+          {{ $t('sharedfolders.item_enable_button')}}
         </button>
         <div class="dropup pull-right dropdown-kebab-pf">
           <button
@@ -62,6 +66,15 @@
                 {{ $t('sharedfolders.item_reset_permissions_button') }}
               </a>
             </li>
+            <li v-if="item.status === 'enabled'">
+              <a @click="toggleLock(item)">
+                <span
+                  :class="[item.status === 'disabled' ? 'fa fa-check' : 'fa fa-lock','span-right-margin']"
+                ></span>
+                {{ item.status === 'disabled' ? $t('sharedfolders.item_enable_button') : $t('sharedfolders.item_disable_button') }}
+              </a>
+            </li>
+            <li role="separator" class="divider"></li>
             <li>
               <a href="#" v-on:click="$emit('item-delete', item)">
                 <span class="fa fa-times span-right-margin"></span>
@@ -74,24 +87,40 @@
 
       <div class="list-view-pf-main-info small-list">
         <div class="list-view-pf-left">
-          <span class="fa list-view-pf-icon-sm fa-folder-open"></span>
+          <span :class="[item.status === 'disabled' ? 'gray':'','fa list-view-pf-icon-sm fa-folder-open']"></span>
         </div>
         <div class="list-view-pf-body">
           <div class="list-view-pf-description">
-            <div class="list-group-item-heading">{{ item.name }}</div>
-            <div class="list-group-item-text">{{ item.Description }}</div>
+            <span
+              :class="[item.status === 'disabled' ? 'pficon pficon-locked gray':'','span-right-margin']"
+            ></span>
+            <div class="list-group-item-heading">
+               <span :class="[item.status === 'disabled' ? 'gray':'']">
+                 {{ item.name }}
+               </span>
+             </div>
+            <div class="list-group-item-text">
+              <span :class="[item.status === 'disabled' ? 'gray':'']">
+                {{ item.Description }}
+              </span>
+            </div>
           </div>
           <div class="list-view-pf-additional-info rules-info">
               <div class="list-view-pf-additional-info-item">
-                <strong>{{ $t('sharedfolders.list_view_audit_label') }}</strong>
-                <span v-bind:class="[item.SmbAuditStatus == 'enabled' ? 'fa fa-check green' : 'fa fa-times gray']"></span>
+                <strong>
+                  <span :class="[item.status === 'disabled' ? 'gray':'']">
+                   {{ $t('sharedfolders.list_view_audit_label') }}
+                  </span>
+                </strong>
+                <span v-if="item.status === 'enabled'" v-bind:class="[item.SmbAuditStatus == 'enabled' ? 'fa fa-check green' : 'fa fa-times gray']"></span>
+                <span v-if="item.status === 'disabled'" v-bind:class="[item.SmbAuditStatus == 'enabled' ? 'fa fa-check gray' : 'fa fa-times gray']"></span>
               </div>
-              <div class="list-view-pf-additional-info-item">
+              <div :class="[item.status === 'disabled' ? 'gray':'','list-view-pf-additional-info-item']">
                 <strong v-if="item['files'] >= 0">{{ item['files'] }}</strong>
                 <strong v-else>-</strong>
                 {{$t('sharedfolders.list_view_files_label')}}
               </div>
-              <div class="list-view-pf-additional-info-item">
+              <div :class="[item.status === 'disabled' ? 'gray':'','list-view-pf-additional-info-item']">
                 <strong v-if="item['size'] >= 0">{{ item['size'] | byteFormat }}</strong>
                 <strong v-else>-</strong>
               </div>
@@ -114,6 +143,41 @@ export default {
     return {};
   },
   methods: {
+    toggleLock(item) {
+      // close popover
+      $('.popover').remove();
+
+      var context = this;
+      nethserver.notifications.success = context.$t(
+        "sharedfolders.ibay_" +
+          (item.status == "enabled" ? "disabled" : "enabled") +
+          "_ok"
+      );
+      nethserver.notifications.error = context.$t(
+        "sharedfolders.ibay_" +
+          (item.status == "enabled" ? "disabled" : "enabled") +
+          "_Failed"
+      );
+      nethserver.exec(
+        ["nethserver-samba/sharedfolders/update"],
+        {
+          action: "toggle-lock",
+          item: { name: item.name }
+        },
+        function(stream) {
+          console.info("vhost-toggle-lock", stream);
+        },
+        function(success) {
+          //update the value of button
+          item.status === "disabled"
+            ? (item.status = "enabled")
+            : (item.status = "disabled");
+        },
+        function(error, data) {
+          console.error(error, data);
+        }
+      );
+    },
   }
 };
 </script>

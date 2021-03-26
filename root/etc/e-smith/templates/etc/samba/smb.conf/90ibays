@@ -17,6 +17,9 @@
     my $ibaysOutput = '';
     foreach my $ibay ($adb->ibays) {
 
+	my $status = $ibay->prop('status') || 'enabled';
+	next if ($status ne 'enabled');
+
 	# Select the template to apply to ibay:
 	my $ibayProfile = $ibay->prop('SmbProfileType') || 'default';
 	my $templatePath = 'etc/samba/smb.conf/ibay-' . $ibayProfile;
