@@ -122,10 +122,10 @@
     "update_at": "File sizes updated at",
     "item_disable_button": "Disable",
     "item_enable_button": "Enable",
-    "ibay_enabled_ok": "The shared folder has been enabled correctly",
-    "ibay_disabled_ok": "The shared folder has been disabled correctly",
-    "ibay_enabled_Failed": "The shared folder has not been enabled correctly",
-    "ibay_disabled_Failed": "The shared folder has not been disabled correctly",
+    "ibay_enabled_ok": "The shared folder has been enabled",
+    "ibay_disabled_ok": "The shared folder has been disabled",
+    "ibay_enabled_Failed": "Shared folder enabling has failed",
+    "ibay_disabled_Failed": "Shared folder disabling has failed",
     "not_available": "Not available"
   },
   "audit": {
