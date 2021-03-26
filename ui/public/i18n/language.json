@@ -120,6 +120,12 @@
     "no_acls_support_title": "Access to shared folders is possible only as guest.",
     "no_acls_support_message": "To enable Samba authentication and special access options configure an Active Directory accounts provider.",
     "update_at": "File sizes updated at",
+    "item_disable_button": "Disable",
+    "item_enable_button": "Enable",
+    "ibay_enabled_ok": "The shared folder has been enabled correctly",
+    "ibay_disabled_ok": "The shared folder has been disabled correctly",
+    "ibay_enabled_Failed": "The shared folder has not been enabled correctly",
+    "ibay_disabled_Failed": "The shared folder has not been disabled correctly",
     "not_available": "Not available"
   },
   "audit": {

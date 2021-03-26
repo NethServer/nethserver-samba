@@ -176,6 +176,7 @@ export default {
         acls: { EVERYONE: this.accountsProvider == "ad" ? "" : "rw" },
         name: "",
         guestAccess: "disabled",
+        status: "enabled",
         SmbAuditStatus: "disabled"
       };
     },

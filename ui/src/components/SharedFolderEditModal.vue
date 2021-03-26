@@ -400,6 +400,7 @@ export default {
                 SmbAuditStatus: "disabled",
                 SmbShareBrowseable: "enabled",
                 guestAccess: "disabled",
+                status: "enabled",
                 name: "",
                 OwningGroup: "",
                 acls: {EVERYONE:""},
