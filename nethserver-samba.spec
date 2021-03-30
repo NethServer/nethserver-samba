@@ -1,6 +1,6 @@
 Summary: Nethserver Samba file server
 Name: nethserver-samba
-Version: 4.5.6
+Version: 4.6.0
 Release: 1%{?dist}
 License: GPL
 Source: %{name}-%{version}.tar.gz
@@ -61,6 +61,9 @@ mkdir -p %{buildroot}/%{_nsstatedir}/ibay
 %attr(0440,root,root) /etc/sudoers.d/50_nsapi_nethserver_samba
 
 %changelog
+* Tue Mar 30 2021 Giacomo Sanchietti <giacomo.sanchietti@nethesis.it> - 4.6.0-1
+- Sharefolders: Disable shares - NethServer/dev#6468
+
 * Fri Jan 29 2021 Davide Principi <davide.principi@nethesis.it> - 4.5.6-1
 - Posix default ACL ignored by Reset - Bug NethServer/dev#6406
 
